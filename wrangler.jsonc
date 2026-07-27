@@ -13,11 +13,13 @@
 		"binding": "ASSETS",
 		"not_found_handling": "404-page",
 		// Solo queste rotte invocano il Worker prima degli asset statici:
-		// API, gate di autenticazione del gestionale e immagini caricate.
+		// API, gate di autenticazione del gestionale (pagine + admin.js)
+		// e immagini caricate.
 		"run_worker_first": [
 			"/api/*",
 			"/admin*",
 			"/login*",
+			"/assets/js/admin.js",
 			"/uploads/*"
 		]
 	},

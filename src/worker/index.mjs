@@ -117,15 +117,16 @@ async function handleGate(request, env, url) {
     if (session) {
       return new Response(null, { status: 302, headers: { Location: "/admin.html" } });
     }
-    // /login e /login/ servono la pagina di accesso dagli static assets.
-    if (pathname !== "/login.html") {
-      return env.ASSETS.fetch(new Request(new URL("/login.html", url), request));
-    }
+    // Con html_handling automatico gli assets rispondono 200 solo sul path
+    // canonico senza estensione: chiedere /login.html produrrebbe un 307
+    // verso /login e quindi un loop di redirect attraverso il gate.
+    return env.ASSETS.fetch(new Request(new URL("/login", url), request));
   }
 
-  // /admin e /admin/ servono admin.html dagli static assets.
-  if (isAdminPage && pathname !== "/admin.html") {
-    return env.ASSETS.fetch(new Request(new URL("/admin.html", url), request));
+  // Stessa logica per il gestionale: /admin, /admin/ e /admin.html (con
+  // pathname === "/admin.html" incluso) servono l'asset dal path canonico.
+  if (isAdminPage) {
+    return env.ASSETS.fetch(new Request(new URL("/admin", url), request));
   }
 
   return env.ASSETS.fetch(request);

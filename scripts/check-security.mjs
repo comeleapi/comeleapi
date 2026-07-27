@@ -63,7 +63,7 @@ const nodeVersion = (await readFile(path.join(ROOT, ".node-version"), "utf8")).t
 assert(/"name":\s*"comeleapi"/.test(wrangler), "Wrangler: il nome del Worker deve essere comeleapi (deve coincidere su Workers Builds)");
 assert(/"main":\s*"src\/worker\/index\.mjs"/.test(wrangler), "Wrangler: entrypoint del Worker mancante");
 assert(/"not_found_handling":\s*"404-page"/.test(wrangler), "Wrangler: not_found_handling deve servire la 404-page");
-for (const route of ["/api/*", "/admin*", "/login*", "/uploads/*"]) {
+for (const route of ["/api/*", "/admin*", "/login*", "/assets/js/admin.js", "/uploads/*"]) {
   assert(wrangler.includes(`"${route}"`), `Wrangler: run_worker_first deve includere ${route}`);
 }
 assert(/"binding":\s*"DB"/.test(wrangler) && /"database_name":\s*"comeleapi-db"/.test(wrangler), "Wrangler: binding D1 DB mancante");

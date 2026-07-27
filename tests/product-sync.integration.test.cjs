@@ -54,9 +54,12 @@ async function freePort() {
 function ensureAssetsDir() {
   const distDir = path.join(ROOT, "dist");
   if (fs.existsSync(distDir)) return null;
-  fs.mkdirSync(distDir, { recursive: true });
+  fs.mkdirSync(path.join(distDir, "assets", "js"), { recursive: true });
   fs.writeFileSync(path.join(distDir, "index.html"), "<!doctype html><title>comeleapi</title>");
   fs.writeFileSync(path.join(distDir, "404.html"), "<!doctype html><title>404</title>");
+  fs.writeFileSync(path.join(distDir, "login.html"), "<!doctype html><title>login</title>");
+  fs.writeFileSync(path.join(distDir, "admin.html"), "<!doctype html><title>admin</title>");
+  fs.writeFileSync(path.join(distDir, "assets", "js", "admin.js"), "// placeholder admin.js");
   return distDir;
 }
 
@@ -268,4 +271,32 @@ test("il Worker su D1 serve il catalogo del gestionale e riflette le modifiche s
   assert.equal(savedLead.email, "mario.rossi@example.com");
   assert.equal(savedLead.status, "new");
   assert.ok(leadsPayload.stats.total >= 1, "le statistiche contano la nuova richiesta");
+
+  // 8) Gate del gestionale: le pagine /login e /admin non devono mai produrre
+  //    loop di redirect (html_handling auto reindirizza *.html al path canonico)
+  //    e admin.js resta protetto anche come static asset.
+  const loginPage = await fetch(`${base}/login`, { redirect: "manual" });
+  assert.equal(loginPage.status, 200, "/login serve la pagina di accesso senza redirect");
+  const loginHtmlPage = await fetch(`${base}/login.html`, { redirect: "manual" });
+  assert.equal(loginHtmlPage.status, 200, "/login.html non entra in loop di redirect");
+
+  const adminNoSession = await fetch(`${base}/admin`, { redirect: "manual" });
+  assert.equal(adminNoSession.status, 302, "senza sessione /admin reindirizza al login");
+  assert.ok(
+    adminNoSession.headers.get("location").startsWith("/login.html"),
+    "il redirect di /admin punta alla pagina di login"
+  );
+  const adminWithSession = await fetch(`${base}/admin`, {
+    redirect: "manual",
+    headers: { "Cookie": cookie }
+  });
+  assert.equal(adminWithSession.status, 200, "con sessione /admin serve il gestionale");
+
+  const adminJsNoSession = await fetch(`${base}/assets/js/admin.js`, { redirect: "manual" });
+  assert.equal(adminJsNoSession.status, 401, "admin.js è negato senza sessione");
+  const adminJsWithSession = await fetch(`${base}/assets/js/admin.js`, {
+    redirect: "manual",
+    headers: { "Cookie": cookie }
+  });
+  assert.equal(adminJsWithSession.status, 200, "admin.js è servito con sessione valida");
 });
