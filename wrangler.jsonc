@@ -25,14 +25,8 @@
 		{
 			"binding": "DB",
 			"database_name": "comeleapi-db",
-			// Sostituire con l'id restituito da `wrangler d1 create comeleapi-db`.
+			// Id restituito da `wrangler d1 create comeleapi-db` (account cliente).
 			"database_id": "313f23ff-3849-4c4b-8ca2-7c11854b263b"
-		},
-		{
-			"binding": "comeleapi_db",
-			"database_name": "comeleapi-db",
-			"database_id": "313f23ff-3849-4c4b-8ca2-7c11854b263b",
-			"remote": true
 		}
 	],
 	"observability": {
