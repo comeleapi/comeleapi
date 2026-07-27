@@ -3,7 +3,7 @@
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://comeleapi.it/</loc>
-    <lastmod>2026-07-27T17:49:15+02:00</lastmod>
+    <lastmod>2026-07-28T00:22:30+02:00</lastmod>
     <image:image>
       <image:loc>https://comeleapi.it/assets/img/hero/hero-massaggio-professionale-comeleapi.webp</image:loc>
       <image:title>Trattamento professionale comeleapi</image:title>
@@ -77,11 +77,146 @@
   </url>
   <url>
     <loc>https://comeleapi.it/links/</loc>
-    <lastmod>2026-07-27T17:49:15+02:00</lastmod>
+    <lastmod>2026-07-28T00:09:14+02:00</lastmod>
     <image:image>
       <image:loc>https://comeleapi.it/assets/img/logo-comeleapi-1024.png</image:loc>
       <image:title>comeleapi — Link utili</image:title>
       <image:caption>Hub di link utili del progetto comeleapi curato da Sara</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://comeleapi.it/zone/</loc>
+    <lastmod>2026-07-28T00:31:32+02:00</lastmod>
+    <image:image>
+      <image:loc>https://comeleapi.it/assets/img/hero/hero-massaggio-professionale-comeleapi.webp</image:loc>
+      <image:title>Massaggi a domicilio nelle zone servite da comeleapi</image:title>
+      <image:caption>Trattamenti a domicilio a Bresso, Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e Milano Nord</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://comeleapi.it/zone/bresso/</loc>
+    <lastmod>2026-07-28T00:31:32+02:00</lastmod>
+    <image:image>
+      <image:loc>https://comeleapi.it/assets/img/hero/hero-massaggio-professionale-comeleapi.webp</image:loc>
+      <image:title>Massaggi a domicilio a Bresso — comeleapi</image:title>
+      <image:caption>Massaggi a domicilio a Bresso, base operativa di comeleapi, dal centro al Parco Nord</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://comeleapi.it/zone/cusano-milanino/</loc>
+    <lastmod>2026-07-28T00:31:32+02:00</lastmod>
+    <image:image>
+      <image:loc>https://comeleapi.it/assets/img/hero/hero-massaggio-professionale-comeleapi.webp</image:loc>
+      <image:title>Massaggi a domicilio a Cusano Milanino — comeleapi</image:title>
+      <image:caption>Massaggio relax e trattamenti a domicilio a Cusano Milanino, la città giardino</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://comeleapi.it/zone/cormano/</loc>
+    <lastmod>2026-07-28T00:31:32+02:00</lastmod>
+    <image:image>
+      <image:loc>https://comeleapi.it/assets/img/hero/hero-massaggio-professionale-comeleapi.webp</image:loc>
+      <image:title>Massaggi a domicilio a Cormano — comeleapi</image:title>
+      <image:caption>Massaggi a domicilio a Cormano, Brusuglio e Ospitaletto con Sara Bordenga</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://comeleapi.it/zone/cinisello-balsamo/</loc>
+    <lastmod>2026-07-28T00:31:32+02:00</lastmod>
+    <image:image>
+      <image:loc>https://comeleapi.it/assets/img/hero/hero-massaggio-professionale-comeleapi.webp</image:loc>
+      <image:title>Massaggi a domicilio a Cinisello Balsamo — comeleapi</image:title>
+      <image:caption>Massaggio sportivo e trattamenti a domicilio in tutti i quartieri di Cinisello Balsamo</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://comeleapi.it/zone/sesto-san-giovanni/</loc>
+    <lastmod>2026-07-28T00:31:32+02:00</lastmod>
+    <image:image>
+      <image:loc>https://comeleapi.it/assets/img/hero/hero-massaggio-professionale-comeleapi.webp</image:loc>
+      <image:title>Massaggi a domicilio a Sesto San Giovanni — comeleapi</image:title>
+      <image:caption>Massaggi a domicilio a Sesto San Giovanni, dal Rondò a Cascina Gatti</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://comeleapi.it/zone/milano/</loc>
+    <lastmod>2026-07-28T00:31:32+02:00</lastmod>
+    <image:image>
+      <image:loc>https://comeleapi.it/assets/img/hero/hero-massaggio-professionale-comeleapi.webp</image:loc>
+      <image:title>Massaggi a domicilio a Milano — comeleapi</image:title>
+      <image:caption>Massaggi a domicilio a Milano Nord: Niguarda, Bicocca, Affori e Bruzzano</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://comeleapi.it/servizi/</loc>
+    <lastmod>2026-07-28T00:31:32+02:00</lastmod>
+    <image:image>
+      <image:loc>https://comeleapi.it/assets/img/hero/hero-massaggio-professionale-comeleapi.webp</image:loc>
+      <image:title>Trattamenti a domicilio comeleapi</image:title>
+      <image:caption>Massaggio sportivo, decontratturante, relax, drenante, trattamento mirato, kinesio taping e oli essenziali</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://comeleapi.it/servizi/massaggio-sportivo/</loc>
+    <lastmod>2026-07-28T00:31:32+02:00</lastmod>
+    <image:image>
+      <image:loc>https://comeleapi.it/assets/img/icons/icon-sportivo-arm.webp</image:loc>
+      <image:title>Massaggio sportivo a domicilio — comeleapi</image:title>
+      <image:caption>Servizio di massaggio sportivo della durata dichiarata di 50 minuti, svolto a domicilio da Sara Bordenga.</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://comeleapi.it/servizi/massaggio-decontratturante/</loc>
+    <lastmod>2026-07-28T00:31:32+02:00</lastmod>
+    <image:image>
+      <image:loc>https://comeleapi.it/assets/img/icons/icon-decontratturante.webp</image:loc>
+      <image:title>Massaggio decontratturante a domicilio — comeleapi</image:title>
+      <image:caption>Servizio di massaggio decontratturante della durata dichiarata di 50 minuti, svolto a domicilio da Sara Bordenga.</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://comeleapi.it/servizi/massaggio-relax/</loc>
+    <lastmod>2026-07-28T00:31:32+02:00</lastmod>
+    <image:image>
+      <image:loc>https://comeleapi.it/assets/img/icons/icon-relax.webp</image:loc>
+      <image:title>Massaggio relax a domicilio — comeleapi</image:title>
+      <image:caption>Servizio di massaggio relax della durata dichiarata di 50 minuti, svolto a domicilio da Sara Bordenga.</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://comeleapi.it/servizi/massaggio-drenante/</loc>
+    <lastmod>2026-07-28T00:31:32+02:00</lastmod>
+    <image:image>
+      <image:loc>https://comeleapi.it/assets/img/icons/icon-linfodrenante-up.webp</image:loc>
+      <image:title>Massaggio drenante a domicilio — comeleapi</image:title>
+      <image:caption>Servizio di massaggio drenante della durata dichiarata di 50 minuti, svolto a domicilio da Sara Bordenga.</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://comeleapi.it/servizi/trattamento-mirato-30-minuti/</loc>
+    <lastmod>2026-07-28T00:31:32+02:00</lastmod>
+    <image:image>
+      <image:loc>https://comeleapi.it/assets/img/icons/icon-mirato-30.webp</image:loc>
+      <image:title>Trattamento Mirato 30 minuti a domicilio — comeleapi</image:title>
+      <image:caption>Trattamento mirato della durata dichiarata di 30 minuti, svolto a domicilio da Sara Bordenga.</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://comeleapi.it/servizi/kinesio-taping/</loc>
+    <lastmod>2026-07-28T00:31:32+02:00</lastmod>
+    <image:image>
+      <image:loc>https://comeleapi.it/assets/img/icons/icon-kinesio-taping.webp</image:loc>
+      <image:title>Kinesio taping a domicilio — comeleapi</image:title>
+      <image:caption>Servizio di applicazione di kinesio taping svolto a domicilio da Sara Bordenga.</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://comeleapi.it/servizi/massaggio-oli-essenziali/</loc>
+    <lastmod>2026-07-28T00:31:32+02:00</lastmod>
+    <image:image>
+      <image:loc>https://comeleapi.it/assets/img/icons/icon-oli-terapeutici.webp</image:loc>
+      <image:title>Massaggio con oli essenziali a domicilio — comeleapi</image:title>
+      <image:caption>Servizio di massaggio con oli essenziali svolto a domicilio da Sara Bordenga.</image:caption>
     </image:image>
   </url>
   <url>

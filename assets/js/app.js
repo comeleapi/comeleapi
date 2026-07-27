@@ -49,7 +49,7 @@
   const isEnglish = currentLocale === "en";
   const instagramUrl = "https://www.instagram.com/comeleapi/";
   const contactEmail = "sara.bordenga@gmail.com";
-  const contactPhoneDisplay = "388 163 9306";
+  const contactPhoneDisplay = "+39 388 163 9306";
   const contactPhoneE164 = "393881639306";
   const productDisplayOverrides = {
     "p-collezione-essenziale": {
@@ -172,6 +172,7 @@
     setAttr("#closePolicy", "aria-label", "Close");
     setText('.nav a[href="#prodotti"]', "Essential oils");
     setText('.nav a[href="#servizi"]', "Treatments");
+    setText('.nav a[href="/zone/"]', "Areas");
     setText('.nav a[href="#chi-sono"]', "The founder");
     setButtonText(".nav-cta", "Message me on WhatsApp");
     setAttr(".nav-cta", "href", whatsAppUrl("Hi Sara, I would like to book a consultation."));
@@ -263,9 +264,13 @@
     if (footerCols[2]) setText("h5", "Legal", footerCols[2]);
     setText('.footer-col a[href="#prodotti"]', "Essential oils");
     setText('.footer-col a[href="#servizi"]', "Treatments");
+    setText('.footer-col a[href="/zone/"]', "Areas");
+    setText('.footer-col a[href="/servizi/"]', "All treatments");
     setText('.footer-col a[href="#chi-sono"]', "The founder");
-    setText("#openCookie", "Cookie policy");
-    setText("#openPrivacy", "Privacy policy");
+    setText('.footer-col a[href="/cookie-policy/"]', "Cookie policy");
+    setText('.footer-col a[href="/privacy/"]', "Privacy policy");
+    setText('.footer-col a[href="/termini/"]', "Site terms");
+    setText("#openCookie", "Cookie preferences");
     setHtml(".footer-bottom > span", '© <span id="year"></span> comeleapi. All rights reserved.');
     setText(".btn-webnovis", "Crafted with care by WebNovis");
     setAllAttr('.social-link--instagram', "href", instagramUrl);

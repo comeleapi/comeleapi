@@ -12,6 +12,7 @@
 import { readFile, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { SUBPAGE_SITEMAP_ENTRIES } from "./site-pages.mjs";
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 export const SITE_ORIGIN = "https://comeleapi.it";
@@ -27,6 +28,9 @@ export const SITEMAP_PAGES = [
     sourceFiles: ["links/index.html"],
     kind: "links"
   },
+  // Sottopagine zone/servizi generate da scripts/site-pages.mjs (le pagine
+  // legali restano volutamente fuori: navigabili ma noindex).
+  ...SUBPAGE_SITEMAP_ENTRIES.map(({ loc, sourceFiles, kind }) => ({ loc, sourceFiles, kind })),
   {
     loc: `${SITE_ORIGIN}/assets/pdf/mini-guida-oli-comeleapi.pdf`,
     sourceFiles: ["assets/pdf/mini-guida-oli-comeleapi.pdf"],
@@ -124,9 +128,21 @@ export async function collectSitemapImages(root) {
     }
   ];
 
+  const subpageImages = Object.fromEntries(
+    SUBPAGE_SITEMAP_ENTRIES.map((entry) => [
+      entry.loc,
+      entry.images.map((image) => ({
+        loc: absoluteAssetUrl(image.path),
+        title: image.title,
+        caption: image.caption
+      }))
+    ])
+  );
+
   return {
     [`${SITE_ORIGIN}/`]: homeImages,
-    [`${SITE_ORIGIN}/links/`]: linksImages
+    [`${SITE_ORIGIN}/links/`]: linksImages,
+    ...subpageImages
   };
 }
 

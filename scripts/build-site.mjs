@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
 import {
   access,
   copyFile,
@@ -24,6 +25,11 @@ import {
   injectFaqHtml
 } from "./html-inject.mjs";
 import { buildSitemapXml, SITEMAP_PAGES } from "./generate-sitemap.mjs";
+import {
+  renderSitePages,
+  GENERATED_PAGE_DIRS,
+  LEGAL_PAGE_ROUTES
+} from "./site-pages.mjs";
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(SCRIPT_DIR, "..");
@@ -44,6 +50,7 @@ const PUBLIC_FILES = [
   "assets/js/data.js",
   "assets/js/app.js",
   "assets/js/links.js",
+  "assets/js/pages.js",
   "assets/pdf/mini-guida-oli-comeleapi.pdf",
   "assets/img/logo-comeleapi.png",
   "assets/img/logo-comeleapi-256.png",
@@ -373,16 +380,30 @@ function buildHeadersFile() {
 
 /links/*
   Cache-Control: public, max-age=0, must-revalidate
-`;
+
+/zone/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+/servizi/*
+  Cache-Control: public, max-age=0, must-revalidate
+${LEGAL_PAGE_ROUTES.map((legal) => `
+/${legal.slug}/*
+  X-Robots-Tag: noindex
+  Cache-Control: public, max-age=0, must-revalidate
+`).join("")}`;
 }
 
 // Redirect canonici (formato `_redirects` di Cloudflare). Il gate /admin e
 // /login è gestito dal Worker; i file interni non vengono pubblicati e cadono
 // naturalmente sulla 404-page.
 function buildRedirectsFile() {
+  const generatedRedirects = GENERATED_PAGE_DIRS
+    .map((dir) => `/${dir}/index.html /${dir}/ 301`)
+    .join("\n");
   return `# Generato da scripts/build-site.mjs — non modificare a mano.
 /index.html / 301
 /links/index.html /links/ 301
+${generatedRedirects}
 `;
 }
 
@@ -473,6 +494,7 @@ await minifyJavaScript("assets/js/trusted-types.js");
 await minifyJavaScript("assets/js/analytics.js");
 await minifyJavaScript("assets/js/app.js");
 await minifyJavaScript("assets/js/links.js", path.join(ROOT, "links"));
+await minifyJavaScript("assets/js/pages.js");
 
 // JavaScript del gestionale e service worker.
 for (const relativePath of ADMIN_JS_FILES) await minifyJavaScript(relativePath);
@@ -498,6 +520,29 @@ await transformLinksPage(linksStructuredData);
 
 // Pagine del gestionale: versionamento dei riferimenti dopo aver scritto css/js.
 for (const relativePath of ADMIN_HTML_PAGES) await transformAdminPage(relativePath);
+
+// Sottopagine statiche (zone, servizi, informative): generate a valle di css/js
+// già minificati in dist, così le URL root-relative portano l'hash definitivo.
+const versionedAssetCache = new Map();
+function versionedAsset(relativePath) {
+  if (!versionedAssetCache.has(relativePath)) {
+    const filePath = path.join(OUT, relativePath);
+    let content;
+    try {
+      content = readFileSync(filePath);
+    } catch {
+      throw new Error(`Asset mancante in dist per le sottopagine: ${relativePath}`);
+    }
+    versionedAssetCache.set(relativePath, `/${relativePath}?v=${shortHash(content)}`);
+  }
+  return versionedAssetCache.get(relativePath);
+}
+const sitePages = renderSitePages(versionedAsset);
+for (const page of sitePages) {
+  const destination = path.join(OUT, page.route);
+  await mkdir(path.dirname(destination), { recursive: true });
+  await writeFile(destination, page.html);
+}
 
 // File di configurazione degli static assets Cloudflare + pagina 404.
 await writeFile(path.join(OUT, "_headers"), buildHeadersFile());
@@ -533,5 +578,5 @@ for (const forbidden of FORBIDDEN_OUTPUTS) {
 const totalBytes = await directorySize(OUT);
 console.log(
   `Build Cloudflare completata: ${(totalBytes / 1024 / 1024).toFixed(2)} MiB in dist/ ` +
-    `(sitemap: ${SITEMAP_PAGES.length} URL canoniche)`
+    `(sitemap: ${SITEMAP_PAGES.length} URL canoniche, ${sitePages.length} sottopagine generate)`
 );

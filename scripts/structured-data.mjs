@@ -8,7 +8,8 @@ const PRODUCTS_ID = `${SITE_URL}#products`;
 const YOUNG_LIVING_BRAND_ID = `${SITE_URL}#young-living-brand`;
 const PDF_URL = `${SITE_URL}assets/pdf/mini-guida-oli-comeleapi.pdf`;
 
-const AREA_DEFINITIONS = [
+// Esportate: usate anche dal generatore delle pagine zona/servizio (site-pages.mjs).
+export const AREA_DEFINITIONS = [
   ["bresso", "Bresso"],
   ["cusano-milanino", "Cusano Milanino"],
   ["cormano", "Cormano"],
@@ -17,7 +18,7 @@ const AREA_DEFINITIONS = [
   ["milano", "Milano"]
 ];
 
-const SERVICE_DEFINITIONS = [
+export const SERVICE_DEFINITIONS = [
   {
     slug: "massaggio-sportivo",
     name: "Massaggio sportivo",
@@ -92,7 +93,7 @@ export const FAQ_DEFINITIONS = [
   },
   {
     q: "Come posso prenotare un trattamento?",
-    a: "Il modo più rapido è scrivere su WhatsApp al 388 163 9306 oppure via email a sara.bordenga@gmail.com. Ti rispondo per fissare insieme l'appuntamento."
+    a: "Il modo più rapido è scrivere su WhatsApp al +39 388 163 9306 oppure via email a sara.bordenga@gmail.com. Ti rispondo per fissare insieme l'appuntamento."
   },
   {
     q: "Che cosa sono gli oli essenziali Young Living che proponi?",

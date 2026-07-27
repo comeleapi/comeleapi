@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { SITEMAP_PAGES, SITE_ORIGIN } from "./generate-sitemap.mjs";
+import { SEO_CHECK_PAGES, LEGAL_PAGE_ROUTES } from "./site-pages.mjs";
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(SCRIPT_DIR, "..");
@@ -19,7 +20,9 @@ const pages = [
     canonical: `${SITE_ORIGIN}/links/`,
     schemaType: "WebPage",
     schemaId: `${SITE_ORIGIN}/links/#webpage`
-  }
+  },
+  // Sottopagine zone/servizi generate a build-time (stessi vincoli SEO).
+  ...SEO_CHECK_PAGES
 ];
 
 const htmlCanonicals = pages.map((page) => page.canonical);
@@ -62,6 +65,25 @@ for (const page of pages) {
   assert(pageNode.url === page.canonical, `${page.file}: URL JSON-LD non canonico`);
 
   assert(!html.includes("../index.html"), `${page.file}: link interno non canonico ../index.html`);
+  assert(
+    !/<meta\s+name=["']robots["'][^>]*noindex/i.test(html),
+    `${page.file}: pagina indicizzabile marcata noindex`
+  );
+}
+
+// Pagine legali: navigabili ma senza valore strategico di posizionamento
+// (noindex, canonical presente, fuori dalla sitemap).
+for (const legal of LEGAL_PAGE_ROUTES) {
+  const html = await readFile(path.join(DIST, legal.route), "utf8");
+  assert(
+    /<meta\s+name=["']robots["']\s+content=["']noindex[^"']*["']/i.test(html),
+    `${legal.route}: meta robots noindex mancante`
+  );
+  assert(
+    countMatches(html, new RegExp(`<link\\s+rel=["']canonical["']\\s+href=["']${escapeRegExp(legal.canonical)}["']`, "gi")) === 1,
+    `${legal.route}: canonical unico mancante o errato`
+  );
+  assert(countMatches(html, /<h1(?:\s|>)/gi) === 1, `${legal.route}: deve contenere un solo H1`);
 }
 
 const home = await readFile(path.join(DIST, "index.html"), "utf8");
@@ -102,6 +124,10 @@ assert(
 assert(
   htmlCanonicals.every((url) => pageLocs.includes(url)),
   "sitemap.xml: pagine HTML canoniche assenti"
+);
+assert(
+  LEGAL_PAGE_ROUTES.every((legal) => !pageLocs.includes(legal.canonical)),
+  "sitemap.xml: le pagine legali non devono comparire in sitemap"
 );
 assert(
   pageLocs.includes(`${SITE_ORIGIN}/assets/pdf/mini-guida-oli-comeleapi.pdf`),
