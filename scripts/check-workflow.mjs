@@ -1,43 +1,53 @@
-import { spawnSync } from "node:child_process";
-import { readFile } from "node:fs/promises";
+import { access, readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(SCRIPT_DIR, "..");
-const workflowPath = path.join(ROOT, ".github/workflows/keep-alive.yml");
-const workflow = await readFile(workflowPath, "utf8");
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
 }
 
-assert(workflow.includes("https://comeleapi-backend.onrender.com/api/health"), "Workflow: endpoint health profondo mancante");
-assert(!/(?:curl[^\n]*\s-I\b|--head\b)/.test(workflow), "Workflow: non usare HEAD per il keep-alive");
-assert(!/\|\|\s*echo/.test(workflow), "Workflow: errore mascherato da || echo");
-assert(workflow.includes("permissions: {}"), "Workflow: permissions least-privilege mancanti");
-assert(workflow.includes("timeout-minutes: 5"), "Workflow: timeout job mancante");
-assert(workflow.includes("for attempt in 1 2 3 4 5 6"), "Workflow: ciclo di verifica completa mancante");
-assert(workflow.includes("--max-time 30") && workflow.includes("sleep 15"), "Workflow: budget cold-start non coerente");
-assert(workflow.includes("health_payload_ok"), "Workflow: retry del payload health mancante");
-assert(workflow.includes("payload.database !== 'reachable'"), "Workflow: verifica Supabase mancante");
-assert(workflow.includes("cron: '7,17,27,37,47,57 * * * *'"), "Workflow: schedule non scaglionato");
-assert(workflow.includes("cancel-in-progress: true"), "Workflow: i run bloccati devono cedere al ping piu recente");
+async function exists(relativePath) {
+  try {
+    await access(path.join(ROOT, relativePath));
+    return true;
+  } catch {
+    return false;
+  }
+}
 
-const yamlCheck = spawnSync(
-  "ruby",
-  ["-e", "require 'psych'; Psych.parse_file(ARGV.fetch(0))", workflowPath],
-  { encoding: "utf8" }
+// Il deploy è gestito da Cloudflare Workers Builds (connesso al repo GitHub):
+// ogni push su main esegue `npm run build` + `npx wrangler deploy`. Non esiste
+// più un workflow GitHub Actions (né il keep-alive di Render).
+const packageManifest = JSON.parse(await readFile(path.join(ROOT, "package.json"), "utf8"));
+const wranglerSource = await readFile(path.join(ROOT, "wrangler.jsonc"), "utf8");
+
+const scripts = packageManifest.scripts || {};
+assert(scripts.build?.includes("build:site"), "CI/CD: lo script build deve usare build:site");
+assert(scripts["build:site"] === "node scripts/build-site.mjs", "CI/CD: build:site deve invocare scripts/build-site.mjs");
+assert(/\bwrangler deploy\b/.test(scripts.deploy || ""), "CI/CD: lo script deploy deve invocare wrangler deploy");
+assert(scripts.deploy?.includes("npm run build"), "CI/CD: il deploy deve ricostruire dist prima di pubblicare");
+assert(/\bwrangler dev\b/.test(scripts.dev || ""), "CI/CD: script dev (wrangler dev) mancante per lo sviluppo locale");
+assert(scripts["db:schema"]?.includes("d1/schema.sql"), "CI/CD: script db:schema mancante");
+assert(scripts["db:seed"]?.includes("d1/seed.sql"), "CI/CD: script db:seed mancante");
+
+// JSONC minimale: rimuove i commenti e verifica che la configurazione sia valida
+// e coerente con il nome del Worker richiesto da Workers Builds.
+const wranglerJson = JSON.parse(
+  wranglerSource
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/(^|[^:])\/\/.*$/gm, "$1")
 );
-assert(yamlCheck.status === 0, `Workflow: YAML non valido (${yamlCheck.stderr.trim()})`);
+assert(wranglerJson.name === "comeleapi", "CI/CD: il name del Worker deve coincidere con quello configurato su Workers Builds");
+assert(wranglerJson.main === "src/worker/index.mjs", "CI/CD: main del Worker non coerente");
+assert(wranglerJson.assets?.directory === "./dist", "CI/CD: gli static assets devono puntare a ./dist (output della build)");
+assert(Array.isArray(wranglerJson.d1_databases) && wranglerJson.d1_databases[0]?.binding === "DB", "CI/CD: binding D1 mancante nella configurazione");
 
-const runMatch = workflow.match(/\n        run: \|\n([\s\S]+)$/);
-assert(runMatch, "Workflow: blocco run non trovato");
-const shell = runMatch[1]
-  .split("\n")
-  .map((line) => line.startsWith("          ") ? line.slice(10) : line)
-  .join("\n");
-const shellCheck = spawnSync("bash", ["-n"], { input: shell, encoding: "utf8" });
-assert(shellCheck.status === 0, `Workflow: shell non valida (${shellCheck.stderr.trim()})`);
+// L'infrastruttura precedente (Render keep-alive, Netlify) non deve più esistere.
+for (const legacyPath of [".github/workflows/keep-alive.yml", "render.yaml", "netlify.toml", "server.js"]) {
+  assert(!(await exists(legacyPath)), `CI/CD: file legacy ancora presente, va rimosso: ${legacyPath}`);
+}
 
-console.log("Check workflow completato: YAML e shell validi, GET health profondo e failure non mascherate.");
+console.log("Check workflow completato: deploy via Workers Builds coerente, nessun residuo Render/Netlify.");

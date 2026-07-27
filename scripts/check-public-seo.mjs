@@ -228,24 +228,26 @@ assert(
   "robots.txt: dichiarazione sitemap assoluta mancante o errata"
 );
 
-const netlifyConfig = await readFile(path.join(ROOT, "netlify.toml"), "utf8");
-const pdfCacheRuleIndex = netlifyConfig.indexOf('for = "/assets/pdf/*"');
-const genericAssetCacheRuleIndex = netlifyConfig.indexOf('for = "/assets/*"');
+// Gli header di cache/MIME sono ora nel file _headers degli static assets
+// Cloudflare, generato da build-site.mjs (eseguito prima di questo check).
+const headersConfig = await readFile(path.join(ROOT, "dist/_headers"), "utf8");
+const pdfCacheRuleIndex = headersConfig.indexOf("/assets/pdf/*");
+const genericAssetCacheRuleIndex = headersConfig.indexOf("/assets/*");
 assert(
-  /\[\[headers\]\]\s*\n\s*for\s*=\s*"\/assets\/pdf\/\*"[\s\S]*?Cache-Control\s*=\s*"public, max-age=0, must-revalidate"/.test(netlifyConfig),
-  "netlify.toml: il PDF canonico non deve avere cache browser immutabile"
+  /\/assets\/pdf\/\*\s*\n\s*Cache-Control:\s*public, max-age=0, must-revalidate/.test(headersConfig),
+  "_headers: il PDF canonico non deve avere cache browser immutabile"
 );
 assert(
   pdfCacheRuleIndex >= 0 && pdfCacheRuleIndex < genericAssetCacheRuleIndex,
-  "netlify.toml: la regola cache PDF specifica deve precedere quella generale"
+  "_headers: la regola cache PDF specifica deve precedere quella generale"
 );
 assert(
-  /for\s*=\s*"\/sitemap\.xml"[\s\S]*?Content-Type\s*=\s*"application\/xml; charset=UTF-8"/.test(netlifyConfig),
-  "netlify.toml: header Content-Type sitemap mancante"
+  /\/sitemap\.xml\s*\n[\s\S]*?Content-Type:\s*application\/xml; charset=UTF-8/.test(headersConfig),
+  "_headers: header Content-Type sitemap mancante"
 );
 assert(
-  /for\s*=\s*"\/sitemap\.xml"[\s\S]*?Cache-Control\s*=\s*"public, max-age=0, must-revalidate"/.test(netlifyConfig),
-  "netlify.toml: header Cache-Control sitemap mancante"
+  /\/sitemap\.xml\s*\n[\s\S]*?Cache-Control:\s*public, max-age=0, must-revalidate/.test(headersConfig),
+  "_headers: header Cache-Control sitemap mancante"
 );
 
 console.log(

@@ -13,7 +13,6 @@ function assert(condition, message) {
 async function listRepositoryTextFiles(directory) {
   const skippedDirectories = new Set([
     ".git",
-    ".netlify",
     ".venv-opt",
     "data",
     "dist",
@@ -27,7 +26,7 @@ async function listRepositoryTextFiles(directory) {
     if (entry.isDirectory() && skippedDirectories.has(entry.name)) continue;
     const file = path.join(directory, entry.name);
     if (entry.isDirectory()) files.push(...await listRepositoryTextFiles(file));
-    else if (/\.(?:css|html|js|json|md|mjs|sql|toml|txt|xml|ya?ml)$/i.test(entry.name)) files.push(file);
+    else if (/\.(?:css|html|js|json|jsonc|md|mjs|sql|toml|txt|xml|ya?ml)$/i.test(entry.name)) files.push(file);
   }
   return files;
 }
@@ -49,150 +48,93 @@ function containsForbiddenLocation(source) {
   return false;
 }
 
-const server = await readFile(path.join(ROOT, "server.js"), "utf8");
-const seed = await readFile(path.join(ROOT, "supabase/seed.js"), "utf8");
+const wrangler = await readFile(path.join(ROOT, "wrangler.jsonc"), "utf8");
+const index = await readFile(path.join(ROOT, "src/worker/index.mjs"), "utf8");
+const auth = await readFile(path.join(ROOT, "src/worker/auth.mjs"), "utf8");
+const lib = await readFile(path.join(ROOT, "src/worker/lib.mjs"), "utf8");
+const uploads = await readFile(path.join(ROOT, "src/worker/api/uploads.mjs"), "utf8");
+const login = await readFile(path.join(ROOT, "src/worker/api/auth.mjs"), "utf8");
+const schema = await readFile(path.join(ROOT, "d1/schema.sql"), "utf8");
+const buildSite = await readFile(path.join(ROOT, "scripts/build-site.mjs"), "utf8");
 const packageManifest = JSON.parse(await readFile(path.join(ROOT, "package.json"), "utf8"));
 const nodeVersion = (await readFile(path.join(ROOT, ".node-version"), "utf8")).trim();
-const schema = await readFile(path.join(ROOT, "supabase/schema.sql"), "utf8");
-const migration = await readFile(
-  path.join(ROOT, "supabase/migrations/20260722_harden_private_tables.sql"),
-  "utf8"
-);
-const renderConfig = await readFile(path.join(ROOT, "render.yaml"), "utf8");
-const netlifyConfig = await readFile(path.join(ROOT, "netlify.toml"), "utf8");
 
-assert(!server.includes("CANONICAL_ADMIN_PASSWORD"), "Sicurezza: password canonica ancora nel server");
-assert(!server.includes("isAcceptedAdminPassword"), "Sicurezza: bypass password plaintext ancora presente");
-assert(!server.includes('endsWith(".github.io")'), "Sicurezza: wildcard CORS github.io ancora presente");
-assert(!server.includes("Access-Control-Allow-Credentials"), "Sicurezza: CORS credentialed non necessario ancora presente");
-assert(
-  server.includes('res.setHeader("Cross-Origin-Resource-Policy", "cross-origin")'),
-  "Sicurezza: CORP non compatibile con gli endpoint pubblici cross-origin"
-);
-assert(server.includes('SameSite=${options.sameSite || "Lax"}'), "Sicurezza: cookie SameSite=Lax mancante");
-assert(server.includes("validateRuntimeConfig();"), "Sicurezza: validazione configurazione produzione mancante");
-assert(server.includes('url.pathname === "/api/health"'), "Sicurezza: health endpoint mancante");
-assert(server.includes('database: "unreachable"'), "Sicurezza: stato database health mancante");
-assert(server.includes('role: "disabled"'), "Sicurezza: disabilitazione alias admin mancante");
-assert(server.includes("Strict-Transport-Security"), "Sicurezza: HSTS backend mancante");
-assert(server.includes('\".woff\": \"font/woff\"') && server.includes('\".woff2\": \"font/woff2\"'), "Runtime: MIME font locali mancanti");
-assert(server.includes("isPathInside(UPLOAD_DIR, resolved)"), "Sicurezza: containment upload mancante");
-assert(!server.includes("resolved.startsWith(ROOT)"), "Sicurezza: controllo path vulnerabile a prefissi ancora presente");
-assert(server.includes("async function loadPushSubscriptions()"), "Sicurezza: lettura sottoscrizioni push mancante");
-assert(server.includes("async function savePushSubscriptions(subscriptions)"), "Sicurezza: pulizia sottoscrizioni push mancante");
-assert(server.includes("async function removePushSubscriptions(endpoints)"), "Sicurezza: rimozione puntuale sottoscrizioni push mancante");
-assert(server.includes("function normalizePushSubscription(value, session)"), "Sicurezza: validazione sottoscrizione push mancante");
-assert(server.includes('.upsert({\n          endpoint: incoming.endpoint'), "Push: registrazione Supabase non idempotente");
-assert(server.includes("if (upsertError) throw new Error"), "Push: errore upsert Supabase ignorato");
-assert(server.includes("if (deleteError) throw new Error"), "Push: errore delete Supabase ignorato");
-assert(server.includes("if (countError) throw new Error"), "Push: errore count Supabase ignorato");
-assert(server.includes("if (upsertError) throw new Error(\"Errore ripristino prodotti predefiniti:"), "Prodotti: errore reset upsert ignorato");
-assert(server.includes("if (readError) throw new Error(\"Errore verifica prodotti dopo il ripristino:"), "Prodotti: errore verifica reset ignorato");
-assert(server.includes("if (deleteError) throw new Error(\"Errore rimozione prodotti non predefiniti:"), "Prodotti: errore pulizia reset ignorato");
-assert(server.includes("if (existingError) throw new Error(\"Errore verifica richiesta:"), "Lead: errore lookup Supabase ignorato");
-assert(server.includes("const MAX_RATE_LIMIT_ENTRIES = 4096"), "Rate limit: cap memoria mancante");
-assert(server.includes("function sweepRateLimitMaps("), "Rate limit: sweep delle entry scadute mancante");
-assert(
-  server.includes("function loginRateKey(req) {\n  return clientIp(req);"),
-  "Rate limit: il login deve essere limitato primariamente per IP"
-);
-assert(!server.includes('`${clientIp(req)}:${'), "Rate limit: chiavi IP:username aggirabili ancora presenti");
-assert(
-  server.includes("async function loadProducts({ allowPublicFallback = false } = {})"),
-  "Prodotti: lettura admin fail-closed non distinta dal fallback pubblico"
-);
-assert(
-  server.includes("loadProducts({ allowPublicFallback: true })"),
-  "Prodotti: fallback resiliente non limitato alla vetrina pubblica"
-);
-assert(
-  !server.includes("if (!data || !data.length) return jsonClone(DEFAULT_PRODUCTS)"),
-  "Prodotti: catalogo Supabase vuoto ancora sostituito da default fantasma"
-);
-assert(
-  server.includes('throw new Error("Errore caricamento richieste: " + error.message)'),
-  "Lead: errore lettura Supabase ancora convertito in lista vuota"
-);
-assert(
-  server.includes('.delete()\n            .eq("id", id)\n            .select("id")\n            .maybeSingle()'),
-  "Prodotti: eliminazione Supabase senza verifica della riga modificata"
-);
-assert(!seed.includes('process.env.ADMIN_USER || "admin"'), "Seed: username admin predefinito ancora presente");
-assert(seed.includes("ADMIN_PASSWORD.length < 14"), "Seed: requisito password forte mancante");
-assert(seed.includes("if (prodErr) throw new Error"), "Seed: errore prodotti non fail-closed");
-assert(seed.includes("if (userErr) throw new Error"), "Seed: errore utente non fail-closed");
+// ── Configurazione Worker (wrangler.jsonc) ──────────────────────────
+assert(/"name":\s*"comeleapi"/.test(wrangler), "Wrangler: il nome del Worker deve essere comeleapi (deve coincidere su Workers Builds)");
+assert(/"main":\s*"src\/worker\/index\.mjs"/.test(wrangler), "Wrangler: entrypoint del Worker mancante");
+assert(/"not_found_handling":\s*"404-page"/.test(wrangler), "Wrangler: not_found_handling deve servire la 404-page");
+for (const route of ["/api/*", "/admin*", "/login*", "/uploads/*"]) {
+  assert(wrangler.includes(`"${route}"`), `Wrangler: run_worker_first deve includere ${route}`);
+}
+assert(/"binding":\s*"DB"/.test(wrangler) && /"database_name":\s*"comeleapi-db"/.test(wrangler), "Wrangler: binding D1 DB mancante");
+assert(/"observability":\s*\{\s*"enabled":\s*true/.test(wrangler), "Wrangler: observability non attiva");
+assert(!/SESSION_SECRET"\s*:/.test(wrangler) && !/ADMIN_PASSWORD"\s*:/.test(wrangler) && !/VAPID_PRIVATE_KEY"\s*:/.test(wrangler), "Wrangler: i segreti non devono stare in vars, solo come secret");
+
+// ── Gate del gestionale e API (index.mjs) ───────────────────────────
+assert(index.includes("async function handleGate"), "Worker: gate del gestionale mancante");
+assert(index.includes('pathname === "/admin.html"') && index.includes('Location: `/login.html'), "Worker: redirect a login per /admin senza sessione mancante");
+assert(index.includes("await getSession(env, request)"), "Worker: gate senza verifica sessione");
+assert(index.includes("if (!verifyCsrf(request, session)) return json(403"), "Worker: le rotte admin devono verificare il CSRF");
+assert(index.includes('pathname === "/api/health"'), "Worker: health endpoint mancante");
+assert(index.includes('database: "unreachable"'), "Worker: stato database health mancante");
+assert(!index.includes("Access-Control-Allow-Credentials") && !lib.includes("Access-Control-Allow-Credentials"), "Sicurezza: CORS credentialed non necessario (stessa origine)");
+assert(!index.includes("Access-Control-Allow-Origin") && !lib.includes("Access-Control-Allow-Origin"), "Sicurezza: nessun header CORS deve essere impostato (stessa origine)");
+
+// ── Header di sicurezza del Worker (lib.mjs) ────────────────────────
+assert(lib.includes('headers.set("X-Frame-Options", "DENY")'), "Sicurezza: X-Frame-Options DENY mancante nel Worker");
+assert(lib.includes('headers.set("X-Content-Type-Options", "nosniff")'), "Sicurezza: X-Content-Type-Options mancante nel Worker");
+assert(lib.includes("Strict-Transport-Security"), "Sicurezza: HSTS mancante nel Worker");
+assert(lib.includes('"connect-src \'self\'"'), "Sicurezza: connect-src deve essere 'self' (nessun backend esterno)");
+assert(lib.includes('SameSite=${options.sameSite || "Lax"}'), "Sicurezza: cookie SameSite=Lax mancante");
+assert(lib.includes('pieces.push("HttpOnly")'), "Sicurezza: cookie HttpOnly mancante");
+
+// ── Autenticazione (auth.mjs) ───────────────────────────────────────
+assert(auth.includes("const PBKDF2_ITERATIONS = 100000"), "Auth: PBKDF2 con 100.000 iterazioni mancante");
+assert(auth.includes('hash: "SHA-256"'), "Auth: PBKDF2 deve usare SHA-256");
+assert(auth.includes("timingSafeEqualBytes(expected, actual)"), "Auth: confronto password non constant-time");
+assert(auth.includes("export function verifyCsrf"), "Auth: verifica CSRF mancante");
+assert(auth.includes("timingSafeEqualStrings(token, session.csrfToken)"), "Auth: confronto CSRF non constant-time");
+assert(auth.includes("value.length < 14"), "Auth: requisito password forte (>=14) mancante");
+assert(auth.includes("LEGACY_WEAK_ADMIN_PASSWORDS"), "Auth: blocco password predefinite mancante");
+assert(auth.includes("crypto.subtle.sign(\"HMAC\", key")||auth.includes('crypto.subtle.sign("HMAC", key'), "Auth: cookie di sessione non firmato HMAC");
+assert(auth.includes("DELETE FROM sessions WHERE expires_at <"), "Auth: pulizia delle sessioni scadute mancante");
+assert(auth.includes("export async function checkLoginRate") && auth.includes("export async function checkContactRate"), "Auth: rate limiting login/contact mancante");
+assert(auth.includes("`login:${clientIp(request)}`"), "Rate limit: il login deve essere limitato per IP");
+assert(login.includes("checkLoginRate"), "Auth: la login deve applicare il rate limiting");
+
+// ── Upload immagini (uploads.mjs) ───────────────────────────────────
+assert(uploads.includes("MAX_UPLOAD_BYTES"), "Upload: limite dimensione file mancante");
+assert(lib.includes("export const MAX_UPLOAD_BYTES = 2 * 1024 * 1024"), "Upload: limite BLOB D1 (2 MB) mancante");
+
+// ── Schema D1 ───────────────────────────────────────────────────────
+for (const table of ["products", "leads", "users", "push_subscriptions", "sessions", "rate_limits", "images"]) {
+  assert(new RegExp(`CREATE TABLE (?:IF NOT EXISTS )?${table}\\b`, "i").test(schema), `Schema D1: tabella ${table} mancante`);
+}
+
+// ── CSP e header degli static assets (build-site.mjs) ───────────────
+assert(buildSite.includes("buildHeadersFile") && buildSite.includes('writeFile(path.join(OUT, "_headers")'), "Build: generazione _headers mancante");
+assert(buildSite.includes("buildRedirectsFile") && buildSite.includes('writeFile(path.join(OUT, "_redirects")'), "Build: generazione _redirects mancante");
+assert(buildSite.includes('writeFile(path.join(OUT, "404.html")'), "Build: generazione 404.html mancante");
+assert(buildSite.includes('"connect-src \'self\'"'), "Build: CSP degli static assets deve avere connect-src 'self'");
+assert(buildSite.includes("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload"), "Build: HSTS negli static assets mancante");
+assert(buildSite.includes("require-trusted-types-for 'script'"), "Build: Trusted Types nella CSP degli static assets mancante");
+
+// ── Nessun residuo dell'infrastruttura precedente ───────────────────
+for (const source of [wrangler, index, auth, lib, buildSite]) {
+  assert(!/onrender\.com/i.test(source), "Residuo: riferimento a Render (onrender.com) ancora presente");
+  assert(!/supabase/i.test(source), "Residuo: riferimento a Supabase ancora presente");
+}
+assert(!("dependencies" in packageManifest) || Object.keys(packageManifest.dependencies || {}).length === 0, "package.json: nessuna dipendenza runtime attesa (Supabase/web-push rimossi)");
+assert(packageManifest.devDependencies?.wrangler, "package.json: wrangler mancante tra le devDependencies");
+assert(!packageManifest.dependencies?.["@supabase/supabase-js"], "package.json: @supabase/supabase-js deve essere rimosso");
+assert(!packageManifest.dependencies?.["web-push"], "package.json: web-push deve essere rimosso");
+
+// ── Runtime ─────────────────────────────────────────────────────────
 assert(nodeVersion === "24.18.0", "Runtime: .node-version deve fissare Node 24.18.0");
 assert(
   packageManifest.engines?.node === ">=24.18.0 <25.0.0",
   "Runtime: engines.node deve essere coerente con Node 24 e avere un limite superiore"
 );
-assert(
-  renderConfig.includes("npm ci --omit=dev && npm run check:server && npm run check:security"),
-  "Render: build deve validare sintassi backend e gate di sicurezza"
-);
-
-const netlifyRedirectBlocks = netlifyConfig.split("[[redirects]]").slice(1);
-function hasNetlifyRedirect(from, to, status) {
-  return netlifyRedirectBlocks.some((block) =>
-    block.includes(`from = "${from}"`)
-    && block.includes(`to = "${to}"`)
-    && block.includes(`status = ${status}`)
-    && block.includes("force = true")
-  );
-}
-
-for (const adminPath of ["/admin", "/admin/", "/admin.html"]) {
-  assert(
-    hasNetlifyRedirect(adminPath, "https://comeleapi-backend.onrender.com/admin", 302),
-    `Netlify: redirect sicuro del gestionale mancante per ${adminPath}`
-  );
-}
-for (const loginPath of ["/login", "/login/", "/login.html"]) {
-  assert(
-    hasNetlifyRedirect(loginPath, "https://comeleapi-backend.onrender.com/login.html", 302),
-    `Netlify: redirect sicuro del login mancante per ${loginPath}`
-  );
-}
-
-const privateTables = ["products", "leads", "users", "push_subscriptions"];
-for (const sql of [schema, migration]) {
-  assert(!/CREATE\s+POLICY[\s\S]*?USING\s*\(\s*true\s*\)/i.test(sql), "Supabase: policy RLS permissiva ancora presente");
-  assert(
-    /to_regprocedure\s*\(\s*'public\.rls_auto_enable\(\)'\s*\)/i.test(sql),
-    "Supabase: controllo idempotente della funzione RLS mancante"
-  );
-  assert(
-    /REVOKE\s+EXECUTE\s+ON\s+FUNCTION\s+public\.rls_auto_enable\(\)\s+FROM\s+PUBLIC,\s*anon,\s*authenticated,\s*service_role/i.test(sql),
-    "Supabase: revoca EXECUTE della funzione SECURITY DEFINER mancante"
-  );
-  for (const table of privateTables) {
-    const qualifiedTable = `(?:public\\.)?${table}`;
-    assert(
-      new RegExp(`DROP\\s+POLICY\\s+IF\\s+EXISTS\\s+"service_role_all"\\s+ON\\s+${qualifiedTable}`, "i").test(sql),
-      `Supabase: rimozione policy service_role_all mancante per ${table}`
-    );
-    assert(
-      new RegExp(`ALTER\\s+TABLE\\s+${qualifiedTable}\\s+ENABLE\\s+ROW\\s+LEVEL\\s+SECURITY`, "i").test(sql),
-      `Supabase: RLS non abilitata per ${table}`
-    );
-    assert(
-      new RegExp(`REVOKE\\s+ALL\\s+ON\\s+TABLE\\s+${qualifiedTable}\\s+FROM\\s+anon,\\s*authenticated`, "i").test(sql),
-      `Supabase: revoca anon/authenticated mancante per ${table}`
-    );
-    assert(
-      new RegExp(`GRANT\\s+ALL\\s+ON\\s+TABLE\\s+${qualifiedTable}\\s+TO\\s+service_role`, "i").test(sql),
-      `Supabase: grant service_role mancante per ${table}`
-    );
-  }
-}
-
-assert(
-  migration.includes("has_function_privilege('anon'")
-    && migration.includes("has_function_privilege('authenticated'")
-    && migration.includes("has_function_privilege('service_role'"),
-  "Supabase: verifica transazionale dei privilegi funzione mancante"
-);
-assert(migration.includes("NOTIFY pgrst, 'reload schema'"), "Supabase: reload schema PostgREST mancante");
 
 for (const file of await listRepositoryTextFiles(ROOT)) {
   assert(
@@ -201,4 +143,4 @@ for (const file of await listRepositoryTextFiles(ROOT)) {
   );
 }
 
-console.log("Check sicurezza completato: credenziali fuori dal codice, CORS/cookie hardenizzati e RLS privata.");
+console.log("Check sicurezza completato: Worker Cloudflare hardenizzato, segreti fuori dal codice, CSP e gate /admin coerenti.");

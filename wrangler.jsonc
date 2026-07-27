@@ -1,0 +1,33 @@
+// Configurazione Cloudflare Workers — sito pubblico + gestionale + API comeleapi.
+// Docs: https://developers.cloudflare.com/workers/wrangler/configuration/
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Il nome DEVE coincidere con il nome del Worker su Workers Builds.
+  "name": "comeleapi",
+  "main": "src/worker/index.mjs",
+  "compatibility_date": "2026-07-27",
+  "assets": {
+    // Output della build (npm run build) servito come static assets:
+    // richieste gratuite e illimitate, il Worker non viene invocato.
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    // Solo queste rotte invocano il Worker prima degli asset statici:
+    // API, gate di autenticazione del gestionale e immagini caricate.
+    "run_worker_first": ["/api/*", "/admin*", "/login*", "/uploads/*"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "comeleapi-db",
+      // Sostituire con l'id restituito da `wrangler d1 create comeleapi-db`.
+      "database_id": "REPLACE_WITH_D1_DATABASE_ID"
+    }
+  ],
+  "observability": {
+    "enabled": true
+  }
+  // Secrets di produzione (wrangler secret put):
+  //   SESSION_SECRET, ADMIN_USER, ADMIN_PASSWORD,
+  //   VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT
+}

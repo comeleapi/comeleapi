@@ -72,7 +72,11 @@ const SERVICE_DEFINITIONS = [
 export const FAQ_DEFINITIONS = [
   {
     q: "Dove svolgi i massaggi a domicilio?",
-    a: "I trattamenti si svolgono a domicilio a Bresso e in tutta l'area di Milano Nord, incluse Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e Milano. Scrivimi la tua zona su WhatsApp e ti confermo la disponibilità."
+    a: "I trattamenti si svolgono esclusivamente a domicilio a Bresso e in tutta l'area di Milano Nord, incluse Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e Milano. Scrivimi la tua zona su WhatsApp e ti confermo la disponibilità."
+  },
+  {
+    q: "Hai uno studio o un centro dove ricevi i clienti?",
+    a: "No: comeleapi non ha uno studio né una sede aperta al pubblico. Lavoro solo a domicilio, su appuntamento, portando con me tutto l'occorrente nell'area di Bresso e Milano Nord."
   },
   {
     q: "Come funziona il massaggio a domicilio?",
@@ -93,6 +97,10 @@ export const FAQ_DEFINITIONS = [
   {
     q: "Che cosa sono gli oli essenziali Young Living che proponi?",
     a: "Sono oli essenziali puri e kit selezionati da Young Living, di cui sono rivenditrice indipendente. Puoi acquistarli tramite i link della vetrina o chiedermi un consiglio su misura."
+  },
+  {
+    q: "comeleapi è un negozio online? Spedite i prodotti?",
+    a: "No, comeleapi non è un e-commerce e non gestisce spedizioni. I kit e gli oli in vetrina si acquistano direttamente sul sito ufficiale Young Living tramite i miei link di rivenditrice indipendente: pagamento e consegna sono gestiti da Young Living."
   },
   {
     q: "Posso ricevere una consulenza personalizzata sugli oli essenziali?",
@@ -175,7 +183,7 @@ function identityNodes({ includeServiceCatalog = true, includeBookingChannel = t
       "@type": ["Organization", "LocalBusiness"],
       name: "comeleapi",
       url: SITE_URL,
-      description: "Progetto commerciale di benessere, massaggi a domicilio e prodotti Young Living curato da Sara Bordenga.",
+      description: "Servizio di massaggi esclusivamente a domicilio a Bresso e nell'area di Milano Nord curato da Sara Bordenga, senza studio né sede aperta al pubblico. Propone oli essenziali Young Living tramite link di rivendita indipendente, senza vendita o spedizione diretta.",
       slogan: "Vola verso il tuo benessere",
       logo: ref(`${SITE_URL}#logo`),
       image: ref(`${SITE_URL}#primary-image`),
@@ -415,7 +423,7 @@ export function buildHomeStructuredData(products) {
         name: "comeleapi — Massaggi a domicilio a Bresso e Milano Nord",
         alternateName: "comeleapi — Home massage & essential oils in Bresso and Milan North",
         url: SITE_URL,
-        description: "Massaggi a domicilio a Bresso e nell'area di Milano Nord con Sara Bordenga: sportivo, decontratturante, relax e drenante. Oli essenziali Young Living e consulenze su misura.",
+        description: "Massaggi esclusivamente a domicilio a Bresso e nell'area di Milano Nord con Sara Bordenga: sportivo, decontratturante, relax e drenante. Oli essenziali Young Living e consulenze su misura.",
         inLanguage: ["it-IT", "en"],
         isPartOf: ref(`${SITE_URL}#website`),
         mainEntity: ref(ORGANIZATION_ID),

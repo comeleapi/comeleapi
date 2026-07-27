@@ -1,12 +1,9 @@
 /* =============================================================
    comeleapi — configurazione frontend pubblico
 
-   Rileva automaticamente se l'applicazione è in esecuzione in locale
-   o in produzione su Netlify per impostare il corretto indirizzo del backend.
+   Sito, gestionale e API vivono sullo stesso Worker Cloudflare:
+   l'API è sempre sulla stessa origine, quindi non serve alcun
+   indirizzo di backend esterno.
    ============================================================= */
 
-const isLocalHost = ["localhost", "127.0.0.1", "0.0.0.0", "::1"].includes(window.location.hostname);
-
-window.COMELEAPI_API_BASE = isLocalHost 
-  ? "" 
-  : "https://comeleapi-backend.onrender.com";
+window.COMELEAPI_API_BASE = "";

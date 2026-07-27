@@ -474,6 +474,13 @@ h1, h2, h3, h4 {
   border-radius: 999px;
   background: rgba(183,125,109,.62);
 }
+.hero-subtitle {
+  margin: clamp(.55rem, 1.4vw, .9rem) 0 0;
+  color: rgba(255,247,246,.92);
+  font-size: clamp(1rem, 1.6vw, 1.3rem);
+  letter-spacing: .04em;
+  text-shadow: 0 8px 26px rgba(31,23,24,.55);
+}
 .hero-title.is-buzz-title {
   max-width: none;
 }
@@ -1640,6 +1647,7 @@ h1, h2, h3, h4 {
   .hero-overlay { bottom: clamp(2.4rem, 10vw, 3.6rem); }
   .hero-overlay::before { margin-bottom: .8rem; }
   .hero-title { font-size: 1.6rem; max-width: none; }
+  .hero-subtitle { font-size: .92rem; }
   .form-row { grid-template-columns: 1fr; }
   .cert-grid, .aroma-grid, .aroma-cards-grid { grid-template-columns: 1fr; }
   .about-text {

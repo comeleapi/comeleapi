@@ -1,9 +1,10 @@
 /**
  * Catalogo pubblico prodotti.
  *
- * `products.json` e' la sorgente editoriale unica usata dal sito statico,
- * dal server locale e dal seed Supabase. L'API, quando disponibile, resta
- * prioritaria per consentire gli aggiornamenti dal gestionale.
+ * `products.json` e' la sorgente editoriale unica usata dal sito statico e
+ * dal seed del database. L'API sulla stessa origine (Worker Cloudflare),
+ * quando disponibile, resta prioritaria per riflettere gli aggiornamenti
+ * fatti dal gestionale; in caso di errore si ricade sul catalogo statico.
  */
 
 const PRODUCT_CATALOG_URL = "products.json?v=20260722-webp";
@@ -34,22 +35,10 @@ async function loadCatalog() {
 }
 
 async function loadProducts() {
-  const base = apiBase();
-
-  // Il sito Netlify e' statico: evita una richiesta destinata a fallire su
-  // /api/products e usa direttamente il catalogo pubblico. Quando viene
-  // configurato il backend Render, l'API resta la sorgente prioritaria.
-  if (!base) {
-    try {
-      return await loadCatalog();
-    } catch (catalogError) {
-      console.error("[data] catalogo prodotti non disponibile.", { catalogError });
-      return [];
-    }
-  }
-
+  // L'API e il sito condividono la stessa origine: prova prima il catalogo
+  // live dal gestionale, poi ricadi sul catalogo statico pubblicato.
   try {
-    return await fetchProducts(apiUrl("/api/products"), { credentials: "omit" });
+    return await fetchProducts(apiUrl("/api/products"), { credentials: "same-origin" });
   } catch (apiError) {
     try {
       return await loadCatalog();

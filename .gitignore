@@ -6,6 +6,10 @@ node_modules/
 .env.local
 .env.*.local
 
+# Secrets locali per wrangler dev
+.dev.vars
+.dev.vars.*
+
 # Local database and upload storage (hybrid mode fallbacks)
 data/
 uploads/
@@ -15,10 +19,10 @@ tmp/
 .DS_Store
 Thumbs.db
 
-# Local Netlify folder
-.netlify
+# Stato locale di Wrangler (D1 locale, cache workerd)
+.wrangler/
 
 .venv-opt/
 
-# Output Netlify generato dalla allowlist pubblica
+# Output della build (npm run build) servito da Cloudflare come static assets
 dist/

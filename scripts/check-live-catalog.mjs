@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(SCRIPT_DIR, "..");
 const CATALOG_URL = process.env.COMELEAPI_CATALOG_URL ||
-  "https://comeleapi-backend.onrender.com/api/products";
+  "https://comeleapi.it/api/products";
 const FIELDS = [
   "id",
   "name",

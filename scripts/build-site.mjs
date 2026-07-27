@@ -29,6 +29,8 @@ const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(SCRIPT_DIR, "..");
 const OUT = path.join(ROOT, "dist");
 
+// Asset pubblici del sito. Il gestionale (admin/login) viene aggiunto più sotto
+// perché ora vive sullo stesso Worker Cloudflare e non su Render.
 const PUBLIC_FILES = [
   "index.html",
   "robots.txt",
@@ -52,6 +54,13 @@ const PUBLIC_FILES = [
   "assets/img/signatures/sara-bordenga-signature-320.webp",
   "assets/img/signatures/sara-bordenga-signature.webp"
 ];
+
+// Pagine, manifest e service worker del gestionale, ora serviti dal Worker.
+const ADMIN_MANIFEST = "admin.webmanifest";
+const ADMIN_HTML_PAGES = ["admin.html", "login.html"];
+const ADMIN_CSS_FILES = ["assets/css/admin.css", "assets/css/login.css"];
+const ADMIN_JS_FILES = ["assets/js/pwa.js", "assets/js/admin.js", "assets/js/login.js"];
+const ADMIN_SERVICE_WORKER = "sw.js";
 
 const PUBLIC_HERO_FILES = new Set([
   "hero-massaggio-professionale-comeleapi-mobile.webp",
@@ -78,23 +87,41 @@ const LINKS_ICON_PNGS = new Set([
   "social-instagram.png"
 ]);
 
+// Icone PNG usate solo dal gestionale (statiche in admin.html o generate da admin.js).
+const ADMIN_ICON_PNGS = new Set([
+  "admin-box.png",
+  "admin-down.png",
+  "admin-edit.png",
+  "admin-external.png",
+  "admin-eye.png",
+  "admin-eye-off.png",
+  "admin-plus.png",
+  "admin-reset.png",
+  "admin-tag.png",
+  "admin-trash.png",
+  "admin-up.png",
+  "icon-chat.png",
+  "icon-calendar.png",
+  "icon-seal.png",
+  "icon-spark.png"
+]);
+
 const PUBLIC_FONT_FILES = new Set([
   "cormorant-garamond-variable-latin.woff2",
   "cormorant-garamond-italic-variable-latin.woff2",
   "mulish-variable-latin.woff2"
 ]);
 
+// File sorgente che non devono mai finire in dist/. admin.html, login.html,
+// admin.webmanifest e sw.js NON sono più vietati: ora vengono pubblicati e il
+// gate di accesso è nel Worker.
 const FORBIDDEN_OUTPUTS = [
   "server.js",
   "package.json",
   "package-lock.json",
   "render.yaml",
-  "admin.html",
-  "login.html",
-  "admin.webmanifest",
-  "sw.js",
+  "wrangler.jsonc",
   "data",
-  "supabase",
   "scripts",
   "output",
   ".env"
@@ -179,6 +206,7 @@ async function minifyJavaScript(relativePath, documentBase = ROOT) {
     format: { comments: false }
   });
   if (!result.code) throw new Error(`Minificazione JavaScript fallita: ${relativePath}`);
+  await mkdir(path.dirname(destinationPath), { recursive: true });
   await writeFile(destinationPath, `${result.code}\n`);
 }
 
@@ -238,6 +266,14 @@ async function transformLinksPage(structuredData) {
   await writeFile(path.join(OUT, "links/index.html"), html);
 }
 
+// admin.html/login.html restano pagine autonome (nessun inline del CSS): basta
+// versionare i riferimenti agli asset del gestionale già minificati in dist/.
+async function transformAdminPage(relativePath) {
+  const source = await readFile(path.join(ROOT, relativePath), "utf8");
+  const html = await fingerprintReferences(source, OUT);
+  await writeFile(path.join(OUT, relativePath), html);
+}
+
 function resolveReferenceBase(filePath) {
   if (filePath.endsWith("links/index.html") || filePath.endsWith("assets/js/links.js")) {
     return path.join(OUT, "links");
@@ -273,14 +309,142 @@ async function directorySize(directory) {
   return bytes;
 }
 
+// Header di sicurezza e cache, portati da netlify.toml al formato `_headers`
+// degli static assets di Cloudflare Workers. connect-src resta 'self' (stessa
+// origine del Worker): nessun riferimento a Render.
+function buildHeadersFile() {
+  const csp = [
+    "default-src 'self'",
+    "base-uri 'self'",
+    "object-src 'none'",
+    "frame-ancestors 'none'",
+    "form-action 'self' https://wa.me",
+    "img-src 'self' data: https:",
+    "font-src 'self'",
+    "style-src 'self' 'unsafe-inline'",
+    "script-src 'self'",
+    "connect-src 'self'",
+    "require-trusted-types-for 'script'",
+    "trusted-types comeleapi",
+    "upgrade-insecure-requests"
+  ].join("; ");
+  return `# Generato da scripts/build-site.mjs — non modificare a mano.
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+  Cross-Origin-Opener-Policy: same-origin
+  X-XSS-Protection: 0
+  Content-Security-Policy: ${csp}
+
+/assets/pdf/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/foto-prodotti/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/products.json
+  Cache-Control: public, max-age=0, must-revalidate
+
+/sitemap.xml
+  Content-Type: application/xml; charset=UTF-8
+  Cache-Control: public, max-age=0, must-revalidate
+
+/robots.txt
+  Content-Type: text/plain; charset=UTF-8
+  Cache-Control: public, max-age=0, must-revalidate
+
+/sw.js
+  Cache-Control: public, max-age=0, must-revalidate
+
+/admin.webmanifest
+  Cache-Control: public, max-age=0, must-revalidate
+
+/
+  Cache-Control: public, max-age=0, must-revalidate
+
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/links/*
+  Cache-Control: public, max-age=0, must-revalidate
+`;
+}
+
+// Redirect canonici (formato `_redirects` di Cloudflare). Il gate /admin e
+// /login è gestito dal Worker; i file interni non vengono pubblicati e cadono
+// naturalmente sulla 404-page.
+function buildRedirectsFile() {
+  return `# Generato da scripts/build-site.mjs — non modificare a mano.
+/index.html / 301
+/links/index.html /links/ 301
+`;
+}
+
+function build404Page() {
+  return `<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex" />
+  <title>Pagina non trovata — comeleapi</title>
+  <style>
+    :root { color-scheme: light; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #FEEEEF;
+      color: #4a2c2f;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      text-align: center;
+      padding: 24px;
+    }
+    main { max-width: 32rem; }
+    h1 { font-size: 3rem; margin: 0 0 0.5rem; }
+    p { font-size: 1.1rem; line-height: 1.6; margin: 0 0 1.5rem; }
+    a {
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      border-radius: 999px;
+      background: #c06c74;
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>404</h1>
+    <p>La pagina che cerchi non esiste o è stata spostata.</p>
+    <a href="/">Torna alla home</a>
+  </main>
+</body>
+</html>
+`;
+}
+
 await rm(OUT, { recursive: true, force: true });
 await mkdir(OUT, { recursive: true });
 
 for (const relativePath of PUBLIC_FILES) await copyRelative(relativePath);
+await copyRelative(ADMIN_MANIFEST);
 await copyDirectoryFiltered("assets/fonts", (name) => PUBLIC_FONT_FILES.has(name));
 await copyDirectoryFiltered("assets/img/hero", (name) => PUBLIC_HERO_FILES.has(name));
 await copyDirectoryFiltered("assets/img/decor", (name) => PUBLIC_DECOR_FILES.has(name));
-await copyDirectoryFiltered("assets/img/icons", (name) => name.endsWith(".webp") || LINKS_ICON_PNGS.has(name));
+await copyDirectoryFiltered(
+  "assets/img/icons",
+  (name) => name.endsWith(".webp") || LINKS_ICON_PNGS.has(name) || ADMIN_ICON_PNGS.has(name)
+);
 await copyDirectoryFiltered("foto-prodotti", (name) => name.endsWith(".webp"));
 
 // Sitemap generata a build-time: lastmod dai file sorgente + image sitemap prodotti.
@@ -298,11 +462,21 @@ const linksStyles = await minifyCss("assets/css/links.css");
 await writeFile(path.join(OUT, "assets/css/styles.css"), `${homeStyles}\n`);
 await writeFile(path.join(OUT, "assets/css/links.css"), `${linksStyles}\n`);
 
+// CSS del gestionale minificato (restano file esterni referenziati da admin/login).
+for (const relativePath of ADMIN_CSS_FILES) {
+  const minified = await minifyCss(relativePath);
+  await writeFile(path.join(OUT, relativePath), `${minified}\n`);
+}
+
 await minifyJavaScript("assets/js/config.js");
 await minifyJavaScript("assets/js/trusted-types.js");
 await minifyJavaScript("assets/js/analytics.js");
 await minifyJavaScript("assets/js/app.js");
 await minifyJavaScript("assets/js/links.js", path.join(ROOT, "links"));
+
+// JavaScript del gestionale e service worker.
+for (const relativePath of ADMIN_JS_FILES) await minifyJavaScript(relativePath);
+await minifyJavaScript(ADMIN_SERVICE_WORKER);
 
 // data.js viene elaborato dopo products.json, così il suo URL porta l'hash
 // del catalogo finale già versionato.
@@ -322,6 +496,14 @@ await writeFile(path.join(OUT, "assets/js/data.js"), `${minifiedData.code}\n`);
 await transformHome(homeStyles, homeStructuredData, sourceProducts);
 await transformLinksPage(linksStructuredData);
 
+// Pagine del gestionale: versionamento dei riferimenti dopo aver scritto css/js.
+for (const relativePath of ADMIN_HTML_PAGES) await transformAdminPage(relativePath);
+
+// File di configurazione degli static assets Cloudflare + pagina 404.
+await writeFile(path.join(OUT, "_headers"), buildHeadersFile());
+await writeFile(path.join(OUT, "_redirects"), buildRedirectsFile());
+await writeFile(path.join(OUT, "404.html"), build404Page());
+
 await assertReferencesExist([
   "index.html",
   "products.json",
@@ -332,7 +514,14 @@ await assertReferencesExist([
   "assets/js/analytics.js",
   "assets/js/app.js",
   "assets/js/data.js",
-  "assets/js/links.js"
+  "assets/js/links.js",
+  "admin.html",
+  "login.html",
+  "assets/css/admin.css",
+  "assets/css/login.css",
+  "assets/js/admin.js",
+  "assets/js/login.js",
+  "assets/js/pwa.js"
 ]);
 
 for (const forbidden of FORBIDDEN_OUTPUTS) {
@@ -343,6 +532,6 @@ for (const forbidden of FORBIDDEN_OUTPUTS) {
 
 const totalBytes = await directorySize(OUT);
 console.log(
-  `Build Netlify completata: ${(totalBytes / 1024 / 1024).toFixed(2)} MiB in dist/ ` +
+  `Build Cloudflare completata: ${(totalBytes / 1024 / 1024).toFixed(2)} MiB in dist/ ` +
     `(sitemap: ${SITEMAP_PAGES.length} URL canoniche)`
 );
