@@ -6,6 +6,13 @@
 	"name": "comeleapi",
 	"main": "src/worker/index.mjs",
 	"compatibility_date": "2026-07-27",
+	// Il sito è servito solo dai domini reali: workers.dev e preview URL
+	// disattivati per evitare contenuto duplicato indicizzabile.
+	"workers_dev": false,
+	"preview_urls": false,
+	// Smart Placement: esegue il Worker vicino a D1 (EEUR) riducendo i
+	// round-trip delle richieste API che fanno più query per invocazione.
+	"placement": { "mode": "smart" },
 	"assets": {
 		// Output della build (npm run build) servito come static assets:
 		// richieste gratuite e illimitate, il Worker non viene invocato.
