@@ -219,8 +219,8 @@ async function main() {
     "-- Seed dati comeleapi per Cloudflare D1 (generato da scripts/migrate-to-d1.mjs).",
     `-- Origine dati: ${USE_SUPABASE ? "Supabase (fallback JSON in caso di errore)" : "JSON locali data/"}.`,
     "-- Gli utenti admin non sono migrati: bootstrap al primo login dai secrets.",
-    "PRAGMA foreign_keys=OFF;",
-    "BEGIN TRANSACTION;",
+    "-- Nota: niente BEGIN/COMMIT — D1 esegue il file in modo atomico e non",
+    "-- supporta le istruzioni SQL di transazione esplicite.",
     "DELETE FROM products;",
     "DELETE FROM leads;",
     "DELETE FROM push_subscriptions;",
@@ -230,8 +230,6 @@ async function main() {
     ...leads.map(leadInsert),
     "",
     ...subscriptions.map(pushInsert),
-    "",
-    "COMMIT;",
     ""
   ];
 
