@@ -15,6 +15,9 @@ data/
 uploads/
 tmp/
 
+# Seed generato da db:export: può contenere dati personali dei lead
+d1/seed.sql
+
 # OS files
 .DS_Store
 Thumbs.db
