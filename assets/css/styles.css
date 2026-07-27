@@ -2109,22 +2109,30 @@ body.subpage .section {
   padding-block: clamp(2.2rem, 5vw, 3.4rem);
 }
 .breadcrumbs {
-  margin-bottom: clamp(1.2rem, 3vw, 1.8rem);
-  font-size: .88rem;
+  display: flex;
+  justify-content: center;
+  margin-bottom: clamp(1.4rem, 3vw, 2rem);
+  font-size: .95rem;
 }
 .breadcrumbs ol {
-  display: flex;
+  display: inline-flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: .35rem;
+  align-items: center;
+  gap: .5rem;
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: .55rem 1.2rem;
   color: var(--ink-soft);
+  background: rgba(255, 255, 255, .72);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  box-shadow: 0 8px 20px rgba(50, 23, 27, .06);
 }
 .breadcrumbs li:not(:last-child)::after {
   content: "\203A";
-  margin-left: .35rem;
+  margin-left: .5rem;
+  font-weight: 700;
   color: var(--terra);
 }
 .breadcrumbs a {
@@ -2140,13 +2148,14 @@ body.subpage .section {
   color: var(--ink-soft);
   font-size: 1.05rem;
   line-height: 1.75;
+  text-align: center;
 }
 .subpage-text + .subpage-text { margin-top: 1rem; }
 .subpage-text a { color: var(--terra-deep); font-weight: 600; }
 .subpage-text a:hover { text-decoration: underline; }
 
 .subpage-list {
-  max-width: 70ch;
+  max-width: 62ch;
   margin: 1.4rem auto 0;
   display: grid;
   gap: .7rem;

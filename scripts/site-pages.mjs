@@ -738,11 +738,13 @@ function serviceCardsHtml(v, { linkPrefix = "/servizi/" } = {}) {
   }).join("\n");
 }
 
+// Icona dedicata per città: landmark in line-art (assets/img/icons/icon-city-<slug>.webp),
+// derivata dai sorgenti PNG in assets/img/icons/icone-città e ottimizzata in WebP lossless 128px.
 function zoneCardsHtml(v) {
   return AREA_DEFINITIONS.map(([slug, name]) => {
     const tagline = CITY_CONTENT[slug].tagline;
     return `          <a class="service-card service-card--link" href="/zone/${slug}/">
-            <div class="service-ic" aria-hidden="true"><img class="generated-icon" src="${v("assets/img/icons/icon-hands.webp")}" alt="" loading="lazy" decoding="async" /></div>
+            <div class="service-ic" aria-hidden="true"><img class="generated-icon" src="${v(`assets/img/icons/icon-city-${slug}.webp`)}" alt="" loading="lazy" decoding="async" /></div>
             <h3>${escapeHtml(name)}</h3>
             <p class="zone-card-note">${escapeHtml(tagline)}</p>
           </a>`;
@@ -883,7 +885,7 @@ function buildCityPage(v, [slug, name]) {
     }),
     `    <section class="section">
       <div class="container">
-        <div class="section-head">
+        <div class="section-head section-head--center">
           <h2 class="section-title">${escapeHtml(city.h2)}</h2>
         </div>
         <p class="subpage-text">${escapeHtml(city.intro[1])}</p>
@@ -1080,7 +1082,7 @@ function buildServicePage(v, service) {
     </section>`,
     `    <section class="section">
       <div class="container">
-        <div class="section-head">
+        <div class="section-head section-head--center">
           <h2 class="section-title">A chi è pensato</h2>
         </div>
         <ul class="subpage-list">
@@ -1090,7 +1092,7 @@ ${extra.forWho.map((line) => `          <li>${escapeHtml(line)}</li>`).join("\n"
     </section>`,
     `    <section class="section">
       <div class="container">
-        <div class="section-head">
+        <div class="section-head section-head--center">
           <h2 class="section-title">Dove è disponibile</h2>
         </div>
         <p class="subpage-text">Il trattamento si svolge esclusivamente a domicilio nelle zone di ${zoneLinks}. Scopri tutte le aree nella pagina <a href="/zone/">Zone</a>.</p>
