@@ -21,8 +21,7 @@ import {
 } from "./structured-data.mjs";
 import {
   injectStructuredData,
-  injectProductsGrid,
-  injectFaqHtml
+  injectProductsGrid
 } from "./html-inject.mjs";
 import { buildSitemapXml, SITEMAP_PAGES } from "./generate-sitemap.mjs";
 import {
@@ -252,7 +251,6 @@ async function transformHome(styles, structuredData, products) {
   let html = await readFile(sourcePath, "utf8");
   html = injectStructuredData(html, structuredData);
   html = injectProductsGrid(html, products);
-  html = injectFaqHtml(html);
   const stylesheetPattern = /\s*<link rel="stylesheet" href="assets\/css\/styles\.css\?[^\"]+" \/>/;
   if (!stylesheetPattern.test(html)) {
     throw new Error("Link al CSS principale non trovato in index.html");
@@ -385,6 +383,9 @@ function buildHeadersFile() {
   Cache-Control: public, max-age=0, must-revalidate
 
 /servizi/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+/faq/*
   Cache-Control: public, max-age=0, must-revalidate
 ${LEGAL_PAGE_ROUTES.map((legal) => `
 /${legal.slug}/*

@@ -170,10 +170,11 @@
     setAttr("#mainNav", "aria-label", "Main navigation");
     setAttr("#navToggle", "aria-label", "Open menu");
     setAttr("#closePolicy", "aria-label", "Close");
-    setText('.nav a[href="#prodotti"]', "Essential oils");
+    setText('.nav a[href="#prodotti"]', "Oils");
     setText('.nav a[href="#servizi"]', "Treatments");
-    setText('.nav a[href="/zone/"]', "Areas");
+    setText('.nav a[href="/zone/"]', "Where");
     setText('.nav a[href="#chi-sono"]', "The founder");
+    setText('.nav a[href="/faq/"]', "Faq");
     setButtonText(".nav-cta", "Message me on WhatsApp");
     setAttr(".nav-cta", "href", whatsAppUrl("Hi Sara, I would like to book a consultation."));
 
@@ -201,6 +202,10 @@
 
     setText(".community-box-content h3", "Community");
     setText(".community-box-content p", "Support for all your questions and tailored advice, the first place to discover promotions and news.");
+
+    setText(".faq-box-cta h2", "Frequently asked questions");
+    setText(".faq-box-cta .community-box-content p", "Service areas, prices, bookings and essential oils: every answer about at-home massages in Bresso and North Milan.");
+    setText(".faq-box-cta .faq-box-link", "Read all the answers");
 
     setText("#servizi .eyebrow", "Treatments");
     setText("#servizi .section-title", "A need, not a luxury");
@@ -266,6 +271,7 @@
     setText('.footer-col a[href="#servizi"]', "Treatments");
     setText('.footer-col a[href="/zone/"]', "Areas");
     setText('.footer-col a[href="/servizi/"]', "All treatments");
+    setText('.footer-col a[href="/faq/"]', "FAQ");
     setText('.footer-col a[href="#chi-sono"]', "The founder");
     setText('.footer-col a[href="/cookie-policy/"]', "Cookie policy");
     setText('.footer-col a[href="/privacy/"]', "Privacy policy");

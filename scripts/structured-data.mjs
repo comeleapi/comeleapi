@@ -67,9 +67,10 @@ export const SERVICE_DEFINITIONS = [
   }
 ];
 
-// Domande e risposte: unica fonte di verità condivisa tra il nodo FAQPage
-// (dati strutturati) e la sezione FAQ visibile in pagina, come richiesto dalle
-// linee guida Google (il testo dello schema deve coincidere con quello mostrato).
+// Domande e risposte: unica fonte di verità condivisa tra il nodo FAQPage e
+// l'accordion visibile della pagina dedicata /faq/ (scripts/site-pages.mjs),
+// come richiesto dalle linee guida Google (il testo dello schema deve
+// coincidere con quello mostrato in pagina).
 export const FAQ_DEFINITIONS = [
   {
     q: "Dove svolgi i massaggi a domicilio?",
@@ -369,26 +370,6 @@ function productNodes(products) {
   return [itemList, ...listItems, ...productEntities, ...offers];
 }
 
-function faqNode() {
-  return {
-    "@id": `${SITE_URL}#faq`,
-    "@type": "FAQPage",
-    name: "Domande frequenti su massaggi a domicilio e oli essenziali",
-    url: `${SITE_URL}#faq`,
-    inLanguage: "it-IT",
-    isPartOf: ref(`${SITE_URL}#webpage`),
-    about: [ref(ORGANIZATION_ID), ref(PERSON_ID)],
-    mainEntity: FAQ_DEFINITIONS.map((item) => ({
-      "@type": "Question",
-      name: item.q,
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: item.a
-      }
-    }))
-  };
-}
-
 function digitalDocumentNode() {
   return {
     "@id": `${PDF_URL}#document`,
@@ -435,12 +416,11 @@ export function buildHomeStructuredData(products) {
           ...SERVICE_DEFINITIONS.map((service) => ref(`${SITE_URL}#service-${service.slug}`)),
           ref(PRODUCTS_ID)
         ],
-        hasPart: [ref(`${PDF_URL}#document`), ref(`${SITE_URL}#faq`)]
+        hasPart: [ref(`${PDF_URL}#document`)]
       },
       ...identityNodes(),
       ...serviceNodes(),
       ...productNodes(products),
-      faqNode(),
       digitalDocumentNode()
     ]
   };

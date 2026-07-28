@@ -1,10 +1,12 @@
 // Generatore delle sottopagine statiche del sito pubblico (architettura
 // multipagina): hub /zone/ con le pagine locali, hub /servizi/ con le pagine
-// dei trattamenti e informative legali (/privacy/, /cookie-policy/, /termini/).
+// dei trattamenti, pagina /faq/ dedicata alle domande frequenti e informative
+// legali (/privacy/, /cookie-policy/, /termini/).
 //
 // Principi:
-//  - unica fonte di verità: AREA_DEFINITIONS e SERVICE_DEFINITIONS condivise
-//    con i dati strutturati della home (scripts/structured-data.mjs);
+//  - unica fonte di verità: AREA_DEFINITIONS, SERVICE_DEFINITIONS e
+//    FAQ_DEFINITIONS condivise con i dati strutturati della home
+//    (scripts/structured-data.mjs);
 //  - stessa identità visiva della landing: styles.css, font, icone e classi
 //    esistenti (.site-header, .section, .service-card, .faq-item, .footer);
 //  - nessuno script inline (CSP require-trusted-types-for): l'interattività
@@ -13,8 +15,8 @@
 //    che /assets/* è servito con cache immutable;
 //  - le informative sono navigabili ma noindex e fuori dalla sitemap (nessun
 //    valore strategico di posizionamento).
-import { AREA_DEFINITIONS, SERVICE_DEFINITIONS } from "./structured-data.mjs";
-import { escapeHtml } from "./html-inject.mjs";
+import { AREA_DEFINITIONS, SERVICE_DEFINITIONS, FAQ_DEFINITIONS } from "./structured-data.mjs";
+import { escapeHtml, buildFaqHtml } from "./html-inject.mjs";
 
 const SITE_URL = "https://comeleapi.it/";
 const ORGANIZATION_ID = `${SITE_URL}#organization`;
@@ -636,9 +638,11 @@ ${jsonLd(structuredData)}
       </a>
 
       <nav class="nav" id="mainNav" aria-label="Navigazione principale">
-        <a href="/#prodotti">Oli essenziali</a>
+        <a href="/#prodotti">Oli</a>
         <a href="/servizi/">Trattamenti</a>
-        <a href="/zone/">Zone</a>
+        <a href="/#chi-sono">The founder</a>
+        <a href="/zone/">Where</a>
+        <a href="/faq/">Faq</a>
         <a href="${escapeHtml(whatsAppUrl("Ciao Sara, vorrei prenotare una consulenza."))}" class="btn btn--primary btn--sm nav-cta" target="_blank" rel="noopener">
           Scrivimi su WhatsApp
           <img class="btn-icon" src="${v("assets/img/icons/icon-whatsapp-custom.webp")}" width="18" height="18" alt="" loading="lazy" decoding="async" />
@@ -677,6 +681,7 @@ ${content}
           <li><a href="/#prodotti">Oli essenziali</a></li>
           <li><a href="/servizi/">Trattamenti</a></li>
           <li><a href="/zone/">Zone</a></li>
+          <li><a href="/faq/">Domande frequenti</a></li>
           <li><a href="/#chi-sono">The founder</a></li>
         </ul>
       </div>
@@ -1351,6 +1356,71 @@ ${legal.body}
   };
 }
 
+// ─── Pagina FAQ dedicata ───────────────────────────────────────────────────────
+// La landing mostra solo un box CTA in stile Community: tutte le domande
+// vivono qui, indicizzabili, con nodo FAQPage allineato al testo visibile
+// (stessa fonte FAQ_DEFINITIONS della vecchia sezione in home).
+function buildFaqPage(v) {
+  const pagePath = "/faq/";
+  const pageUrl = `${SITE_URL}faq/`;
+  const title = "Domande frequenti — Massaggi a domicilio a Bresso e Milano Nord | comeleapi";
+  const description =
+    "Le risposte alle domande più frequenti su comeleapi: massaggi a domicilio a Bresso e Milano Nord, zone servite, prezzi, prenotazione su WhatsApp e oli essenziali Young Living.";
+  const crumbs = [
+    { name: "Home", path: "/" },
+    { name: "Domande frequenti", path: pagePath }
+  ];
+  const content = [
+    pageHeadHtml({
+      eyebrow: "Domande frequenti · Milano Nord",
+      h1: "Domande frequenti su massaggi a domicilio e oli essenziali",
+      lead:
+        "comeleapi porta il benessere direttamente a casa tua: massaggi sportivi, decontratturanti, relax e drenanti a domicilio a Bresso e in tutta l'area di Milano Nord — Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e Milano. Qui trovi le risposte su trattamenti, prezzi, prenotazioni e oli essenziali Young Living.",
+      crumbs
+    }),
+    `    <section class="section faq-section" aria-label="Elenco delle domande frequenti">
+      <div class="container">
+        <div class="faq-list">
+${buildFaqHtml(FAQ_DEFINITIONS)}
+        </div>
+      </div>
+    </section>`,
+    ctaSectionHtml("Ciao Sara, ho letto le FAQ e vorrei prenotare un trattamento a domicilio.")
+  ].join("\n\n");
+
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      websiteNode(),
+      {
+        "@id": `${pageUrl}#webpage`,
+        "@type": "WebPage",
+        name: title,
+        url: pageUrl,
+        description,
+        inLanguage: "it-IT",
+        isPartOf: { "@id": `${SITE_URL}#website` },
+        breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
+        mainEntity: { "@id": `${pageUrl}#faq` },
+        about: { "@id": ORGANIZATION_ID }
+      },
+      breadcrumbNode(pageUrl, crumbs),
+      ...organizationNodes(),
+      faqPageNode(
+        pageUrl,
+        FAQ_DEFINITIONS,
+        "Domande frequenti su massaggi a domicilio e oli essenziali — comeleapi"
+      )
+    ]
+  };
+
+  return {
+    route: "faq/index.html",
+    canonical: pageUrl,
+    html: pageShell({ canonical: pageUrl, title, description, structuredData, content, v })
+  };
+}
+
 // ─── API pubblica del generatore ────────────────────────────────────────────
 
 /**
@@ -1365,6 +1435,7 @@ export function renderSitePages(v) {
     ...AREA_DEFINITIONS.map((area) => buildCityPage(v, area)),
     buildServicesHubPage(v),
     ...SERVICE_DEFINITIONS.map((service) => buildServicePage(v, service)),
+    buildFaqPage(v),
     ...LEGAL_PAGE_DEFINITIONS.map((legal) => buildLegalPage(v, legal))
   ];
 }
@@ -1375,6 +1446,7 @@ export const GENERATED_PAGE_DIRS = [
   ...AREA_DEFINITIONS.map(([slug]) => `zone/${slug}`),
   "servizi",
   ...SERVICE_DEFINITIONS.map((service) => `servizi/${service.slug}`),
+  "faq",
   ...LEGAL_PAGE_DEFINITIONS.map((legal) => legal.slug)
 ];
 
@@ -1437,7 +1509,19 @@ export const SUBPAGE_SITEMAP_ENTRIES = [
         caption: service.description
       }
     ]
-  }))
+  })),
+  {
+    loc: `${SITE_URL}faq/`,
+    sourceFiles: SUBPAGE_SOURCE_FILES,
+    kind: "faq",
+    images: [
+      {
+        path: HERO_IMAGE_PATH,
+        title: "Domande frequenti sui massaggi a domicilio comeleapi",
+        caption: "Risposte su massaggi a domicilio a Bresso e Milano Nord, prezzi, prenotazioni e oli essenziali Young Living"
+      }
+    ]
+  }
 ];
 
 // Pagine indicizzabili per check-public-seo.mjs (file in dist + canonical).
@@ -1465,5 +1549,11 @@ export const SEO_CHECK_PAGES = [
     canonical: `${SITE_URL}servizi/${service.slug}/`,
     schemaType: "WebPage",
     schemaId: `${SITE_URL}servizi/${service.slug}/#webpage`
-  }))
+  })),
+  {
+    file: "faq/index.html",
+    canonical: `${SITE_URL}faq/`,
+    schemaType: "WebPage",
+    schemaId: `${SITE_URL}faq/#webpage`
+  }
 ];

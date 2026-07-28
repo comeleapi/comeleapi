@@ -481,6 +481,18 @@ h1, h2, h3, h4 {
   letter-spacing: .04em;
   text-shadow: 0 8px 26px rgba(31,23,24,.55);
 }
+/* Contenuto solo per screen reader, crawler e AI: resta nel DOM ma non è visibile. */
+.sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 .hero-title.is-buzz-title {
   max-width: none;
 }
@@ -1039,6 +1051,60 @@ h1, h2, h3, h4 {
   font-size: 0.95rem;
   line-height: 1.5;
   margin: 0;
+}
+
+/* Box CTA FAQ nella landing: variante cliccabile del box Community. */
+a.community-box-cta {
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform .35s ease, box-shadow .35s ease, border-color .35s ease;
+}
+
+a.community-box-cta:hover,
+a.community-box-cta:focus-visible {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--sand-deep);
+}
+
+.community-box-content h2 {
+  color: var(--terra-deep);
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  margin-top: 0;
+  margin-bottom: 0.6rem;
+}
+
+.faq-box-link {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  margin-top: 1.1rem;
+  color: var(--terra-deep);
+  font-weight: 700;
+  font-size: .95rem;
+  letter-spacing: .02em;
+}
+
+.faq-box-link::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid currentColor;
+  border-top: 2px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform .3s ease;
+}
+
+a.community-box-cta:hover .faq-box-link::after {
+  transform: rotate(45deg) translate(2px, -2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  a.community-box-cta,
+  .faq-box-link::after {
+    transition: none;
+  }
 }
 .products-grid.is-loading {
   opacity: .62;

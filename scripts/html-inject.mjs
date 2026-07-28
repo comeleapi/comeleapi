@@ -1,9 +1,9 @@
 // Generatori HTML condivisi tra la build Netlify (dist/) e lo script di sync
 // (sorgente servita da Render). Producono il markup statico pre-renderizzato
 // per i crawler e le AI, mantenendo un'unica fonte di verità:
-//  - la griglia prodotti rispecchia esattamente l'output runtime di assets/js/app.js;
-//  - la sezione FAQ deriva da FAQ_DEFINITIONS (stesso testo del nodo FAQPage).
-import { FAQ_DEFINITIONS } from "./structured-data.mjs";
+//  - la griglia prodotti rispecchia esattamente l'output runtime di assets/js/app.js.
+// (La sezione FAQ vive ora nella pagina dedicata /faq/, generata da
+// scripts/site-pages.mjs a partire da FAQ_DEFINITIONS.)
 
 // Icone/immagini alternative: DEVE rispecchiare productDisplayOverrides in
 // assets/js/app.js così che il pre-render coincida con il render runtime.
@@ -115,8 +115,8 @@ export function buildProductsGridHtml(products) {
   return cards.join("\n");
 }
 
-/** Costruisce l'accordion FAQ visibile (native <details>) da FAQ_DEFINITIONS. */
-export function buildFaqHtml(definitions = FAQ_DEFINITIONS) {
+/** Costruisce l'accordion FAQ visibile (native <details>) da un elenco Q&A. */
+export function buildFaqHtml(definitions) {
   return definitions
     .map((item) => `        <details class="faq-item">
           <summary class="faq-q">${escapeHtml(item.q)}</summary>
@@ -145,15 +145,5 @@ export function injectProductsGrid(html, products) {
     "<!-- products:end -->",
     buildProductsGridHtml(products),
     "griglia prodotti"
-  );
-}
-
-export function injectFaqHtml(html, definitions = FAQ_DEFINITIONS) {
-  return replaceBetweenMarkers(
-    html,
-    "<!-- faq:start -->",
-    "<!-- faq:end -->",
-    buildFaqHtml(definitions),
-    "sezione FAQ"
   );
 }

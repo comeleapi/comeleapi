@@ -3,6 +3,9 @@ import { readFile, readdir, stat } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { FAQ_DEFINITIONS } from "./structured-data.mjs";
+import { escapeHtml } from "./html-inject.mjs";
+
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(SCRIPT_DIR, "..");
 const DIST = path.join(ROOT, "dist");
@@ -94,6 +97,9 @@ assert(nodesByType("ContactPoint").length === 1, "JSON-LD: ContactPoint mancante
 assert(nodesByType("EducationalOccupationalCredential").length === 0, "JSON-LD: credenziale non visibile pubblicata");
 assert(nodesByType("Audience").length === 0, "JSON-LD: Audience non documentata presente");
 assert(nodesByType("BreadcrumbList").length === 0, "JSON-LD: breadcrumb non visibile presente");
+// Le FAQ vivono nella pagina dedicata /faq/: la home non deve pubblicare
+// FAQPage (Google richiede che lo schema coincida con il contenuto visibile).
+assert(nodesByType("FAQPage").length === 0, "JSON-LD: FAQPage deve vivere solo su /faq/");
 
 const organization = byId.get(`${SITE_URL}#organization`);
 assert(typesOf(organization).includes("Organization"), "Organization: tipo mancante");
@@ -281,5 +287,27 @@ const linksDocument = linksGraph.find((node) => node["@type"] === "DigitalDocume
 assert(linksDocument, "JSON-LD links: DigitalDocument mancante");
 assert(linksDocument.author?.["@id"] === `${SITE_URL}#organization`, "JSON-LD links: autore corporate della guida mancante");
 assert(!linksGraph.some((node) => node["@type"] === "BreadcrumbList"), "JSON-LD links: breadcrumb non visibile presente");
+
+// Pagina /faq/: il nodo FAQPage deve coincidere con FAQ_DEFINITIONS e con il
+// testo visibile dell'accordion (parità schema/contenuto richiesta da Google).
+const faqHtml = await readFile(path.join(DIST, "faq/index.html"), "utf8");
+const faqSchema = parseStructuredData(faqHtml, "faq/index.html");
+const faqPage = faqSchema["@graph"].find((node) => typesOf(node).includes("FAQPage"));
+assert(faqPage, "JSON-LD faq: nodo FAQPage mancante");
+assert(
+  faqPage.mainEntity?.length === FAQ_DEFINITIONS.length,
+  "JSON-LD faq: numero di domande non allineato a FAQ_DEFINITIONS"
+);
+for (const [index, item] of FAQ_DEFINITIONS.entries()) {
+  const question = faqPage.mainEntity[index];
+  assert(question?.name === item.q, `JSON-LD faq: domanda non allineata (${item.q})`);
+  assert(question?.acceptedAnswer?.text === item.a, `JSON-LD faq: risposta non allineata (${item.q})`);
+  assert(faqHtml.includes(escapeHtml(item.q)), `faq/index.html: domanda non visibile in pagina (${item.q})`);
+  assert(faqHtml.includes(escapeHtml(item.a)), `faq/index.html: risposta non visibile in pagina (${item.q})`);
+}
+assert(
+  faqSchema["@graph"].filter((node) => typesOf(node).includes("FAQPage")).length === 1,
+  "JSON-LD faq: FAQPage duplicata"
+);
 
 console.log(`Check dati strutturati completato: 7 servizi e ${products.length} prodotti verificati senza dati privati.`);
