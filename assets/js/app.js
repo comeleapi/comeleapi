@@ -164,7 +164,7 @@
     document.title = "comeleapi - Wellbeing, Massage & Personal Care";
     setAttr('meta[name="description"]', "content", "comeleapi is Sara's wellbeing and massage project: at-home treatments, tailored wellness paths and essential oils for daily balance.");
     setAttr('meta[property="og:title"]', "content", "comeleapi - Wellbeing & Massage");
-    setAttr('meta[property="og:description"]', "content", "A wellbeing project curated by Sara: essential oils, tailored treatments and direct contact in 20091 Bresso, Milan.");
+    setAttr('meta[property="og:description"]', "content", "A wellbeing project curated by Sara: essential oils and tailored at-home treatments across Milan, Bresso and nearby areas.");
 
     setAllAttr(".brand", "aria-label", "comeleapi - home");
     setAttr("#mainNav", "aria-label", "Main navigation");
@@ -203,9 +203,7 @@
     setText(".community-box-content h3", "Community");
     setText(".community-box-content p", "Support for all your questions and tailored advice, the first place to discover promotions and news.");
 
-    setText(".faq-box-cta h2", "Frequently asked questions");
-    setText(".faq-box-cta .community-box-content p", "Service areas, prices, bookings and essential oils: every answer about at-home massages in Bresso and North Milan.");
-    setText(".faq-box-cta .faq-box-link", "Read all the answers");
+    setText(".faq-box-cta h2", "FAQ");
 
     setText("#servizi .eyebrow", "Treatments");
     setText("#servizi .section-title", "A need, not a luxury");
@@ -248,8 +246,8 @@
     setText(".booking .section-lead", "Book your consultation on WhatsApp, tell me what you are looking for and receive availability, costs and details clearly and confidentially.");
     setText(".benefits-box h3", "At-home treatments");
     const benefits = [
-      "Treatments are available at home in the Bresso and Cusano Milanino areas.",
-      "For Milan, availability is assessed based on the area and the needs of the treatment.",
+      "Treatments are available at home across Milan, Bresso and the surrounding areas.",
+      "Wherever you are in the Milan area, availability is quickly confirmed on WhatsApp.",
       "An operating space with a dedicated treatment room is being defined, designed to offer an even more welcoming, private and professional environment."
     ];
     $$(".benefits-box li span:last-child").forEach((el, index) => {

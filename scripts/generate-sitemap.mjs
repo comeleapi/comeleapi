@@ -106,7 +106,7 @@ export async function collectSitemapImages(root) {
     {
       loc: absoluteAssetUrl("assets/img/hero/hero-massaggio-professionale-comeleapi.webp"),
       title: "Trattamento professionale comeleapi",
-      caption: "Massaggio professionale con oli essenziali a Bresso e area Milano"
+      caption: "Massaggio professionale con oli essenziali a Milano, Bresso e zone limitrofe"
     },
     {
       loc: absoluteAssetUrl("assets/img/logo-comeleapi-1024.png"),

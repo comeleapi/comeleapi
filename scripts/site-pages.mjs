@@ -244,26 +244,26 @@ const CITY_CONTENT = {
     ]
   },
   milano: {
-    title: "Massaggi a domicilio a Milano Nord: Niguarda, Bicocca, Affori — comeleapi",
+    title: "Massaggi a domicilio a Milano: Niguarda, Bicocca, Affori e tutta la città — comeleapi",
     description:
-      "Massaggi a domicilio nei quartieri di Milano Nord — Niguarda, Ca' Granda, Bicocca, Affori e Bruzzano: da Bresso arrivo con lettino e oli professionali. Prenotazione su WhatsApp.",
-    h2: "Massaggiatrice a domicilio a Milano Nord, quartiere per quartiere",
-    tagline: "Niguarda, Bicocca, Affori e Bruzzano",
-    imageCaption: "Massaggi a domicilio a Milano Nord: Niguarda, Bicocca, Affori e Bruzzano",
+      "Massaggi a domicilio a Milano con Sara Bordenga: servizio attivo in tutta la città, con copertura più rapida nei quartieri nord — Niguarda, Bicocca, Affori e Bruzzano. Prenotazione su WhatsApp.",
+    h2: "Massaggiatrice a domicilio a Milano, dal centro ai quartieri nord",
+    tagline: "Tutta la città, dai quartieri nord al centro",
+    imageCaption: "Massaggi a domicilio a Milano: Niguarda, Bicocca, Affori e tutta la città",
     sameAs: "https://it.wikipedia.org/wiki/Milano",
     intro: [
-      "A Milano il servizio si concentra dove posso arrivare da Bresso in tempi brevi: i quartieri della zona nord — Niguarda, Ca' Granda, Bicocca, Affori e Bruzzano — separati dalla base operativa solo dal Parco Nord.",
-      "Che tu studi o lavori al campus Bicocca o viva nelle vie di Niguarda e Affori, la sostanza non cambia: il trattamento arriva a casa tua e la città resta fuori dalla porta."
+      "Milano è pienamente tra le zone servite da comeleapi: il servizio è attivo in tutta la città, con copertura più rapida nei quartieri della zona nord — Niguarda, Ca' Granda, Bicocca, Affori e Bruzzano — raggiungibili in pochi minuti dalla base operativa di Bresso.",
+      "Che tu viva in centro, studi o lavori al campus Bicocca o abiti nelle vie di Niguarda e Affori, la sostanza non cambia: il trattamento arriva a casa tua e la città resta fuori dalla porta."
     ],
     local: [
-      "Copertura principale: Niguarda, Ca' Granda, Bicocca — zona università e Hangar — Affori e Bruzzano.",
+      "Copertura più immediata: Niguarda, Ca' Granda, Bicocca — zona università e Hangar — Affori e Bruzzano.",
       "Comodo anche per chi abita vicino alle fermate MM3 di Affori e Comasina o alla MM5 tra Bignami e Ponale.",
-      "Per gli altri quartieri di Milano la disponibilità viene valutata caso per caso: scrivimi la tua zona su WhatsApp."
+      "Per gli altri quartieri di Milano la disponibilità è ampia e viene confermata in base a distanza e trattamento: scrivimi la tua zona su WhatsApp."
     ],
     faq: [
       {
         q: "Quali quartieri di Milano copri a domicilio?",
-        a: "Quelli della zona nord più vicini a Bresso: Niguarda, Ca' Granda, Bicocca, Affori e Bruzzano. Per il resto della città valuto caso per caso in base a distanza e trattamento."
+        a: "Tutta la città è tra le zone servite: la copertura più rapida riguarda i quartieri nord — Niguarda, Ca' Granda, Bicocca, Affori e Bruzzano — mentre per gli altri quartieri confermo la disponibilità su WhatsApp in base a distanza e trattamento."
       },
       {
         q: "Abito in zona Bicocca: con quanto anticipo devo scriverti?",
@@ -305,7 +305,7 @@ const SERVICE_CONTENT = {
       },
       {
         q: "Dove è disponibile il massaggio sportivo a domicilio?",
-        a: "A Bresso, Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e nei quartieri di Milano Nord."
+        a: "A Milano, Bresso, Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e nelle zone limitrofe."
       }
     ]
   },
@@ -331,7 +331,7 @@ const SERVICE_CONTENT = {
       },
       {
         q: "Dove è disponibile il massaggio decontratturante a domicilio?",
-        a: "A Bresso, Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e nei quartieri di Milano Nord."
+        a: "A Milano, Bresso, Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e nelle zone limitrofe."
       }
     ]
   },
@@ -357,7 +357,7 @@ const SERVICE_CONTENT = {
       },
       {
         q: "Dove è disponibile il massaggio relax a domicilio?",
-        a: "A Bresso, Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e nei quartieri di Milano Nord."
+        a: "A Milano, Bresso, Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e nelle zone limitrofe."
       }
     ]
   },
@@ -383,7 +383,7 @@ const SERVICE_CONTENT = {
       },
       {
         q: "Dove è disponibile il massaggio drenante a domicilio?",
-        a: "A Bresso, Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e nei quartieri di Milano Nord."
+        a: "A Milano, Bresso, Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e nelle zone limitrofe."
       }
     ]
   },
@@ -409,7 +409,7 @@ const SERVICE_CONTENT = {
       },
       {
         q: "Dove è disponibile il trattamento mirato a domicilio?",
-        a: "A Bresso, Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e nei quartieri di Milano Nord."
+        a: "A Milano, Bresso, Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e nelle zone limitrofe."
       }
     ]
   },
@@ -435,7 +435,7 @@ const SERVICE_CONTENT = {
       },
       {
         q: "Dove è disponibile il kinesio taping a domicilio?",
-        a: "A Bresso, Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e nei quartieri di Milano Nord."
+        a: "A Milano, Bresso, Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e nelle zone limitrofe."
       }
     ]
   },
@@ -461,7 +461,7 @@ const SERVICE_CONTENT = {
       },
       {
         q: "Dove è disponibile il massaggio con oli essenziali a domicilio?",
-        a: "A Bresso, Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e nei quartieri di Milano Nord."
+        a: "A Milano, Bresso, Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e nelle zone limitrofe."
       }
     ]
   }
@@ -504,7 +504,6 @@ function ctaSectionHtml(message) {
         </div>
         <div class="subpage-cta">
           <a class="btn btn--primary" href="${escapeHtml(whatsAppUrl(message))}" target="_blank" rel="noopener">Scrivimi su WhatsApp</a>
-          <a class="btn btn--ghost" href="tel:+${PHONE_E164}">Chiama il ${PHONE_DISPLAY}</a>
         </div>
       </div>
     </section>`;
@@ -690,7 +689,7 @@ ${content}
         <ul>
           <li><a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a></li>
           <li><a href="tel:+${PHONE_E164}">${PHONE_DISPLAY}</a></li>
-          <li>Solo a domicilio &mdash; Bresso e Milano Nord</li>
+          <li>Solo a domicilio &mdash; Milano, Bresso e zone limitrofe</li>
           <li>Nessuno studio aperto al pubblico</li>
         </ul>
       </div>
@@ -723,7 +722,7 @@ function pageHeadHtml({ eyebrow, h1, lead, crumbs }) {
       <div class="container">
 ${breadcrumbsHtml(crumbs)}
         <div class="section-head section-head--center">
-          <span class="eyebrow">${escapeHtml(eyebrow)}</span>
+          ${eyebrow ? `<span class="eyebrow">${escapeHtml(eyebrow)}</span>` : ""}
           <h1 class="section-title">${escapeHtml(h1)}</h1>
           ${lead ? `<p class="section-lead">${escapeHtml(lead)}</p>` : ""}
         </div>
@@ -747,11 +746,9 @@ function serviceCardsHtml(v, { linkPrefix = "/servizi/" } = {}) {
 // derivata dai sorgenti PNG in assets/img/icons/icone-città e ottimizzata in WebP lossless 128px.
 function zoneCardsHtml(v) {
   return AREA_DEFINITIONS.map(([slug, name]) => {
-    const tagline = CITY_CONTENT[slug].tagline;
     return `          <a class="service-card service-card--link" href="/zone/${slug}/">
             <div class="service-ic" aria-hidden="true"><img class="generated-icon" src="${v(`assets/img/icons/icon-city-${slug}.webp`)}" alt="" loading="lazy" decoding="async" /></div>
             <h3>${escapeHtml(name)}</h3>
-            <p class="zone-card-note">${escapeHtml(tagline)}</p>
           </a>`;
   }).join("\n");
 }
@@ -763,10 +760,10 @@ const HOW_IT_WORKS_HTML = `    <section class="section">
           <h2 class="section-title">Il benessere arriva a casa tua</h2>
         </div>
         <ul class="subpage-list">
-          <li>Arrivo da te con lettino professionale, teli e oli: non serve nulla da parte tua.</li>
-          <li>Scegli un ambiente tranquillo della casa: bastano pochi metri quadrati.</li>
-          <li>Concordiamo insieme giorno e orario su WhatsApp, senza vincoli di segreteria.</li>
-          <li>comeleapi non ha uno studio né una sede aperta al pubblico: lavoro solo a domicilio, su appuntamento.</li>
+          <li>Arrivo da te con lettino professionale, teli e oli.</li>
+          <li>Scegli un ambiente tranquillo della casa, bastano pochi metri quadrati.</li>
+          <li>Concordiamo insieme giorno e orario su WhatsApp.</li>
+          <li>Lavoro solo a domicilio su appuntamento.</li>
         </ul>
       </div>
     </section>`;
@@ -776,18 +773,18 @@ const HOW_IT_WORKS_HTML = `    <section class="section">
 function buildZoneHubPage(v) {
   const pagePath = "/zone/";
   const pageUrl = `${SITE_URL}zone/`;
-  const title = "Zone servite — Massaggi a domicilio a Bresso e Milano Nord | comeleapi";
+  const title = "Zone servite — Massaggi a domicilio a Milano, Bresso e Milano Nord | comeleapi";
   const description =
-    "Le zone coperte dal servizio di massaggi a domicilio di comeleapi: Bresso, Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e Milano Nord.";
+    "Le zone coperte dal servizio di massaggi a domicilio di comeleapi: Milano, Bresso, Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e le aree limitrofe.";
   const crumbs = [
     { name: "Home", path: "/" },
-    { name: "Zone", path: pagePath }
+    { name: "Where", path: pagePath }
   ];
   const content = [
     pageHeadHtml({
       eyebrow: "Zone servite",
-      h1: "Massaggi a domicilio a Bresso e Milano Nord",
-      lead: "comeleapi lavora esclusivamente a domicilio: scegli la tua città e scopri come funziona il servizio nella tua zona.",
+      h1: "Massaggi a domicilio a Milano, Bresso e Milano Nord",
+      lead: "comeleapi lavora esclusivamente a domicilio a Milano, Bresso e nei comuni limitrofi: scegli la tua città e scopri come funziona il servizio nella tua zona.",
       crumbs
     }),
     `    <section class="section">
@@ -802,7 +799,7 @@ ${zoneCardsHtml(v)}
       [
         {
           q: "Quali zone copre il servizio a domicilio?",
-          a: "Bresso, Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e i quartieri di Milano Nord più vicini a Bresso, come Niguarda, Bicocca, Affori e Bruzzano."
+          a: "Milano — con copertura più rapida nei quartieri nord come Niguarda, Bicocca, Affori e Bruzzano — Bresso, Cusano Milanino, Cormano, Cinisello Balsamo e Sesto San Giovanni. Per le altre zone limitrofe scrivimi su WhatsApp: valuto caso per caso."
         },
         {
           q: "La mia città non è in elenco: posso comunque prenotare?",
@@ -852,7 +849,7 @@ ${zoneCardsHtml(v)}
       faqPageNode(pageUrl, [
         {
           q: "Quali zone copre il servizio a domicilio?",
-          a: "Bresso, Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e i quartieri di Milano Nord più vicini a Bresso, come Niguarda, Bicocca, Affori e Bruzzano."
+          a: "Milano — con copertura più rapida nei quartieri nord come Niguarda, Bicocca, Affori e Bruzzano — Bresso, Cusano Milanino, Cormano, Cinisello Balsamo e Sesto San Giovanni. Per le altre zone limitrofe scrivimi su WhatsApp: valuto caso per caso."
         },
         {
           q: "La mia città non è in elenco: posso comunque prenotare?",
@@ -878,7 +875,7 @@ function buildCityPage(v, [slug, name]) {
   const title = city.title;
   const crumbs = [
     { name: "Home", path: "/" },
-    { name: "Zone", path: "/zone/" },
+    { name: "Where", path: "/zone/" },
     { name, path: pagePath }
   ];
   const content = [
@@ -967,7 +964,7 @@ function buildServicesHubPage(v) {
     pageHeadHtml({
       eyebrow: "Trattamenti",
       h1: "Trattamenti a domicilio",
-      lead: "Ogni seduta è personalizzata sulle tue esigenze e si svolge esclusivamente a casa tua, a Bresso e nell'area di Milano Nord.",
+      lead: "Ogni seduta è personalizzata sulle tue esigenze e si svolge esclusivamente a casa tua, a Milano, Bresso e nelle zone limitrofe.",
       crumbs
     }),
     `    <section class="section">
@@ -986,7 +983,7 @@ ${serviceCardsHtml(v)}
         },
         {
           q: "In quali zone sono disponibili i trattamenti?",
-          a: "A Bresso, Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e nei quartieri di Milano Nord. Tutti i dettagli nella sezione Zone."
+          a: "A Milano, Bresso, Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e nelle zone limitrofe. Tutti i dettagli nella sezione Zone."
         },
         {
           q: "Come scelgo il trattamento più adatto?",
@@ -1033,7 +1030,7 @@ ${serviceCardsHtml(v)}
         { q: "Quanto costano i trattamenti?", a: PRICES_SENTENCE },
         {
           q: "In quali zone sono disponibili i trattamenti?",
-          a: "A Bresso, Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e nei quartieri di Milano Nord. Tutti i dettagli nella sezione Zone."
+          a: "A Milano, Bresso, Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e nelle zone limitrofe. Tutti i dettagli nella sezione Zone."
         },
         {
           q: "Come scelgo il trattamento più adatto?",
@@ -1055,8 +1052,8 @@ function buildServicePage(v, service) {
   if (!extra) throw new Error(`Contenuti mancanti per il servizio: ${service.slug}`);
   const pagePath = `/servizi/${service.slug}/`;
   const pageUrl = `${SITE_URL}servizi/${service.slug}/`;
-  const title = `${service.name} a domicilio — Bresso e Milano Nord | comeleapi`;
-  const description = `${service.name} a domicilio a Bresso e Milano Nord con Sara Bordenga: ${SERVICE_VISIBLE_PRICES[service.slug]}, ${extra.duration}. Prenotazione semplice su WhatsApp.`;
+  const title = `${service.name} a domicilio — Milano, Bresso e Milano Nord | comeleapi`;
+  const description = `${service.name} a domicilio a Milano, Bresso e nelle zone limitrofe con Sara Bordenga: ${SERVICE_VISIBLE_PRICES[service.slug]}, ${extra.duration}. Prenotazione semplice su WhatsApp.`;
   const crumbs = [
     { name: "Home", path: "/" },
     { name: "Servizi", path: "/servizi/" },
@@ -1252,7 +1249,7 @@ const TERMS_BODY_HTML = `      <div class="policy-content">
         <p>Le presenti condizioni descrivono l'uso del sito comeleapi.it e le modalità con cui vengono proposti i servizi di <strong>comeleapi - Sara Bordenga</strong>, progetto di benessere con riferimento territoriale a 20091 Bresso (Milano).</p>
 
         <h4>Natura del servizio</h4>
-        <p>comeleapi propone trattamenti di massaggio a scopo di benessere, svolti esclusivamente a domicilio e su appuntamento nell'area di Bresso e Milano Nord. I trattamenti non hanno finalità sanitarie, non costituiscono prestazioni mediche o fisioterapiche e non sostituiscono il parere di un medico.</p>
+        <p>comeleapi propone trattamenti di massaggio a scopo di benessere, svolti esclusivamente a domicilio e su appuntamento a Milano, Bresso e nelle zone limitrofe. I trattamenti non hanno finalità sanitarie, non costituiscono prestazioni mediche o fisioterapiche e non sostituiscono il parere di un medico.</p>
 
         <h4>Prenotazioni e appuntamenti</h4>
         <ul class="policy-list">
@@ -1363,19 +1360,19 @@ ${legal.body}
 function buildFaqPage(v) {
   const pagePath = "/faq/";
   const pageUrl = `${SITE_URL}faq/`;
-  const title = "Domande frequenti — Massaggi a domicilio a Bresso e Milano Nord | comeleapi";
+  const title = "Domande frequenti — Massaggi a domicilio a Milano, Bresso e Milano Nord | comeleapi";
   const description =
-    "Le risposte alle domande più frequenti su comeleapi: massaggi a domicilio a Bresso e Milano Nord, zone servite, prezzi, prenotazione su WhatsApp e oli essenziali Young Living.";
+    "Le risposte alle domande più frequenti su comeleapi: massaggi a domicilio a Milano, Bresso e nelle zone limitrofe, aree servite, prezzi, prenotazione su WhatsApp e oli essenziali Young Living.";
   const crumbs = [
     { name: "Home", path: "/" },
-    { name: "Domande frequenti", path: pagePath }
+    { name: "Domande", path: pagePath }
   ];
   const content = [
     pageHeadHtml({
-      eyebrow: "Domande frequenti · Milano Nord",
-      h1: "Domande frequenti su massaggi a domicilio e oli essenziali",
+      eyebrow: "",
+      h1: "Massaggi a domicilio e oli essenziali",
       lead:
-        "comeleapi porta il benessere direttamente a casa tua: massaggi sportivi, decontratturanti, relax e drenanti a domicilio a Bresso e in tutta l'area di Milano Nord — Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e Milano. Qui trovi le risposte su trattamenti, prezzi, prenotazioni e oli essenziali Young Living.",
+        "il benessere direttamente a casa tua: massaggi sportivi, decontratturanti, relax e drenanti a domicilio a Milano, Bresso e in tutta l'area di Milano Nord — Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e Milano.",
       crumbs
     }),
     `    <section class="section faq-section" aria-label="Elenco delle domande frequenti">
@@ -1470,7 +1467,7 @@ export const SUBPAGE_SITEMAP_ENTRIES = [
       {
         path: HERO_IMAGE_PATH,
         title: "Massaggi a domicilio nelle zone servite da comeleapi",
-        caption: "Trattamenti a domicilio a Bresso, Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e Milano Nord"
+        caption: "Trattamenti a domicilio a Milano, Bresso, Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e zone limitrofe"
       }
     ]
   },
@@ -1518,7 +1515,7 @@ export const SUBPAGE_SITEMAP_ENTRIES = [
       {
         path: HERO_IMAGE_PATH,
         title: "Domande frequenti sui massaggi a domicilio comeleapi",
-        caption: "Risposte su massaggi a domicilio a Bresso e Milano Nord, prezzi, prenotazioni e oli essenziali Young Living"
+        caption: "Risposte su massaggi a domicilio a Milano, Bresso e zone limitrofe, prezzi, prenotazioni e oli essenziali Young Living"
       }
     ]
   }
