@@ -15,33 +15,48 @@
 //    che /assets/* è servito con cache immutable;
 //  - le informative sono navigabili ma noindex e fuori dalla sitemap (nessun
 //    valore strategico di posizionamento).
-import { AREA_DEFINITIONS, SERVICE_DEFINITIONS, FAQ_DEFINITIONS } from "./structured-data.mjs";
+import {
+  AREA_DEFINITIONS,
+  SERVICE_DEFINITIONS,
+  FAQ_DEFINITIONS,
+  ORGANIZATION_ID,
+  PERSON_ID,
+  serviceId,
+  serviceOfferId,
+  serviceUrl
+} from "./structured-data.mjs";
 import { escapeHtml, buildFaqHtml } from "./html-inject.mjs";
+import { LASTMOD_PLACEHOLDER } from "./content-freshness.mjs";
 
 const SITE_URL = "https://comeleapi.it/";
-const ORGANIZATION_ID = `${SITE_URL}#organization`;
 const CONTACT_EMAIL = "sara.bordenga@gmail.com";
 const PHONE_DISPLAY = "+39 388 163 9306";
 const PHONE_E164 = "393881639306";
 const OG_IMAGE = `${SITE_URL}assets/img/hero/hero-massaggio-professionale-comeleapi.webp`;
-
-// Le pagine sono generate da questi sorgenti: la sitemap usa i loro mtime.
-export const SUBPAGE_SOURCE_FILES = ["scripts/site-pages.mjs", "scripts/structured-data.mjs"];
+const OG_IMAGE_WIDTH = 1376;
+const OG_IMAGE_HEIGHT = 768;
+const OG_IMAGE_ALT = "Trattamento professionale con oli da massaggio";
 
 function whatsAppUrl(message) {
   return `https://wa.me/${PHONE_E164}?text=${encodeURIComponent(message)}`;
 }
 
-// Prezzo visibile per ogni servizio: rispecchia le card della home e la FAQ.
-const SERVICE_VISIBLE_PRICES = {
-  "massaggio-sportivo": "50 €",
-  "massaggio-decontratturante": "50 €",
-  "massaggio-relax": "40 €",
-  "massaggio-drenante": "50 €",
-  "trattamento-mirato-30-minuti": "30 €",
-  "kinesio-taping": "10 €",
-  "massaggio-oli-essenziali": "70 €"
-};
+// Prezzo visibile per ogni servizio, derivato dall'unica fonte di verità
+// (SERVICE_DEFINITIONS.price, la stessa che alimenta le Offer nei dati
+// strutturati): così testo in pagina, FAQ e schema non possono divergere.
+function formatEuro(amount) {
+  const value = Number(amount);
+  if (!Number.isFinite(value)) throw new Error(`Prezzo servizio non valido: ${amount}`);
+  const label = Number.isInteger(value) ? String(value) : value.toFixed(2).replace(".", ",");
+  return `${label} €`;
+}
+
+const SERVICE_VISIBLE_PRICES = Object.fromEntries(
+  SERVICE_DEFINITIONS.map((service) => {
+    if (!service.price) throw new Error(`Prezzo mancante per il servizio: ${service.slug}`);
+    return [service.slug, formatEuro(service.price)];
+  })
+);
 
 // Classe icona per servizio: stessa mappa delle card in index.html.
 const SERVICE_ICON_CLASSES = {
@@ -58,6 +73,15 @@ const PRICES_SENTENCE =
   "I prezzi sono gli stessi in tutte le zone servite: massaggio sportivo, decontratturante e drenante 50 €, " +
   "massaggio relax 40 €, trattamento mirato da 30 minuti 30 €, kinesio taping 10 € e massaggio con oli essenziali 70 €.";
 
+// La frase sopra è scritta a mano (raggruppa i trattamenti con lo stesso
+// prezzo, cosa che una generazione automatica renderebbe illeggibile): questo
+// controllo impedisce che si scolleghi dal listino di SERVICE_DEFINITIONS.
+for (const [slug, label] of Object.entries(SERVICE_VISIBLE_PRICES)) {
+  if (!PRICES_SENTENCE.includes(label)) {
+    throw new Error(`PRICES_SENTENCE non riporta il prezzo di ${slug} (${label}).`);
+  }
+}
+
 // ─── Contenuti per città ────────────────────────────────────────────────────
 // Ogni città ha un taglio editoriale proprio — persona, trattamenti in evidenza,
 // riferimenti locali reali (quartieri, parchi, stazioni) — per evitare
@@ -69,7 +93,6 @@ const CITY_CONTENT = {
       "comeleapi nasce a Bresso: massaggi esclusivamente a domicilio dal centro alle vie lungo il Parco Nord, con la massima flessibilità di date. Prenotazione diretta su WhatsApp.",
     h2: "Massaggiatrice a domicilio a Bresso: la base operativa",
     tagline: "La base operativa del servizio",
-    imageCaption: "Massaggi a domicilio a Bresso, base operativa di comeleapi, dal centro al Parco Nord",
     sameAs: "https://it.wikipedia.org/wiki/Bresso",
     intro: [
       "Bresso non è solo una delle zone servite: è la base operativa da cui parte ogni trattamento comeleapi. Per chi abita qui significa tragitti ridotti al minimo e più facilità nel trovare la data giusta.",
@@ -80,24 +103,10 @@ const CITY_CONTENT = {
       "Essendo la base del servizio, Bresso è la zona con più margine per appuntamenti ravvicinati o riprogrammati.",
       "Ideale al rientro da una camminata o una corsa al Parco Nord: il trattamento ti aspetta direttamente a casa."
     ],
-    faq: [
-      {
-        q: "Copri davvero tutta Bresso?",
-        a: "Sì: il comune è compatto e lo copro per intero, dal centro alla zona dell'aeroporto fino alle vie lungo il Parco Nord. Bresso è la base operativa di comeleapi, nessuna via è fuori portata."
-      },
-      {
-        q: "Quanto costa un massaggio a domicilio a Bresso?",
-        a: `Essere la base operativa non cambia il listino. ${PRICES_SENTENCE}`
-      },
-      {
-        q: "Quanto è facile trovare una data a Bresso?",
-        a: `È la zona con la maggiore disponibilità: scrivimi su WhatsApp al ${PHONE_DISPLAY} e ti propongo le prime date utili.`
-      },
-      {
-        q: "Devo preparare qualcosa per la seduta?",
-        a: "No: arrivo con tutta l'attrezzatura e mi organizzo in autonomia. Ti chiedo solo un ambiente tranquillo con lo spazio per aprire il lettino."
-      }
-    ]
+    faqLocal: {
+      q: "Copri davvero tutta Bresso?",
+      a: "Sì: il comune è compatto e lo copro per intero, dal centro alla zona dell'aeroporto fino alle vie lungo il Parco Nord. Bresso è la base operativa di comeleapi: è la zona con la maggiore disponibilità di date."
+    }
   },
   "cusano-milanino": {
     title: "Massaggi a domicilio a Cusano Milanino, la città giardino — comeleapi",
@@ -105,7 +114,6 @@ const CITY_CONTENT = {
       "Massaggio relax, drenante o con oli essenziali tra i viali della città giardino: a Cusano Milanino il trattamento arriva a casa tua, dal Milanino al centro di Cusano.",
     h2: "Massaggiatrice a domicilio nella città giardino",
     tagline: "La città giardino, al confine con Bresso",
-    imageCaption: "Massaggio relax e trattamenti a domicilio a Cusano Milanino, la città giardino",
     sameAs: "https://it.wikipedia.org/wiki/Cusano_Milanino",
     intro: [
       "Il Milanino è nato più di un secolo fa come città giardino, progettata attorno al benessere di chi la abita: ricevere un massaggio tra i suoi viali alberati, senza nemmeno uscire di casa, è il modo più naturale di viverla.",
@@ -116,24 +124,10 @@ const CITY_CONTENT = {
       "Il confine diretto con la base di Bresso rende semplici anche gli appuntamenti ricorrenti.",
       "La quiete della città giardino è la cornice ideale per il massaggio relax e per il massaggio con oli essenziali Young Living."
     ],
-    faq: [
-      {
-        q: "Arrivi sia al Milanino sia a Cusano centro?",
-        a: "Sì, copro l'intero comune: il quartiere giardino del Milanino, il centro di Cusano e le zone verso il Parco Grugnotorto, senza differenze di tempi o condizioni."
-      },
-      {
-        q: "Il listino a Cusano Milanino è diverso da quello di Bresso?",
-        a: `No, il prezzo non dipende dal comune. ${PRICES_SENTENCE}`
-      },
-      {
-        q: "Quale trattamento scegliere per staccare davvero?",
-        a: "Il massaggio relax da 50 minuti è pensato per rallentare; se ami i profumi, il massaggio con oli essenziali Young Living aggiunge la dimensione aromatica. Ti aiuto a scegliere su WhatsApp."
-      },
-      {
-        q: "Come prenoto da Cusano Milanino?",
-        a: `Scrivi su WhatsApp al ${PHONE_DISPLAY} indicando trattamento e zona — Milanino o Cusano centro — e fissiamo insieme la data.`
-      }
-    ]
+    faqLocal: {
+      q: "Arrivi sia al Milanino sia a Cusano centro?",
+      a: "Sì, copro l'intero comune: il quartiere giardino del Milanino, il centro di Cusano e le zone verso il Parco Grugnotorto. Il confine diretto con Bresso rende semplici anche gli appuntamenti ricorrenti."
+    }
   },
   cormano: {
     title: "Massaggi a domicilio a Cormano, Brusuglio e Ospitaletto — comeleapi",
@@ -141,7 +135,6 @@ const CITY_CONTENT = {
       "Massaggi a domicilio in tutta Cormano, comprese Brusuglio e Ospitaletto: lettino, teli e oli li porto io. A pochi minuti da Bresso, si prenota con un messaggio WhatsApp.",
     h2: "Massaggiatrice a domicilio a Cormano: un servizio, tre borghi",
     tagline: "Con Brusuglio e Ospitaletto",
-    imageCaption: "Massaggi a domicilio a Cormano, Brusuglio e Ospitaletto con Sara Bordenga",
     sameAs: "https://it.wikipedia.org/wiki/Cormano",
     intro: [
       "Cormano è fatta di tre anime — Cormano centro, Brusuglio e Ospitaletto — e il servizio a domicilio le copre tutte, alle stesse condizioni.",
@@ -152,24 +145,10 @@ const CITY_CONTENT = {
       "Comodo per chi pendola da e per Milano dalla stazione di Cormano-Cusano Milanino: l'appuntamento si costruisce sui tuoi rientri.",
       "La distanza minima da Bresso lascia buona flessibilità per sedute singole o ricorrenti."
     ],
-    faq: [
-      {
-        q: "Vieni a domicilio anche a Brusuglio e Ospitaletto?",
-        a: "Sì: le frazioni fanno parte del servizio esattamente come Cormano centro. Indicami la via nel messaggio e ti confermo la disponibilità."
-      },
-      {
-        q: "C'è un sovrapprezzo per le frazioni di Cormano?",
-        a: `No, nessun sovrapprezzo. ${PRICES_SENTENCE}`
-      },
-      {
-        q: "Rientro con orari variabili: come ci organizziamo?",
-        a: "L'appuntamento si concorda direttamente su WhatsApp, senza segreteria: mi scrivi le tue finestre libere e costruiamo la seduta intorno ai tuoi orari."
-      },
-      {
-        q: "Quale trattamento consigli dopo giornate tra scrivania e treno?",
-        a: "Il massaggio decontratturante da 50 minuti lavora su collo, spalle e schiena; se il tempo è poco, il trattamento mirato da 30 minuti si concentra su un'unica zona."
-      }
-    ]
+    faqLocal: {
+      q: "Vieni a domicilio anche a Brusuglio e Ospitaletto?",
+      a: "Sì: le frazioni fanno parte del servizio esattamente come Cormano centro, alle stesse condizioni. Indicami la via nel messaggio e ti confermo la disponibilità."
+    }
   },
   "cinisello-balsamo": {
     title: "Massaggi a domicilio a Cinisello Balsamo, anche sportivi — comeleapi",
@@ -177,7 +156,6 @@ const CITY_CONTENT = {
       "Dopo la palestra o la corsa al Parco Nord, il recupero ti aspetta a casa: massaggi a domicilio in tutta Cinisello Balsamo, dalla Crocetta a Sant'Eusebio. Prenoti su WhatsApp.",
     h2: "Massaggiatrice a domicilio a Cinisello Balsamo: sport e recupero",
     tagline: "Sport e recupero, dal Parco Nord a casa",
-    imageCaption: "Massaggio sportivo e trattamenti a domicilio in tutti i quartieri di Cinisello Balsamo",
     sameAs: "https://it.wikipedia.org/wiki/Cinisello_Balsamo",
     intro: [
       "Cinisello Balsamo è la città più grande tra quelle servite e una delle più attive: tra le palestre cittadine e i percorsi del Parco Nord, chi si allena qui non manca di occasioni — né di muscoli da far recuperare.",
@@ -188,24 +166,10 @@ const CITY_CONTENT = {
       "Il dopo-allenamento è il momento tipico: massaggio sportivo, drenante e applicazione di kinesio taping senza muoverti da casa.",
       "Bresso è a un confine di distanza: tempi di arrivo contenuti e buona scelta di date."
     ],
-    faq: [
-      {
-        q: "Fai massaggi sportivi a domicilio a Cinisello Balsamo?",
-        a: "Sì, è uno dei trattamenti più indicati per chi si allena: 50 minuti dedicati a preparazione o recupero muscolare, con l'esperienza di un'ex atleta. Su richiesta aggiungo l'applicazione di kinesio taping."
-      },
-      {
-        q: "Copri anche Crocetta e Sant'Eusebio?",
-        a: "Sì: il servizio copre tutti i quartieri di Cinisello Balsamo, comprese Crocetta, Sant'Eusebio e la zona di Villa Ghirlanda. Nessuna via è esclusa."
-      },
-      {
-        q: "Quanto costa un massaggio a domicilio a Cinisello Balsamo?",
-        a: `Il domicilio non aggiunge costi. ${PRICES_SENTENCE}`
-      },
-      {
-        q: "Posso organizzare la seduta in base a gare e allenamenti?",
-        a: "Sì: scrivimi appena conosci il calendario e concordiamo la data su WhatsApp. Possiamo valutare anche il massaggio sportivo di preparazione prima dell'impegno."
-      }
-    ]
+    faqLocal: {
+      q: "Copri tutti i quartieri di Cinisello Balsamo?",
+      a: "Sì: Cinisello centro, Balsamo, Crocetta, Sant'Eusebio e le vie intorno a Villa Ghirlanda. Dopo la palestra o la corsa al Parco Nord, massaggio sportivo e kinesio taping ti aspettano direttamente a casa."
+    }
   },
   "sesto-san-giovanni": {
     title: "Massaggi a domicilio a Sesto San Giovanni, sui tuoi orari — comeleapi",
@@ -213,7 +177,6 @@ const CITY_CONTENT = {
       "A Sesto San Giovanni il massaggio arriva a casa, dal Rondò a Cascina Gatti: decontratturante, relax o trattamento mirato da 30 minuti. L'appuntamento si costruisce sui tuoi orari.",
     h2: "Massaggiatrice a domicilio a Sesto San Giovanni, sui tuoi orari",
     tagline: "Dal Rondò a Cascina Gatti",
-    imageCaption: "Massaggi a domicilio a Sesto San Giovanni, dal Rondò a Cascina Gatti",
     sameAs: "https://it.wikipedia.org/wiki/Sesto_San_Giovanni",
     intro: [
       "Sesto San Giovanni è una città che non si ferma, tra uffici, la trasformazione delle ex aree Falck e migliaia di persone in movimento ogni giorno lungo la MM1. Il massaggio a domicilio è pensato per chi, a fine giornata, non vuole rimettersi in coda.",
@@ -224,24 +187,10 @@ const CITY_CONTENT = {
       "Per chi passa molte ore alla scrivania: massaggio decontratturante da 50 minuti o trattamento mirato da 30, concentrato su collo e spalle.",
       "Da Bresso raggiungo Sesto costeggiando il Parco Nord: distanze contenute e appuntamenti concordati sui tuoi impegni."
     ],
-    faq: [
-      {
-        q: "Copri tutti i quartieri di Sesto San Giovanni?",
-        a: "Sì: Rondò, Marelli, Rondinella, Cascina Gatti, Pelucca e ogni altra via del comune. Scrivimi la tua zona e ti confermo la prima data disponibile."
-      },
-      {
-        q: "Lavoro tutto il giorno: riusciamo comunque a organizzarci?",
-        a: "Sì: l'appuntamento si concorda direttamente su WhatsApp, senza vincoli di segreteria. Dimmi quando sei a casa e troviamo l'incastro giusto."
-      },
-      {
-        q: "Sesto è più lontana da Bresso: il prezzo cambia?",
-        a: `No, la distanza non incide sul listino. ${PRICES_SENTENCE}`
-      },
-      {
-        q: "Meglio massaggio decontratturante o trattamento mirato?",
-        a: "Dipende da tempo e zone di tensione: il decontratturante lavora in profondità per 50 minuti, il mirato concentra 30 minuti su un'unica area, come cervicale o schiena. Ti aiuto a scegliere su WhatsApp."
-      }
-    ]
+    faqLocal: {
+      q: "Copri tutti i quartieri di Sesto San Giovanni?",
+      a: "Sì: Rondò, Marelli, Rondinella, Cascina Gatti, Pelucca e ogni altra via del comune. L'appuntamento si concorda su WhatsApp, costruito sui tuoi orari."
+    }
   },
   milano: {
     title: "Massaggi a domicilio a Milano: Niguarda, Bicocca, Affori e tutta la città — comeleapi",
@@ -249,7 +198,6 @@ const CITY_CONTENT = {
       "Massaggi a domicilio a Milano con Sara Bordenga: servizio attivo in tutta la città, con copertura più rapida nei quartieri nord — Niguarda, Bicocca, Affori e Bruzzano. Prenotazione su WhatsApp.",
     h2: "Massaggiatrice a domicilio a Milano, dal centro ai quartieri nord",
     tagline: "Tutta la città, dai quartieri nord al centro",
-    imageCaption: "Massaggi a domicilio a Milano: Niguarda, Bicocca, Affori e tutta la città",
     sameAs: "https://it.wikipedia.org/wiki/Milano",
     intro: [
       "Milano è pienamente tra le zone servite da comeleapi: il servizio è attivo in tutta la città, con copertura più rapida nei quartieri della zona nord — Niguarda, Ca' Granda, Bicocca, Affori e Bruzzano — raggiungibili in pochi minuti dalla base operativa di Bresso.",
@@ -260,30 +208,18 @@ const CITY_CONTENT = {
       "Comodo anche per chi abita vicino alle fermate MM3 di Affori e Comasina o alla MM5 tra Bignami e Ponale.",
       "Per gli altri quartieri di Milano la disponibilità è ampia e viene confermata in base a distanza e trattamento: scrivimi la tua zona su WhatsApp."
     ],
-    faq: [
-      {
-        q: "Quali quartieri di Milano copri a domicilio?",
-        a: "Tutta la città è tra le zone servite: la copertura più rapida riguarda i quartieri nord — Niguarda, Ca' Granda, Bicocca, Affori e Bruzzano — mentre per gli altri quartieri confermo la disponibilità su WhatsApp in base a distanza e trattamento."
-      },
-      {
-        q: "Abito in zona Bicocca: con quanto anticipo devo scriverti?",
-        a: `Non c'è un anticipo minimo: scrivimi su WhatsApp al ${PHONE_DISPLAY} e ti propongo le prime date compatibili con la tua zona.`
-      },
-      {
-        q: "Venire fino a Milano costa di più?",
-        a: `No. ${PRICES_SENTENCE}`
-      },
-      {
-        q: "Il mio quartiere non è tra quelli elencati: ha senso scriverti?",
-        a: "Sì, sempre: indicami quartiere e trattamento desiderato e ti dico subito, senza impegno, se riesco a raggiungerti."
-      }
-    ]
+    faqLocal: {
+      q: "Quali quartieri di Milano copri a domicilio?",
+      a: "Tutta la città è tra le zone servite: la copertura più rapida riguarda i quartieri nord — Niguarda, Ca' Granda, Bicocca, Affori e Bruzzano — mentre per gli altri quartieri confermo la disponibilità su WhatsApp in base a distanza e trattamento."
+    }
   }
 };
 
 // ─── Contenuti per servizio ─────────────────────────────────────────────────
 const SERVICE_CONTENT = {
   "massaggio-sportivo": {
+    title: "Massaggio sportivo a domicilio a Milano e Bresso | comeleapi",
+    whereNote: "Molte richieste arrivano da chi si allena al Parco Nord o corre lungo il Villoresi: il dopo-gara si trasforma in recupero senza rientrare in palestra.",
     duration: "50 minuti",
     intro: [
       "Il massaggio sportivo è pensato per chi si allena con costanza e vuole prendersi cura della propria muscolatura: prima dell'attività per preparare i tessuti, dopo per favorire il recupero.",
@@ -304,12 +240,14 @@ const SERVICE_CONTENT = {
         a: "No: porto io lettino professionale, teli e oli. Ti basta scegliere un ambiente tranquillo della casa."
       },
       {
-        q: "Dove è disponibile il massaggio sportivo a domicilio?",
-        a: "A Milano, Bresso, Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e nelle zone limitrofe."
+        q: "Il massaggio sportivo va fatto prima o dopo l'allenamento?",
+        a: "Entrambi, con obiettivi diversi: prima dell'attività prepara i tessuti al carico, dopo favorisce il recupero. Se hai una gara in programma, dimmi la data e concordiamo insieme il momento migliore."
       }
     ]
   },
   "massaggio-decontratturante": {
+    title: "Massaggio decontratturante a domicilio, 50 € | comeleapi",
+    whereNote: "È il trattamento più richiesto da chi pendola su Milano e Sesto San Giovanni e passa la giornata alla scrivania.",
     duration: "50 minuti",
     intro: [
       "Il massaggio decontratturante lavora sulle zone in cui accumuli più tensione — spesso collo, spalle e schiena — con manualità mirate e profonde.",
@@ -330,12 +268,14 @@ const SERVICE_CONTENT = {
         a: "Sì: prima della seduta parliamo delle zone in cui senti più tensione e il lavoro viene calibrato sulle tue esigenze."
       },
       {
-        q: "Dove è disponibile il massaggio decontratturante a domicilio?",
-        a: "A Milano, Bresso, Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e nelle zone limitrofe."
+        q: "Il massaggio decontratturante fa male?",
+        a: "Il lavoro è profondo ma non deve mai essere doloroso: la pressione si calibra insieme durante la seduta e puoi chiedermi di alleggerire in qualsiasi momento."
       }
     ]
   },
   "massaggio-relax": {
+    title: "Massaggio relax a domicilio a Milano Nord, 40 € | comeleapi",
+    whereNote: "Nelle zone più tranquille — la città giardino di Cusano Milanino, le vie residenziali di Cormano — la seduta serale è la richiesta più frequente.",
     duration: "50 minuti",
     intro: [
       "Il massaggio relax è un momento tutto per te: manualità avvolgenti e ritmo lento per allentare lo stress e ritrovare calma e leggerezza.",
@@ -356,12 +296,14 @@ const SERVICE_CONTENT = {
         a: "Basta una stanza tranquilla: al lettino, ai teli e agli oli penso io. Se vuoi, puoi aggiungere luce soffusa e la tua musica preferita."
       },
       {
-        q: "Dove è disponibile il massaggio relax a domicilio?",
-        a: "A Milano, Bresso, Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e nelle zone limitrofe."
+        q: "È adatto anche a chi non ha mai ricevuto un massaggio?",
+        a: "Sì: è il trattamento con cui consiglio di iniziare. Manualità avvolgenti, ritmo lento e nessuna pressione profonda, così puoi capire con calma come reagisce il tuo corpo."
       }
     ]
   },
   "massaggio-drenante": {
+    title: "Massaggio drenante a domicilio a Milano e Bresso | comeleapi",
+    whereNote: "Chi lo sceglie di solito prenota un ciclo di sedute ravvicinate: nelle zone vicine a Bresso è più semplice trovare date vicine tra loro.",
     duration: "50 minuti",
     intro: [
       "Il massaggio drenante utilizza manualità dolci e ritmate che accompagnano la naturale circolazione dei liquidi, per una piacevole sensazione di leggerezza.",
@@ -382,12 +324,14 @@ const SERVICE_CONTENT = {
         a: "Dipende dalle tue esigenze: ne parliamo insieme al primo contatto e definiamo il percorso più adatto a te."
       },
       {
-        q: "Dove è disponibile il massaggio drenante a domicilio?",
-        a: "A Milano, Bresso, Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e nelle zone limitrofe."
+        q: "Il massaggio drenante è un linfodrenaggio medico?",
+        a: "No: è un trattamento di benessere con manualità dolci e ritmate, non una prestazione sanitaria, e non sostituisce il parere di un medico. Se cerchi un percorso clinico, parlane con il tuo medico curante."
       }
     ]
   },
   "trattamento-mirato-30-minuti": {
+    title: "Trattamento mirato 30 minuti a domicilio, 30 € | comeleapi",
+    whereNote: "Mezz'ora è spesso la scelta di chi ha poco tempo in pausa pranzo, soprattutto nelle zone più vicine a Bresso e Cusano Milanino.",
     duration: "30 minuti",
     intro: [
       "Il trattamento mirato da 30 minuti concentra il lavoro su una sola zona — ad esempio cervicale, schiena o gambe — quando il tempo è poco ma il bisogno è chiaro.",
@@ -408,12 +352,14 @@ const SERVICE_CONTENT = {
         a: "Una zona a scelta: ad esempio cervicale e spalle, schiena o gambe. La definiamo insieme al momento della prenotazione."
       },
       {
-        q: "Dove è disponibile il trattamento mirato a domicilio?",
-        a: "A Milano, Bresso, Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e nelle zone limitrofe."
+        q: "In 30 minuti si riesce a lavorare davvero su una zona?",
+        a: "Sì, purché la richiesta sia circoscritta: mezz'ora basta per una singola area — per esempio collo e spalle, oppure i polpacci. Per un lavoro su tutto il corpo serve una seduta da 50 minuti."
       }
     ]
   },
   "kinesio-taping": {
+    title: "Kinesio taping a domicilio a Milano Nord, 10 € | comeleapi",
+    whereNote: "Spesso si aggiunge a fine seduta: se stai già prenotando un massaggio, dimmelo in anticipo e porto i nastri della misura giusta.",
     duration: "applicazione",
     intro: [
       "Il kinesio taping è l'applicazione di nastri elastici sulla pelle, molto diffusa in ambito sportivo come supporto alla muscolatura durante il movimento.",
@@ -434,12 +380,14 @@ const SERVICE_CONTENT = {
         a: "Il nastro è pensato per restare sulla pelle alcuni giorni, anche sotto la doccia. Ti spiego io come gestirlo dopo l'applicazione."
       },
       {
-        q: "Dove è disponibile il kinesio taping a domicilio?",
-        a: "A Milano, Bresso, Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e nelle zone limitrofe."
+        q: "Quanto resta applicato il kinesio taping?",
+        a: "In genere il nastro resta in sede per alcuni giorni, anche facendo la doccia. Se si stacca prima o ti dà fastidio, puoi rimuoverlo senza problemi."
       }
     ]
   },
   "massaggio-oli-essenziali": {
+    title: "Massaggio con oli essenziali a domicilio, 70 € | comeleapi",
+    whereNote: "È la seduta più lunga e vale la pena scegliere un orario senza impegni subito dopo, in qualunque zona servita.",
     duration: "seduta completa",
     intro: [
       "Il massaggio con oli essenziali unisce le manualità del massaggio al profumo e alle proprietà degli oli essenziali Young Living, selezionati insieme prima della seduta.",
@@ -460,8 +408,8 @@ const SERVICE_CONTENT = {
         a: "Sì: prima della seduta scegliamo insieme gli oli più adatti a te. Se vuoi approfondire, è disponibile anche la consulenza aromatica Signature Blend."
       },
       {
-        q: "Dove è disponibile il massaggio con oli essenziali a domicilio?",
-        a: "A Milano, Bresso, Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e nelle zone limitrofe."
+        q: "Come vengono scelti gli oli essenziali della seduta?",
+        a: "Li scegliamo insieme prima di iniziare, in base a come ti senti quel giorno. Uso oli essenziali Young Living puri, gli stessi della vetrina del sito."
       }
     ]
   }
@@ -548,6 +496,15 @@ function websiteNode() {
   };
 }
 
+// Identità pubblicata su ogni sottopagina. Prima queste pagine emettevano lo
+// stesso @id della home ma con soli name/url/logo/email/telephone: le pagine
+// costruite per posizionarsi su "massaggio a domicilio <comune>" dichiaravano
+// un'attività senza `areaServed`, senza `founder` e senza `sameAs`. Google
+// interpreta i dati strutturati pagina per pagina e non unisce gli @id tra URL
+// diverse, quindi quelle proprietà andavano semplicemente perse.
+// Ora la descrizione è identica ovunque — stesse proprietà, stessi @id — e
+// include la Person, unico ancoraggio d'entità disponibile per "Sara Bordenga"
+// in assenza di una scheda Wikipedia/Wikidata.
 function organizationNodes() {
   return [
     {
@@ -561,12 +518,32 @@ function organizationNodes() {
     },
     {
       "@id": ORGANIZATION_ID,
-      "@type": ["Organization", "LocalBusiness"],
+      "@type": "Organization",
       name: "comeleapi",
       url: SITE_URL,
+      description:
+        "Servizio di massaggi esclusivamente a domicilio a Milano, Bresso e nell'area di Milano Nord curato da Sara Bordenga, senza studio né sede aperta al pubblico. Propone oli essenziali Young Living tramite link di rivendita indipendente, senza vendita o spedizione diretta.",
+      slogan: "Vola verso il tuo benessere",
       logo: { "@id": `${SITE_URL}#logo` },
       email: CONTACT_EMAIL,
-      telephone: `+${PHONE_E164}`
+      telephone: `+${PHONE_E164}`,
+      founder: { "@id": PERSON_ID },
+      areaServed: inlineCities(),
+      sameAs: [
+        "https://www.instagram.com/comeleapi/",
+        "https://www.facebook.com/profile.php?id=61591999618100&locale=it_IT"
+      ]
+    },
+    {
+      "@id": PERSON_ID,
+      "@type": "Person",
+      name: "Sara Bordenga",
+      url: `${SITE_URL}#chi-sono`,
+      jobTitle: "Massaggiatrice sportiva",
+      description:
+        "Fondatrice di comeleapi, massaggiatrice sportiva e rivenditrice indipendente di prodotti Young Living.",
+      worksFor: { "@id": ORGANIZATION_ID },
+      knowsLanguage: ["it", "en", "es"]
     }
   ];
 }
@@ -593,7 +570,12 @@ function inlineCities() {
 
 // ─── Shell di pagina (head + header + footer identici alla landing) ────────
 function pageShell({ canonical, title, description, robots, structuredData, content, v }) {
-  const robotsMeta = robots ? `\n  <meta name="robots" content="${robots}" />` : "";
+  // Pagine indicizzabili: anteprime estese esplicite (senza max-image-preview:large
+  // Google riduce la miniatura in SERP, Discover e superfici AI). Pagine legali:
+  // resta la direttiva noindex passata dal chiamante.
+  const robotsMeta = `\n  <meta name="robots" content="${
+    robots || "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+  }" />`;
   return `<!DOCTYPE html>
 <html lang="it">
 <head>
@@ -609,15 +591,17 @@ function pageShell({ canonical, title, description, robots, structuredData, cont
   <meta property="og:type" content="website" />
   <meta property="og:url" content="${canonical}" />
   <meta property="og:site_name" content="comeleapi" />
+  <meta property="og:locale" content="it_IT" />
   <meta property="og:image" content="${OG_IMAGE}" />
+  <meta property="og:image:width" content="${OG_IMAGE_WIDTH}" />
+  <meta property="og:image:height" content="${OG_IMAGE_HEIGHT}" />
+  <meta property="og:image:type" content="image/webp" />
+  <meta property="og:image:alt" content="${OG_IMAGE_ALT}" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="${escapeHtml(title)}" />
   <meta name="twitter:description" content="${escapeHtml(description)}" />
   <meta name="twitter:image" content="${OG_IMAGE}" />
-
-  <script id="structuredData" type="application/ld+json">
-${jsonLd(structuredData)}
-  </script>
+  <meta name="twitter:image:alt" content="${OG_IMAGE_ALT}" />
 
   <link rel="preload" as="font" type="font/woff2" href="${v("assets/fonts/mulish-variable-latin.woff2")}" crossorigin />
   <link rel="preload" as="font" type="font/woff2" href="${v("assets/fonts/cormorant-garamond-variable-latin.woff2")}" crossorigin />
@@ -625,6 +609,12 @@ ${jsonLd(structuredData)}
 
   <link rel="icon" type="image/webp" sizes="96x96" href="${v("assets/img/logo-comeleapi-96.webp")}" />
   <link rel="apple-touch-icon" href="${v("assets/img/logo-comeleapi-256.png")}" />
+
+  <!-- Il foglio di stile precede il JSON-LD: è la risorsa che blocca il rendering,
+       i dati strutturati no. -->
+  <script id="structuredData" type="application/ld+json">
+${jsonLd(structuredData)}
+  </script>
 </head>
 <body class="subpage">
   <header class="site-header" id="siteHeader">
@@ -704,7 +694,7 @@ ${content}
     </div>
     <div class="container footer-bottom" style="flex-direction: column; justify-content: center; text-align: center; gap: 1.5rem;">
       <span>© <span id="year"></span> comeleapi. Tutti i diritti riservati.</span>
-      <a href="https://www.webnovis.com" target="_blank" rel="noopener" class="btn-webnovis">
+      <a href="https://www.webnovis.com" target="_blank" rel="noopener nofollow" class="btn-webnovis">
         Realizzato con cura da WebNovis
       </a>
     </div>
@@ -753,6 +743,19 @@ function zoneCardsHtml(v) {
   }).join("\n");
 }
 
+// FAQ locali accorpate nella pagina /faq/: una sola domanda condensata per
+// comune (copertura + nota distintiva), con rimando alla pagina di zona.
+// Le ripetizioni su prezzi e prenotazione vivono solo nelle FAQ generali.
+function localFaqZonesHtml() {
+  return AREA_DEFINITIONS.map(([slug, name]) => {
+    const item = CITY_CONTENT[slug].faqLocal;
+    return `          <details class="faq-item">
+            <summary class="faq-q">${escapeHtml(item.q)}</summary>
+            <div class="faq-a"><p>${escapeHtml(item.a)} <a href="/zone/${slug}/">Tutte le info su ${escapeHtml(name)}</a>.</p></div>
+          </details>`;
+  }).join("\n");
+}
+
 const HOW_IT_WORKS_HTML = `    <section class="section">
       <div class="container">
         <div class="section-head section-head--center">
@@ -784,7 +787,7 @@ function buildZoneHubPage(v) {
     pageHeadHtml({
       eyebrow: "Zone servite",
       h1: "Massaggi a domicilio a Milano, Bresso e Milano Nord",
-      lead: "comeleapi lavora esclusivamente a domicilio a Milano, Bresso e nei comuni limitrofi: scegli la tua città e scopri come funziona il servizio nella tua zona.",
+      lead: "comeleapi è il servizio di massaggi a domicilio di Sara Bordenga: si lavora esclusivamente a casa del cliente a Milano, Bresso e nei comuni limitrofi, senza studio né sede aperta al pubblico. Scegli la tua città e scopri come funziona il servizio nella tua zona.",
       crumbs
     }),
     `    <section class="section">
@@ -809,6 +812,9 @@ ${zoneCardsHtml(v)}
         url: pageUrl,
         description,
         inLanguage: "it-IT",
+        // Sostituito a valle dell'hash del contenuto (scripts/content-freshness.mjs):
+        // stessa data del <lastmod> in sitemap, unico segnale di freschezza.
+        dateModified: LASTMOD_PLACEHOLDER,
         isPartOf: { "@id": `${SITE_URL}#website` },
         breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
         mainEntity: { "@id": `${pageUrl}#zone-list` },
@@ -879,7 +885,6 @@ ${serviceCardsHtml(v)}
       </div>
     </section>`,
     HOW_IT_WORKS_HTML,
-    faqSectionHtml(city.faq, `Domande frequenti su ${name}`),
     ctaSectionHtml(`Ciao Sara, vorrei prenotare un massaggio a domicilio a ${name}.`)
   ].join("\n\n");
 
@@ -894,6 +899,9 @@ ${serviceCardsHtml(v)}
         url: pageUrl,
         description: city.description,
         inLanguage: "it-IT",
+        // Sostituito a valle dell'hash del contenuto (scripts/content-freshness.mjs):
+        // stessa data del <lastmod> in sitemap, unico segnale di freschezza.
+        dateModified: LASTMOD_PLACEHOLDER,
         isPartOf: { "@id": `${SITE_URL}#website` },
         breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
         mainEntity: { "@id": ORGANIZATION_ID },
@@ -905,12 +913,10 @@ ${serviceCardsHtml(v)}
             containedInPlace: { "@type": "AdministrativeArea", name: "Città metropolitana di Milano" }
           },
           { "@id": ORGANIZATION_ID }
-        ],
-        hasPart: { "@id": `${pageUrl}#faq` }
+        ]
       },
       breadcrumbNode(pageUrl, crumbs),
-      ...organizationNodes(),
-      faqPageNode(pageUrl, city.faq, `Domande frequenti sui massaggi a domicilio a ${name}`)
+      ...organizationNodes()
     ]
   };
 
@@ -935,7 +941,7 @@ function buildServicesHubPage(v) {
     pageHeadHtml({
       eyebrow: "Trattamenti",
       h1: "Trattamenti a domicilio",
-      lead: "Ogni seduta è personalizzata sulle tue esigenze e si svolge esclusivamente a casa tua, a Milano, Bresso e nelle zone limitrofe.",
+      lead: "Ogni trattamento è svolto da Sara Bordenga, massaggiatrice sportiva ed ex atleta: la seduta è personalizzata sulle tue esigenze e si svolge esclusivamente a casa tua, a Milano, Bresso e nelle zone limitrofe.",
       crumbs
     }),
     `    <section class="section">
@@ -977,6 +983,9 @@ ${serviceCardsHtml(v)}
         url: pageUrl,
         description,
         inLanguage: "it-IT",
+        // Sostituito a valle dell'hash del contenuto (scripts/content-freshness.mjs):
+        // stessa data del <lastmod> in sitemap, unico segnale di freschezza.
+        dateModified: LASTMOD_PLACEHOLDER,
         isPartOf: { "@id": `${SITE_URL}#website` },
         breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
         mainEntity: { "@id": `${pageUrl}#service-list` },
@@ -1023,7 +1032,10 @@ function buildServicePage(v, service) {
   if (!extra) throw new Error(`Contenuti mancanti per il servizio: ${service.slug}`);
   const pagePath = `/servizi/${service.slug}/`;
   const pageUrl = `${SITE_URL}servizi/${service.slug}/`;
-  const title = `${service.name} a domicilio — Milano, Bresso e Milano Nord | comeleapi`;
+  // Titolo scritto a mano per ogni trattamento: il template unico produceva
+  // 7 title di 71-85 caratteri con 45 caratteri identici — il caso di "titoli
+  // boilerplate" che Google indica esplicitamente come da evitare.
+  const title = extra.title;
   const description = `${service.name} a domicilio a Milano, Bresso e nelle zone limitrofe con Sara Bordenga: ${SERVICE_VISIBLE_PRICES[service.slug]}, ${extra.duration}. Prenotazione semplice su WhatsApp.`;
   const crumbs = [
     { name: "Home", path: "/" },
@@ -1068,7 +1080,7 @@ ${extra.forWho.map((line) => `          <li>${escapeHtml(line)}</li>`).join("\n"
         <div class="section-head section-head--center">
           <h2 class="section-title">Dove è disponibile</h2>
         </div>
-        <p class="subpage-text">Il trattamento si svolge esclusivamente a domicilio nelle zone di ${zoneLinks}. Scopri tutte le aree nella pagina <a href="/zone/">Zone</a>.</p>
+        <p class="subpage-text">Il trattamento si svolge esclusivamente a domicilio nelle zone di ${zoneLinks}. ${escapeHtml(extra.whereNote)} Scopri tutte le aree nella pagina <a href="/zone/">Zone</a>.</p>
       </div>
     </section>`,
     HOW_IT_WORKS_HTML,
@@ -1076,12 +1088,15 @@ ${extra.forWho.map((line) => `          <li>${escapeHtml(line)}</li>`).join("\n"
     ctaSectionHtml(`Ciao Sara, vorrei prenotare un ${service.name.toLowerCase()} a domicilio.`)
   ].join("\n\n");
 
+  // Stesso @id e stessa url usati dal grafo della home (structured-data.mjs):
+  // un solo nodo Service per trattamento in tutto il sito, non due entità
+  // concorrenti che descrivono la stessa prestazione.
   const serviceNode = {
-    "@id": `${pageUrl}#service`,
+    "@id": serviceId(service.slug),
     "@type": "Service",
     name: service.name,
     serviceType: service.name,
-    url: pageUrl,
+    url: serviceUrl(service.slug),
     description: service.description,
     image: `${SITE_URL}${service.image}`,
     provider: { "@id": ORGANIZATION_ID },
@@ -1092,17 +1107,31 @@ ${extra.forWho.map((line) => `          <li>${escapeHtml(line)}</li>`).join("\n"
       name: "Prenotazione tramite WhatsApp",
       serviceUrl: `https://wa.me/${PHONE_E164}`,
       availableLanguage: ["it", "en", "es"]
-    }
-  };
-  if (service.price) {
-    serviceNode.offers = {
+    },
+    offers: {
+      "@id": serviceOfferId(service.slug),
       "@type": "Offer",
       price: service.price,
       priceCurrency: "EUR",
-      url: pageUrl,
-      seller: { "@id": ORGANIZATION_ID }
-    };
-  }
+      url: serviceUrl(service.slug),
+      seller: { "@id": ORGANIZATION_ID },
+      businessFunction: "http://purl.org/goodrelations/v1#ProvideService",
+      ...(service.durationMinutes
+        ? {
+            priceSpecification: {
+              "@type": "UnitPriceSpecification",
+              price: service.price,
+              priceCurrency: "EUR",
+              referenceQuantity: {
+                "@type": "QuantitativeValue",
+                value: service.durationMinutes,
+                unitCode: "MIN"
+              }
+            }
+          }
+        : {})
+    }
+  };
 
   const structuredData = {
     "@context": "https://schema.org",
@@ -1115,9 +1144,12 @@ ${extra.forWho.map((line) => `          <li>${escapeHtml(line)}</li>`).join("\n"
         url: pageUrl,
         description,
         inLanguage: "it-IT",
+        // Sostituito a valle dell'hash del contenuto (scripts/content-freshness.mjs):
+        // stessa data del <lastmod> in sitemap, unico segnale di freschezza.
+        dateModified: LASTMOD_PLACEHOLDER,
         isPartOf: { "@id": `${SITE_URL}#website` },
         breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
-        mainEntity: { "@id": `${pageUrl}#service` },
+        mainEntity: { "@id": serviceId(service.slug) },
         about: { "@id": ORGANIZATION_ID },
         hasPart: { "@id": `${pageUrl}#faq` }
       },
@@ -1299,12 +1331,24 @@ ${legal.body}
         url: pageUrl,
         description: legal.description,
         inLanguage: "it-IT",
+        // Sostituito a valle dell'hash del contenuto (scripts/content-freshness.mjs):
+        // stessa data del <lastmod> in sitemap, unico segnale di freschezza.
+        dateModified: LASTMOD_PLACEHOLDER,
         isPartOf: { "@id": `${SITE_URL}#website` },
         breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
         about: { "@id": ORGANIZATION_ID }
       },
       breadcrumbNode(pageUrl, crumbs),
-      ...organizationNodes()
+      // Pagine noindex: grafo ridotto al minimo. Ripetere qui l'identità
+      // completa (Organization, Person, logo) non porta alcun segnale — le
+      // pagine sono escluse da indice e sitemap — e duplicherebbe descrizioni
+      // su URL che non le mostrano.
+      {
+        "@id": ORGANIZATION_ID,
+        "@type": "Organization",
+        name: "comeleapi",
+        url: SITE_URL
+      }
     ]
   };
 
@@ -1353,6 +1397,17 @@ ${buildFaqHtml(FAQ_DEFINITIONS)}
         </div>
       </div>
     </section>`,
+    `    <section class="section" aria-label="Domande frequenti dalle zone servite">
+      <div class="container">
+        <div class="section-head section-head--center">
+          <span class="eyebrow">Zone servite</span>
+          <h2 class="section-title">Domande dalle zone</h2>
+        </div>
+        <div class="faq-zone-grid">
+${localFaqZonesHtml()}
+        </div>
+      </div>
+    </section>`,
     ctaSectionHtml("Ciao Sara, ho letto le FAQ e vorrei prenotare un trattamento a domicilio.")
   ].join("\n\n");
 
@@ -1367,6 +1422,9 @@ ${buildFaqHtml(FAQ_DEFINITIONS)}
         url: pageUrl,
         description,
         inLanguage: "it-IT",
+        // Sostituito a valle dell'hash del contenuto (scripts/content-freshness.mjs):
+        // stessa data del <lastmod> in sitemap, unico segnale di freschezza.
+        dateModified: LASTMOD_PLACEHOLDER,
         isPartOf: { "@id": `${SITE_URL}#website` },
         breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
         mainEntity: { "@id": `${pageUrl}#faq` },
@@ -1425,71 +1483,20 @@ export const LEGAL_PAGE_ROUTES = LEGAL_PAGE_DEFINITIONS.map((legal) => ({
   canonical: `${SITE_URL}${legal.slug}/`
 }));
 
-const HERO_IMAGE_PATH = "assets/img/hero/hero-massaggio-professionale-comeleapi.webp";
-
 // Voci sitemap per le pagine indicizzabili (le legali restano escluse).
-// Ordine: hub zone, città, hub servizi, servizi.
+// Ordine: hub zone, città, hub servizi, servizi, faq.
+// Nessuna immagine dichiarata: queste pagine contengono solo icone decorative
+// (alt="", aria-hidden) e il marchio nell'header. L'hero dichiarato in
+// precedenza non compare in nessuna di esse — vedi scripts/generate-sitemap.mjs.
 export const SUBPAGE_SITEMAP_ENTRIES = [
-  {
-    loc: `${SITE_URL}zone/`,
-    sourceFiles: SUBPAGE_SOURCE_FILES,
-    kind: "zone-hub",
-    images: [
-      {
-        path: HERO_IMAGE_PATH,
-        title: "Massaggi a domicilio nelle zone servite da comeleapi",
-        caption: "Trattamenti a domicilio a Milano, Bresso, Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e zone limitrofe"
-      }
-    ]
-  },
-  ...AREA_DEFINITIONS.map(([slug, name]) => ({
-    loc: `${SITE_URL}zone/${slug}/`,
-    sourceFiles: SUBPAGE_SOURCE_FILES,
-    kind: "zone",
-    images: [
-      {
-        path: HERO_IMAGE_PATH,
-        title: `Massaggi a domicilio a ${name} — comeleapi`,
-        caption: CITY_CONTENT[slug].imageCaption
-      }
-    ]
-  })),
-  {
-    loc: `${SITE_URL}servizi/`,
-    sourceFiles: SUBPAGE_SOURCE_FILES,
-    kind: "services-hub",
-    images: [
-      {
-        path: HERO_IMAGE_PATH,
-        title: "Trattamenti a domicilio comeleapi",
-        caption: "Massaggio sportivo, decontratturante, relax, drenante, trattamento mirato, kinesio taping e oli essenziali"
-      }
-    ]
-  },
+  { loc: `${SITE_URL}zone/`, kind: "zone-hub" },
+  ...AREA_DEFINITIONS.map(([slug]) => ({ loc: `${SITE_URL}zone/${slug}/`, kind: "zone" })),
+  { loc: `${SITE_URL}servizi/`, kind: "services-hub" },
   ...SERVICE_DEFINITIONS.map((service) => ({
     loc: `${SITE_URL}servizi/${service.slug}/`,
-    sourceFiles: SUBPAGE_SOURCE_FILES,
-    kind: "service",
-    images: [
-      {
-        path: service.image,
-        title: `${service.name} a domicilio — comeleapi`,
-        caption: service.description
-      }
-    ]
+    kind: "service"
   })),
-  {
-    loc: `${SITE_URL}faq/`,
-    sourceFiles: SUBPAGE_SOURCE_FILES,
-    kind: "faq",
-    images: [
-      {
-        path: HERO_IMAGE_PATH,
-        title: "Domande frequenti sui massaggi a domicilio comeleapi",
-        caption: "Risposte su massaggi a domicilio a Milano, Bresso e zone limitrofe, prezzi, prenotazioni e oli essenziali Young Living"
-      }
-    ]
-  }
+  { loc: `${SITE_URL}faq/`, kind: "faq" }
 ];
 
 // Pagine indicizzabili per check-public-seo.mjs (file in dist + canonical).

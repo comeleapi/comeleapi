@@ -1,6 +1,13 @@
 # comeleapi.it — policy crawler aperta, approvata il 22 luglio 2026.
 # Le regole esplicite documentano i crawler principali; il gruppo * permette
 # l'accesso a ogni altro crawler presente o futuro che rispetti robots.txt.
+#
+# ATTENZIONE per modifiche future: i gruppi con user-agent esplicito e il gruppo
+# globale * NON vengono combinati (RFC 9309 §2.2.1). Un crawler nominato qui
+# sotto ignora completamente il gruppo *: una futura regola Disallow aggiunta
+# solo a * non si applicherebbe a Googlebot, Bingbot né a nessuno degli altri
+# agent elencati. Va replicata in ogni gruppo interessato.
+# https://developers.google.com/search/docs/crawling-indexing/robots/robots_txt
 
 # Motori di ricerca
 User-agent: Googlebot

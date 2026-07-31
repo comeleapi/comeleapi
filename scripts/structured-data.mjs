@@ -1,12 +1,28 @@
 const SITE_URL = "https://comeleapi.it/";
-const ORGANIZATION_ID = `${SITE_URL}#organization`;
-const PERSON_ID = `${SITE_URL}#sara-bordenga`;
+export const ORGANIZATION_ID = `${SITE_URL}#organization`;
+export const PERSON_ID = `${SITE_URL}#sara-bordenga`;
 const CONTACT_ID = `${SITE_URL}#contact`;
 const BOOKING_CHANNEL_ID = `${SITE_URL}#booking-channel`;
 const SERVICES_ID = `${SITE_URL}#services`;
 const PRODUCTS_ID = `${SITE_URL}#products`;
 const YOUNG_LIVING_BRAND_ID = `${SITE_URL}#young-living-brand`;
+const YOUNG_LIVING_SELLER_ID = `${SITE_URL}#young-living`;
 const PDF_URL = `${SITE_URL}assets/pdf/mini-guida-oli-comeleapi.pdf`;
+
+/** URL canonica della pagina dedicata a un trattamento. */
+export function serviceUrl(slug) {
+  return `${SITE_URL}servizi/${slug}/`;
+}
+
+/** @id canonico di un trattamento: unico in tutto il sito, così home e pagina
+ *  dedicata descrivono la stessa entità invece di duplicarla. */
+export function serviceId(slug) {
+  return `${SITE_URL}#service-${slug}`;
+}
+
+export function serviceOfferId(slug) {
+  return `${SITE_URL}#offer-${slug}`;
+}
 
 // Esportate: usate anche dal generatore delle pagine zona/servizio (site-pages.mjs).
 export const AREA_DEFINITIONS = [
@@ -23,6 +39,7 @@ export const SERVICE_DEFINITIONS = [
     slug: "massaggio-sportivo",
     name: "Massaggio sportivo",
     price: "50.00",
+    durationMinutes: 50,
     description: "Servizio di massaggio sportivo della durata dichiarata di 50 minuti, svolto a domicilio da Sara Bordenga.",
     image: "assets/img/icons/icon-sportivo-arm.webp"
   },
@@ -30,12 +47,15 @@ export const SERVICE_DEFINITIONS = [
     slug: "massaggio-decontratturante",
     name: "Massaggio decontratturante",
     price: "50.00",
+    durationMinutes: 50,
     description: "Servizio di massaggio decontratturante della durata dichiarata di 50 minuti, svolto a domicilio da Sara Bordenga.",
     image: "assets/img/icons/icon-decontratturante.webp"
   },
   {
     slug: "massaggio-relax",
     name: "Massaggio relax",
+    price: "40.00",
+    durationMinutes: 50,
     description: "Servizio di massaggio relax della durata dichiarata di 50 minuti, svolto a domicilio da Sara Bordenga.",
     image: "assets/img/icons/icon-relax.webp"
   },
@@ -43,18 +63,22 @@ export const SERVICE_DEFINITIONS = [
     slug: "massaggio-drenante",
     name: "Massaggio drenante",
     price: "50.00",
+    durationMinutes: 50,
     description: "Servizio di massaggio drenante della durata dichiarata di 50 minuti, svolto a domicilio da Sara Bordenga.",
     image: "assets/img/icons/icon-linfodrenante-up.webp"
   },
   {
     slug: "trattamento-mirato-30-minuti",
     name: "Trattamento Mirato 30 minuti",
+    price: "30.00",
+    durationMinutes: 30,
     description: "Trattamento mirato della durata dichiarata di 30 minuti, svolto a domicilio da Sara Bordenga.",
     image: "assets/img/icons/icon-mirato-30.webp"
   },
   {
     slug: "kinesio-taping",
     name: "Kinesio taping",
+    price: "10.00",
     description: "Servizio di applicazione di kinesio taping svolto a domicilio da Sara Bordenga.",
     image: "assets/img/icons/icon-kinesio-taping.webp"
   },
@@ -90,7 +114,18 @@ export const FAQ_DEFINITIONS = [
   },
   {
     q: "Quanto costano i trattamenti?",
-    a: "Massaggio sportivo, decontratturante e drenante 50 €, massaggio relax 40 €, trattamento mirato da 30 minuti 30 €, kinesio taping 10 € e massaggio con oli essenziali 70 €."
+    a: "Massaggio sportivo, decontratturante e drenante 50 €, massaggio relax 40 €, trattamento mirato da 30 minuti 30 €, kinesio taping 10 € e massaggio con oli essenziali 70 €. I prezzi sono gli stessi in tutte le zone servite."
+  },
+  {
+    q: "Quanto dura una seduta?",
+    a: "Massaggio sportivo, decontratturante, relax e drenante durano 50 minuti; il trattamento mirato dura 30 minuti. Per il kinesio taping e il massaggio con oli essenziali la durata dipende dalla seduta e la concordiamo insieme."
+  },
+  {
+    // Disambiguatore essenziale: senza questa frase un motore può classificare
+    // comeleapi come studio di fisioterapia. Il testo riprende /termini/, che è
+    // noindex e quindi non contribuisce ai risultati.
+    q: "I massaggi hanno finalità mediche o fisioterapiche?",
+    a: "No. I trattamenti comeleapi sono massaggi di benessere: non hanno finalità sanitarie, non costituiscono prestazioni mediche o fisioterapiche e non sostituiscono il parere di un medico. Se hai un problema di salute, parlane prima con il tuo medico curante."
   },
   {
     q: "Come posso prenotare un trattamento?",
@@ -181,8 +216,16 @@ function identityNodes({ includeServiceCatalog = true, includeBookingChannel = t
       logo: ref(`${SITE_URL}#logo`)
     },
     {
+      // Solo Organization, non LocalBusiness: Google richiede `address` come
+      // proprietà obbligatoria di LocalBusiness ("The physical location of the
+      // business") e comeleapi non ha né studio né sede aperta al pubblico —
+      // pubblicare un indirizzo sarebbe falso, ometterlo con quel tipo genera un
+      // errore "Missing field address" su ogni URL indicizzabile.
+      // https://developers.google.com/search/docs/appearance/structured-data/local-business
+      // La copertura territoriale resta espressa da `areaServed` qui e da
+      // `areaServed` + `providerMobility: "dynamic"` sui nodi Service.
       "@id": ORGANIZATION_ID,
-      "@type": ["Organization", "LocalBusiness"],
+      "@type": "Organization",
       name: "comeleapi",
       url: SITE_URL,
       description: "Servizio di massaggi esclusivamente a domicilio a Milano, Bresso e nell'area di Milano Nord curato da Sara Bordenga, senza studio né sede aperta al pubblico. Propone oli essenziali Young Living tramite link di rivendita indipendente, senza vendita o spedizione diretta.",
@@ -195,7 +238,6 @@ function identityNodes({ includeServiceCatalog = true, includeBookingChannel = t
       brand: ref(`${SITE_URL}#brand`),
       contactPoint: ref(CONTACT_ID),
       areaServed: areaRefs(),
-      publicAccess: false,
       ...(includeServiceCatalog ? { hasOfferCatalog: ref(SERVICES_ID) } : {}),
       sameAs: [
         "https://www.instagram.com/comeleapi/",
@@ -234,13 +276,33 @@ function identityNodes({ includeServiceCatalog = true, includeBookingChannel = t
         { "@type": "Occupation", name: "Massaggiatrice sportiva" },
         { "@type": "Occupation", name: "Rivenditrice indipendente di prodotti Young Living" }
       ],
-      knowsLanguage: ["it", "en", "es"]
+      knowsLanguage: ["it", "en", "es"],
+      // Solo competenze con riscontro visibile in pagina: i sette trattamenti
+      // nelle card di /#servizi e le tre voci di formazione mostrate in
+      // "THE FOUNDER" (Diploma professionale, Aromaterapia, Igiene e sicurezza).
+      // Nessun titolo o certificazione specifica: quelli restano non pubblicati.
+      knowsAbout: [
+        ...SERVICE_DEFINITIONS.map((service) => service.name),
+        "Aromaterapia",
+        "Oli essenziali Young Living",
+        "Igiene e sicurezza nei trattamenti a domicilio"
+      ]
     },
     ...(includeYoungLivingBrand ? [{
       "@id": YOUNG_LIVING_BRAND_ID,
       "@type": "Brand",
       name: "Young Living",
       url: "https://www.youngliving.com/it_it/"
+    },
+    {
+      // Venditore reale dei kit in vetrina: senza questo nodo un'Offer priva di
+      // `seller` pubblicata su comeleapi.it viene letta come offerta di
+      // comeleapi, in contraddizione con la FAQ "comeleapi non è un e-commerce".
+      "@id": YOUNG_LIVING_SELLER_ID,
+      "@type": "Organization",
+      name: "Young Living Essential Oils",
+      url: "https://www.youngliving.com/it_it/",
+      brand: ref(YOUNG_LIVING_BRAND_ID)
     }] : []),
     ...AREA_DEFINITIONS.map(([slug, name]) => ({
       "@id": `${SITE_URL}#area-${slug}`,
@@ -262,8 +324,10 @@ function linksIdentityNodes() {
       caption: "Logo comeleapi"
     },
     {
+      // Come nel grafo della home: solo Organization, mai LocalBusiness senza
+      // `address` (proprietà obbligatoria per Google).
       "@id": ORGANIZATION_ID,
-      "@type": ["Organization", "LocalBusiness"],
+      "@type": "Organization",
       name: "comeleapi",
       url: SITE_URL,
       logo: ref(`${SITE_URL}#logo`)
@@ -271,41 +335,64 @@ function linksIdentityNodes() {
   ];
 }
 
-function serviceNodes() {
-  const offerableServices = SERVICE_DEFINITIONS.filter((service) => service.price);
+/**
+ * Nodi Service/Offer condivisi da home e pagine /servizi/<slug>/.
+ * `url` punta sempre alla pagina dedicata realmente esistente (non più al
+ * frammento /#servizi della home): un solo @id e una sola URL per trattamento,
+ * così motori e agenti AI riconciliano una entità sola invece di due.
+ */
+export function serviceNodes() {
   const catalog = {
     "@id": SERVICES_ID,
     "@type": "OfferCatalog",
-    name: "Offerte dei trattamenti con prezzo pubblicato non ambiguo",
-    url: `${SITE_URL}#servizi`,
-    numberOfItems: offerableServices.length,
-    itemListElement: offerableServices.map((service) => ref(`${SITE_URL}#offer-${service.slug}`))
+    name: "Listino dei trattamenti a domicilio comeleapi",
+    url: `${SITE_URL}servizi/`,
+    numberOfItems: SERVICE_DEFINITIONS.length,
+    itemListElement: SERVICE_DEFINITIONS.map((service) => ref(serviceOfferId(service.slug)))
   };
-  const services = SERVICE_DEFINITIONS.map((service) => {
-    const node = {
-      "@id": `${SITE_URL}#service-${service.slug}`,
-      "@type": "Service",
-      name: service.name,
-      serviceType: service.name,
-      url: `${SITE_URL}#servizi`,
-      description: service.description,
-      image: absoluteUrl(service.image),
-      provider: ref(ORGANIZATION_ID),
-      providerMobility: "dynamic",
-      areaServed: areaRefs(),
-      availableChannel: ref(BOOKING_CHANNEL_ID)
-    };
-    if (service.price) node.offers = ref(`${SITE_URL}#offer-${service.slug}`);
-    return node;
-  });
-  const offers = offerableServices.map((service) => ({
-    "@id": `${SITE_URL}#offer-${service.slug}`,
+  const services = SERVICE_DEFINITIONS.map((service) => ({
+    "@id": serviceId(service.slug),
+    "@type": "Service",
+    name: service.name,
+    serviceType: service.name,
+    url: serviceUrl(service.slug),
+    description: service.description,
+    image: absoluteUrl(service.image),
+    provider: ref(ORGANIZATION_ID),
+    providerMobility: "dynamic",
+    areaServed: areaRefs(),
+    availableChannel: ref(BOOKING_CHANNEL_ID),
+    offers: ref(serviceOfferId(service.slug))
+  }));
+  const offers = SERVICE_DEFINITIONS.map((service) => ({
+    "@id": serviceOfferId(service.slug),
     "@type": "Offer",
     price: service.price,
     priceCurrency: "EUR",
-    url: `${SITE_URL}#servizi`,
+    url: serviceUrl(service.slug),
     seller: ref(ORGANIZATION_ID),
-    itemOffered: ref(`${SITE_URL}#service-${service.slug}`)
+    areaServed: areaRefs(),
+    // Prestazione di servizio, non vendita di beni: disambigua comeleapi dai
+    // kit Young Living presenti sulla stessa pagina.
+    businessFunction: "http://purl.org/goodrelations/v1#ProvideService",
+    itemOffered: ref(serviceId(service.slug)),
+    // Durata dichiarata solo dove il sito la afferma davvero (50 o 30 minuti):
+    // per kinesio taping e massaggio con oli essenziali non esiste un minutaggio
+    // pubblicato e non viene inventato.
+    ...(service.durationMinutes
+      ? {
+          priceSpecification: {
+            "@type": "UnitPriceSpecification",
+            price: service.price,
+            priceCurrency: "EUR",
+            referenceQuantity: {
+              "@type": "QuantitativeValue",
+              value: service.durationMinutes,
+              unitCode: "MIN"
+            }
+          }
+        }
+      : {})
   }));
   return [catalog, ...services, ...offers];
 }
@@ -353,6 +440,10 @@ function productNodes(products) {
       price: parseEuroPrice(product.price),
       priceCurrency: "EUR",
       url,
+      // Il venditore è Young Living, non comeleapi: senza `seller` un'Offer
+      // ospitata su comeleapi.it viene attribuita per default al sito, in
+      // contraddizione con la FAQ "comeleapi non è un e-commerce".
+      seller: ref(YOUNG_LIVING_SELLER_ID),
       itemOffered: ref(productId)
     });
   });
@@ -386,8 +477,9 @@ function digitalDocumentNode() {
   };
 }
 
-export function buildHomeStructuredData(products) {
+export function buildHomeStructuredData(products, dateModified) {
   if (!Array.isArray(products)) throw new Error("Il catalogo prodotti deve essere un array.");
+  if (!dateModified) throw new Error("dateModified mancante per la home.");
   return {
     "@context": "https://schema.org",
     "@graph": [
@@ -396,7 +488,7 @@ export function buildHomeStructuredData(products) {
         "@type": "WebSite",
         name: "comeleapi",
         url: SITE_URL,
-        inLanguage: ["it-IT", "en"],
+        inLanguage: "it-IT",
         publisher: ref(ORGANIZATION_ID)
       },
       {
@@ -406,9 +498,13 @@ export function buildHomeStructuredData(products) {
         alternateName: "comeleapi — Home massage & essential oils in Milan, Bresso and nearby areas",
         url: SITE_URL,
         description: "Massaggi esclusivamente a domicilio a Milano, Bresso e nell'area di Milano Nord con Sara Bordenga: sportivo, decontratturante, relax e drenante. Oli essenziali Young Living e consulenze su misura.",
-        inLanguage: ["it-IT", "en"],
+        inLanguage: "it-IT",
+        // Risolta sull'hash del contenuto in scripts/content-freshness.mjs:
+        // stessa data dichiarata in <lastmod> nella sitemap.
+        dateModified,
         isPartOf: ref(`${SITE_URL}#website`),
         mainEntity: ref(ORGANIZATION_ID),
+        publisher: ref(ORGANIZATION_ID),
         primaryImageOfPage: ref(`${SITE_URL}#primary-image`),
         about: [
           ref(ORGANIZATION_ID),
@@ -426,7 +522,8 @@ export function buildHomeStructuredData(products) {
   };
 }
 
-export function buildLinksStructuredData() {
+export function buildLinksStructuredData(dateModified) {
+  if (!dateModified) throw new Error("dateModified mancante per la pagina links.");
   return {
     "@context": "https://schema.org",
     "@graph": [
@@ -435,7 +532,7 @@ export function buildLinksStructuredData() {
         "@type": "WebSite",
         name: "comeleapi",
         url: SITE_URL,
-        inLanguage: ["it-IT", "en"],
+        inLanguage: "it-IT",
         publisher: ref(ORGANIZATION_ID)
       },
       {
@@ -445,7 +542,8 @@ export function buildLinksStructuredData() {
         alternateName: "comeleapi — Useful links",
         url: `${SITE_URL}links/`,
         description: "I link utili di comeleapi: guida agli oli, essenze e trattamenti.",
-        inLanguage: ["it-IT", "en"],
+        inLanguage: "it-IT",
+        dateModified,
         isPartOf: ref(`${SITE_URL}#website`),
         about: ref(ORGANIZATION_ID),
         hasPart: ref(`${PDF_URL}#document`)

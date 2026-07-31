@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { SITEMAP_PAGES, SITE_ORIGIN } from "./generate-sitemap.mjs";
 import { SEO_CHECK_PAGES, LEGAL_PAGE_ROUTES } from "./site-pages.mjs";
+import { LASTMOD_MANIFEST_FILE } from "./content-freshness.mjs";
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(SCRIPT_DIR, "..");
@@ -157,18 +158,69 @@ assert(
   "sitemap.xml: immagini prodotto mancanti"
 );
 
-// Ogni blocco <url> HTML deve contenere almeno un'immagine.
+// Ogni immagine dichiarata deve essere davvero presente nella pagina che la
+// dichiara: una image sitemap che elenca immagini assenti dalla pagina è un
+// segnale non affidabile (Google usa la sitemap per scoprire le immagini *di
+// quella* pagina). Le pagine senza immagini di contenuto non dichiarano nulla.
+const distFileByLoc = new Map([
+  [`${SITE_ORIGIN}/`, "index.html"],
+  [`${SITE_ORIGIN}/links/`, "links/index.html"],
+  ...SEO_CHECK_PAGES.map((page) => [page.canonical, page.file])
+]);
 const urlBlocks = sitemap.match(/<url>[\s\S]*?<\/url>/g) || [];
 assert(urlBlocks.length === SITEMAP_PAGES.length, "sitemap.xml: numero blocchi <url> errato");
 for (const block of urlBlocks) {
   const loc = block.match(/<loc>([^<]+)<\/loc>/)?.[1];
+  const blockImages = [...block.matchAll(/<image:loc>([^<]+)<\/image:loc>/g)].map((match) => match[1]);
   if (loc?.endsWith(".pdf")) {
-    assert(!block.includes("<image:image>"), `sitemap.xml: PDF non deve avere image: ${loc}`);
-  } else {
-    assert(block.includes("<image:image>"), `sitemap.xml: pagina senza image sitemap: ${loc}`);
-    assert(block.includes("<image:title>"), `sitemap.xml: image:title mancante per ${loc}`);
-    assert(block.includes("<image:caption>"), `sitemap.xml: image:caption mancante per ${loc}`);
+    assert(!blockImages.length, `sitemap.xml: PDF non deve avere image: ${loc}`);
+    continue;
   }
+  if (!blockImages.length) continue;
+  // Tag rimossi da Google a maggio 2022: non devono tornare.
+  assert(!block.includes("<image:title>"), `sitemap.xml: image:title deprecato presente per ${loc}`);
+  assert(!block.includes("<image:caption>"), `sitemap.xml: image:caption deprecato presente per ${loc}`);
+  assert(!block.includes("<image:license>"), `sitemap.xml: image:license deprecato presente per ${loc}`);
+  const distFile = distFileByLoc.get(loc);
+  assert(distFile, `sitemap.xml: pagina con immagini non mappata su dist: ${loc}`);
+  const pageHtml = await readFile(path.join(DIST, distFile), "utf8");
+  for (const imageLoc of blockImages) {
+    const assetPath = imageLoc.slice(`${SITE_ORIGIN}/`.length);
+    assert(
+      pageHtml.includes(assetPath) || pageHtml.includes(assetPath.replace(/^assets\//, "../assets/")),
+      `sitemap.xml: immagine dichiarata ma assente da ${distFile}: ${imageLoc}`
+    );
+  }
+}
+
+// lastmod e dateModified devono raccontare la stessa storia: entrambi derivano
+// dall'hash del contenuto (scripts/content-freshness.mjs).
+const lastmodByLoc = new Map(
+  urlBlocks.map((block) => [
+    block.match(/<loc>([^<]+)<\/loc>/)?.[1],
+    block.match(/<lastmod>([^<]+)<\/lastmod>/)?.[1]
+  ])
+);
+for (const page of pages) {
+  const html = await readFile(path.join(DIST, page.file), "utf8");
+  const schema = JSON.parse(
+    html.match(/<script\b(?=[^>]*\btype=["']application\/ld\+json["'])[^>]*>([\s\S]*?)<\/script>/i)[1]
+  );
+  const pageNode = schema["@graph"].find((node) => node["@id"] === page.schemaId);
+  assert(pageNode.dateModified, `${page.file}: dateModified mancante nel nodo WebPage`);
+  assert(
+    pageNode.dateModified === lastmodByLoc.get(page.canonical),
+    `${page.file}: dateModified (${pageNode.dateModified}) diverso dal lastmod in sitemap`
+  );
+}
+
+// Il manifest delle date deve coprire ogni URL canonica, altrimenti la build
+// ricadrebbe silenziosamente sull'orario di build.
+const lastmodManifest = JSON.parse(
+  await readFile(path.join(ROOT, LASTMOD_MANIFEST_FILE), "utf8")
+);
+for (const loc of sitemapCanonicals) {
+  assert(lastmodManifest[loc]?.lastmod, `${LASTMOD_MANIFEST_FILE}: voce mancante per ${loc}`);
 }
 
 function parseRobots(source) {
@@ -257,15 +309,73 @@ assert(
 // Gli header di cache/MIME sono ora nel file _headers degli static assets
 // Cloudflare, generato da build-site.mjs (eseguito prima di questo check).
 const headersConfig = await readFile(path.join(ROOT, "dist/_headers"), "utf8");
-const pdfCacheRuleIndex = headersConfig.indexOf("/assets/pdf/*");
-const genericAssetCacheRuleIndex = headersConfig.indexOf("/assets/*");
+
+// Cloudflare applica tutte le regole che combaciano e unisce i valori duplicati
+// con una virgola: la regola più specifica non sovrascrive la generica
+// (https://developers.cloudflare.com/workers/static-assets/headers/). Un
+// controllo sull'ordine testuale sarebbe quindi privo di significato: qui si
+// simula il matching e si verifica che nessun percorso erediti due
+// Cache-Control diversi.
+function parseHeaderRules(source) {
+  const rules = [];
+  let current = null;
+  for (const rawLine of source.split(/\r?\n/)) {
+    if (!rawLine.trim() || rawLine.trimStart().startsWith("#")) continue;
+    if (!/^\s/.test(rawLine)) {
+      current = { pattern: rawLine.trim(), headers: [] };
+      rules.push(current);
+    } else if (current) {
+      const separator = rawLine.indexOf(":");
+      if (separator > 0) {
+        current.headers.push({
+          name: rawLine.slice(0, separator).trim().toLowerCase(),
+          value: rawLine.slice(separator + 1).trim()
+        });
+      }
+    }
+  }
+  return rules;
+}
+
+function patternMatches(pattern, pathname) {
+  const escaped = pattern.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*");
+  return new RegExp(`^${escaped}$`).test(pathname);
+}
+
+const headerRules = parseHeaderRules(headersConfig);
+const cacheProbePaths = [
+  "/assets/pdf/mini-guida-oli-comeleapi.pdf",
+  "/assets/img/hero/hero-massaggio-professionale-comeleapi.webp",
+  "/assets/img/signatures/sara-bordenga-signature.webp",
+  "/assets/img/logo-comeleapi-1024.png",
+  "/assets/img/logo-comeleapi-256.webp",
+  "/assets/img/icons/icon-relax.webp",
+  "/assets/css/styles.css",
+  "/assets/js/app.js",
+  "/assets/fonts/mulish-variable-latin.woff2",
+  "/products.json",
+  "/sitemap.xml",
+  "/robots.txt"
+];
+for (const pathname of cacheProbePaths) {
+  const values = headerRules
+    .filter((rule) => patternMatches(rule.pattern, pathname))
+    .flatMap((rule) => rule.headers.filter((header) => header.name === "cache-control"))
+    .map((header) => header.value);
+  assert(
+    values.length === 1,
+    `_headers: ${pathname} eredita ${values.length} regole Cache-Control (Cloudflare le unisce, non le sovrascrive): ${values.join(" | ")}`
+  );
+}
+
+const pdfCache = headerRules
+  .filter((rule) => patternMatches(rule.pattern, "/assets/pdf/mini-guida-oli-comeleapi.pdf"))
+  .flatMap((rule) => rule.headers.filter((header) => header.name === "cache-control"))
+  .map((header) => header.value)
+  .join("");
 assert(
-  /\/assets\/pdf\/\*\s*\n\s*Cache-Control:\s*public, max-age=0, must-revalidate/.test(headersConfig),
-  "_headers: il PDF canonico non deve avere cache browser immutabile"
-);
-assert(
-  pdfCacheRuleIndex >= 0 && pdfCacheRuleIndex < genericAssetCacheRuleIndex,
-  "_headers: la regola cache PDF specifica deve precedere quella generale"
+  pdfCache === "public, max-age=0, must-revalidate",
+  `_headers: il PDF canonico non deve avere cache browser immutabile (${pdfCache})`
 );
 assert(
   /\/sitemap\.xml\s*\n[\s\S]*?Content-Type:\s*application\/xml; charset=UTF-8/.test(headersConfig),

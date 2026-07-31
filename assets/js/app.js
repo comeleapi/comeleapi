@@ -29,10 +29,34 @@
   /* ---------- Lingua pubblica ---------- */
   const ITALIAN_TIMEZONES = new Set(["Europe/Rome", "Europe/San_Marino", "Europe/Vatican"]);
 
+  // Crawler e renderer automatici: devono sempre vedere la versione italiana.
+  // Googlebot e Bingbot renderizzano JavaScript con navigator.language "en-US"
+  // e fuso "UTC" (Google non invia Accept-Language e usa IP statunitensi:
+  // https://developers.google.com/search/docs/specialty/international/locale-adaptive-pages),
+  // quindi senza questa guardia applyEnglishLocale() sostituirebbe title,
+  // description, <html lang> e H1 italiani con la traduzione inglese proprio
+  // nella copia che finisce in indice — mentre canonical, JSON-LD, sitemap e
+  // HTML servito restano in italiano. L'italiano è l'unica rappresentazione
+  // indicizzabile del sito: l'inglese resta una comodità di runtime per le
+  // persone, non una variante linguistica pubblicata (nessun URL dedicato,
+  // nessun hreflang).
+  const CRAWLER_UA_PATTERN = /bot|crawler|crawling|spider|slurp|googlebot|bingbot|bingpreview|inspectiontool|lighthouse|headlesschrome|duckduckbot|yandex|baiduspider|applebot|ccbot|gptbot|oai-searchbot|chatgpt-user|perplexity|claude|anthropic|ahrefs|semrush|facebookexternalhit|embedly|whatsapp|telegrambot|twitterbot|linkedinbot|pinterest|discordbot/i;
+
+  function looksLikeCrawler() {
+    try {
+      if (CRAWLER_UA_PATTERN.test(String(navigator.userAgent || ""))) return true;
+      return navigator.webdriver === true;
+    } catch {
+      return false;
+    }
+  }
+
   function resolveLocale() {
     const params = new URLSearchParams(window.location.search);
     const forced = (params.get("lang") || "").trim().toLowerCase();
     if (forced === "it" || forced === "en") return forced;
+
+    if (looksLikeCrawler()) return "it";
 
     const languages = (navigator.languages && navigator.languages.length)
       ? navigator.languages
@@ -186,7 +210,7 @@
 
     setText("#prodotti .eyebrow", "ESSENTIAL OILS");
     setText("#prodotti .section-title", "Pure essences, authentic wellbeing");
-    setHtml("#prodotti .section-lead", "<span>Body care begins with listening, then asks for presence and consistency.</span><span>Essential oils are made to be simple to use.</span><span>They support you every day toward balance, energy and vitality.</span>");
+    setHtml("#prodotti .section-lead", "<span>Body care begins with listening, then asks for presence and consistency.</span><span>Essential oils are made to be simple to use.</span><span>They support you every day toward balance, energy and vitality.</span><span>These are Young Living essential oils: you choose them here and buy them on the official website through my independent distributor links — comeleapi is not an online shop and does not handle shipping.</span>");
     setHtml(".aroma-feature h3", "<em>The Essential</em>");
     setText(".aroma-feature p", "A concise guide to the fundamentals, created to help you begin exploring essential oils.");
     setHtml(".aroma-feature .btn", "Discover <em>The Essential</em>");
@@ -207,7 +231,7 @@
 
     setText("#servizi .eyebrow", "Treatments");
     setText("#servizi .section-title", "A need, not a luxury");
-    setHtml("#servizi .section-lead", "<span>Hands have always spoken: they hold, soothe, pray, love.</span><span>Massage is born from this ancient language.</span><span>A contact that listens to the body and guides it back toward balance.</span>");
+    setHtml("#servizi .section-lead", "<span>Hands have always spoken: they hold, soothe, pray, love.</span><span>Massage is born from this ancient language.</span><span>A contact that listens to the body and guides it back toward balance.</span><span>Every treatment lasts 50 minutes — 30 for the targeted treatment — and takes place exclusively at your home, in Milan, Bresso, Cusano Milanino, Cormano, Cinisello Balsamo and Sesto San Giovanni.</span>");
     const serviceNames = [
       "Sports massage",
       "Decontracting massage",

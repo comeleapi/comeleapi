@@ -85,8 +85,11 @@ for (const id of collectIdReferences(graph)) {
 const nodesByType = (type) => graph.filter((node) => typesOf(node).includes(type));
 assert(nodesByType("WebSite").length === 1, "JSON-LD: WebSite mancante o duplicato");
 assert(nodesByType("WebPage").length === 1, "JSON-LD: WebPage mancante o duplicato");
-assert(nodesByType("Organization").length === 1, "JSON-LD: Organization mancante o duplicata");
-assert(nodesByType("LocalBusiness").length === 1, "JSON-LD: LocalBusiness mancante o duplicato");
+// Due Organization attese: comeleapi e Young Living (venditore reale dei kit).
+assert(nodesByType("Organization").length === 2, "JSON-LD: attese Organization comeleapi + Young Living");
+// LocalBusiness richiede `address` (proprietà obbligatoria per Google) e
+// comeleapi non ha sede aperta al pubblico: il tipo non deve tornare.
+assert(nodesByType("LocalBusiness").length === 0, "JSON-LD: LocalBusiness richiede address, non usarlo");
 assert(nodesByType("Person").length === 1, "JSON-LD: Person mancante o duplicata");
 assert(nodesByType("Service").length === 7, "JSON-LD: attesi 7 Service");
 assert(nodesByType("OfferCatalog").length === 1, "JSON-LD: OfferCatalog mancante");
@@ -103,8 +106,14 @@ assert(nodesByType("FAQPage").length === 0, "JSON-LD: FAQPage deve vivere solo s
 
 const organization = byId.get(`${SITE_URL}#organization`);
 assert(typesOf(organization).includes("Organization"), "Organization: tipo mancante");
-assert(typesOf(organization).includes("LocalBusiness"), "Organization: tipo LocalBusiness mancante");
-assert(organization.publicAccess === false, "LocalBusiness: publicAccess deve essere false");
+assert(!typesOf(organization).includes("LocalBusiness"), "Organization: LocalBusiness senza address non ammesso");
+// `publicAccess` è proprietà di Place: senza LocalBusiness non è nel dominio
+// del nodo. L'assenza di sede resta dichiarata in description e nelle FAQ.
+assert(!Object.hasOwn(organization, "publicAccess"), "Organization: publicAccess è proprietà di Place");
+assert(
+  /senza studio né sede aperta al pubblico/.test(organization.description || ""),
+  "Organization: la description deve dichiarare l'assenza di sede aperta al pubblico"
+);
 assert(organization.founder?.["@id"] === `${SITE_URL}#sara-bordenga`, "Organization: founder non collegata");
 assert(organization.hasOfferCatalog?.["@id"] === `${SITE_URL}#services`, "Organization: catalogo servizi non collegato");
 
@@ -123,18 +132,36 @@ const expectedAreas = ["Bresso", "Cusano Milanino", "Cormano", "Cinisello Balsam
 const areaNames = nodesByType("City").map((node) => node.name);
 assert(JSON.stringify(areaNames) === JSON.stringify(expectedAreas), "JSON-LD: aree servite non coerenti");
 
-const serviceNamesInHtml = [...homeHtml.matchAll(/<article\s+class="service-card[^>]*>[\s\S]*?<h3[^>]*>([^<]+)<\/h3>/g)]
-  .map((match) => match[1].trim());
+// Le card della home sono link verso /servizi/<slug>/: nome, prezzo e
+// destinazione devono restare allineati ai nodi Service del grafo.
+const serviceCardMatches = [
+  ...homeHtml.matchAll(
+    /<a\s+class="service-card service-card--link[^"]*"[^>]*href="\/servizi\/([a-z0-9-]+)\/"[^>]*>[\s\S]*?<h3[^>]*>([^<]+)<\/h3>/g
+  )
+];
+const serviceNamesInHtml = serviceCardMatches.map((match) => match[2].trim());
+const serviceSlugsInHtml = serviceCardMatches.map((match) => match[1]);
 const services = nodesByType("Service");
+assert(
+  JSON.stringify(services.map((service) => service["@id"])) ===
+    JSON.stringify(serviceSlugsInHtml.map((slug) => `${SITE_URL}#service-${slug}`)),
+  "index.html: le card servizio devono linkare la pagina del Service corrispondente"
+);
 assert(
   JSON.stringify(services.map((service) => service.name)) === JSON.stringify(serviceNamesInHtml),
   "JSON-LD: nomi Service non allineati alle card"
 );
 
+// Tutti e sette i trattamenti espongono un prezzo visibile in pagina
+// (card home, pagine /servizi/*, FAQ): ognuno deve avere l'Offer corrispondente,
+// così il listino è leggibile anche dai motori e dagli agenti AI.
 const expectedServiceOffers = new Map([
   ["Massaggio sportivo", "50.00"],
   ["Massaggio decontratturante", "50.00"],
+  ["Massaggio relax", "40.00"],
   ["Massaggio drenante", "50.00"],
+  ["Trattamento Mirato 30 minuti", "30.00"],
+  ["Kinesio taping", "10.00"],
   ["Massaggio con oli essenziali", "70.00"]
 ]);
 const serviceCatalog = nodesByType("OfferCatalog")[0];
@@ -156,10 +183,10 @@ for (const service of services) {
 }
 
 const homePage = byId.get(`${SITE_URL}#webpage`);
-assert(
-  JSON.stringify(homePage.inLanguage) === JSON.stringify(["it-IT", "en"]),
-  "JSON-LD: la pagina runtime bilingue deve dichiarare italiano e inglese"
-);
+// Unica rappresentazione indicizzabile: italiano. La resa inglese di app.js è
+// una comodità di runtime per le persone (i crawler ricevono sempre italiano,
+// vedi la guardia in assets/js/app.js) e non ha URL né hreflang propri.
+assert(homePage.inLanguage === "it-IT", "JSON-LD: la pagina indicizzabile è in italiano");
 const homepageAboutIds = new Set((homePage.about || []).map((item) => item?.["@id"]));
 for (const service of services) {
   assert(homepageAboutIds.has(service["@id"]), `JSON-LD: Service non collegato alla pagina ${service.name}`);
@@ -192,7 +219,11 @@ for (const [index, product] of products.entries()) {
   assert(offer.priceCurrency === "EUR", `JSON-LD: valuta Product errata per ${product.id}`);
   assert(offer.url === productUrl, `JSON-LD: URL Offer errato per ${product.id}`);
   assert(offer.itemOffered?.["@id"] === productNode["@id"], `JSON-LD: itemOffered Product errato per ${product.id}`);
-  assert(!Object.hasOwn(offer, "seller"), `JSON-LD: seller non documentato per ${product.id}`);
+  // Il venditore dev'essere Young Living: mai comeleapi, che non vende né spedisce.
+  assert(
+    offer.seller?.["@id"] === `${SITE_URL}#young-living`,
+    `JSON-LD: il venditore del prodotto deve essere Young Living (${product.id})`
+  );
 
   const sourceImage = path.join(ROOT, product.image.split("?", 1)[0]);
   const builtImage = path.join(DIST, product.image.split("?", 1)[0]);
@@ -220,7 +251,22 @@ assert(!serializedHomeSchema.includes("Aromaterapia e Oli Essenziali 2019"), "JS
 assert(!serializedHomeSchema.includes("Riflessologia Plantare 2020"), "JSON-LD: vecchia qualifica 2020 presente");
 assert(!serializedHomeSchema.includes("HACCP e Sicurezza 2024"), "JSON-LD: vecchia qualifica 2024 presente");
 assert(!serializedHomeSchema.includes('"hasCredential"'), "JSON-LD: hasCredential non visibile presente");
-assert(!serializedHomeSchema.includes('"knowsAbout"'), "JSON-LD: competenze non visibili presenti");
+// knowsAbout è ammesso solo per competenze con riscontro visibile in pagina:
+// i sette trattamenti nelle card di /#servizi e le tre voci di formazione
+// mostrate nel blocco "THE FOUNDER". Qualsiasi altra voce è un claim non verificato.
+const allowedKnowsAbout = new Set([
+  ...services.map((service) => service.name),
+  "Aromaterapia",
+  "Oli essenziali Young Living",
+  "Igiene e sicurezza nei trattamenti a domicilio"
+]);
+const person = byId.get(`${SITE_URL}#sara-bordenga`);
+for (const topic of person.knowsAbout || []) {
+  assert(allowedKnowsAbout.has(topic), `JSON-LD: competenza senza riscontro visibile: ${topic}`);
+}
+for (const label of ["Diploma professionale", "Aromaterapia", "Igiene e sicurezza"]) {
+  assert(homeHtml.includes(label), `index.html: formazione dichiarata ma non visibile: ${label}`);
+}
 assert(!serializedHomeSchema.includes("Massaggio sportivo di 2° livello"), "JSON-LD: dettaglio credenziale non visibile presente");
 
 const digitalDocument = nodesByType("DigitalDocument")[0];
@@ -267,12 +313,13 @@ for (const id of collectIdReferences(linksGraph)) {
 }
 const linksPage = linksGraph.find((node) => node["@id"] === `${SITE_URL}links/#webpage`);
 assert(linksPage?.url === `${SITE_URL}links/`, "JSON-LD links: WebPage canonica mancante");
-assert(
-  JSON.stringify(linksPage.inLanguage) === JSON.stringify(["it-IT", "en"]),
-  "JSON-LD links: la pagina runtime bilingue deve dichiarare italiano e inglese"
-);
-const linksOrganization = linksGraph.find((node) => typesOf(node).includes("Organization") && typesOf(node).includes("LocalBusiness"));
+assert(linksPage.inLanguage === "it-IT", "JSON-LD links: la pagina indicizzabile è in italiano");
+const linksOrganization = linksGraph.find((node) => node["@id"] === `${SITE_URL}#organization`);
 assert(linksOrganization, "JSON-LD links: entita business mancante");
+assert(
+  JSON.stringify(linksOrganization["@type"]) === JSON.stringify("Organization"),
+  "JSON-LD links: LocalBusiness senza address non ammesso"
+);
 assert(
   !["email", "telephone", "founder", "areaServed", "contactPoint", "hasOfferCatalog"].some(
     (property) => Object.hasOwn(linksOrganization, property)

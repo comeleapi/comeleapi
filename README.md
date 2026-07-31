@@ -15,6 +15,12 @@ sono configurate.
 - links/index.html: pagina link-in-bio;
 - robots.txt: policy aperta per crawler SEO, GEO/AI e training;
 - sitemap.xml: indice delle URL pubbliche canoniche;
+- sitemap-lastmod.json: data di ultima modifica per URL, calcolata sull'hash del
+  contenuto (scripts/content-freshness.mjs). **Va committato insieme alle
+  modifiche ai contenuti**: è ciò che permette a `<lastmod>` e a `dateModified`
+  di cambiare solo per le pagine realmente modificate. Su CI il clone git azzera
+  i mtime dei file, quindi senza questo manifest ogni deploy dichiarerebbe tutte
+  le URL come aggiornate e Google smetterebbe di fidarsi del segnale;
 - products.json: catalogo pubblico di fallback;
 - assets/: CSS, JavaScript, font, immagini e PDF;
 - scripts/build-netlify.mjs: build allowlist verso dist/;

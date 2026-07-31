@@ -23,7 +23,14 @@ import {
   injectStructuredData,
   injectProductsGrid
 } from "./html-inject.mjs";
-import { buildSitemapXml, SITEMAP_PAGES } from "./generate-sitemap.mjs";
+import { buildSitemapXml, SITEMAP_PAGES, SITE_ORIGIN } from "./generate-sitemap.mjs";
+import {
+  contentHash,
+  hashBytes,
+  resolveLastmods,
+  LASTMOD_MANIFEST_FILE,
+  LASTMOD_PLACEHOLDER
+} from "./content-freshness.mjs";
 import {
   renderSitePages,
   GENERATED_PAGE_DIRS,
@@ -170,10 +177,18 @@ function shortHash(buffer) {
   return createHash("sha256").update(buffer).digest("hex").slice(0, 12);
 }
 
+// Il PDF pubblico è una URL indicizzabile a sé (è in sitemap e nel nodo
+// DigitalDocument): se il link in pagina portasse una cache key, esisterebbero
+// due URL per lo stesso documento e un PDF non può dichiarare rel="canonical"
+// nel markup. Resta fuori dal fingerprinting ed è già servito con
+// `max-age=0, must-revalidate`, quindi non ha bisogno di cache busting.
+const FINGERPRINT_EXCLUDED_RE = /(?:^|\/)assets\/pdf\//;
+
 async function fingerprintReferences(source, baseDirectory) {
   const replacements = new Map();
   for (const match of source.matchAll(ASSET_REFERENCE_RE)) {
     const rawUrl = match[0];
+    if (FINGERPRINT_EXCLUDED_RE.test(rawUrl)) continue;
     const cleanUrl = rawUrl.split("?", 1)[0];
     const filePath = path.resolve(baseDirectory, cleanUrl);
     if (!filePath.startsWith(`${ROOT}${path.sep}`) || !(await exists(filePath))) continue;
@@ -344,16 +359,65 @@ function buildHeadersFile() {
   X-XSS-Protection: 0
   Content-Security-Policy: ${csp}
 
+# ATTENZIONE: Cloudflare applica TUTTE le regole che combaciano con la richiesta
+# e unisce i valori duplicati con una virgola — la regola più specifica NON
+# vince. I pattern Cache-Control qui sotto sono quindi disgiunti: un /assets/*
+# generico si sommerebbe a quelli specifici producendo header contraddittori del
+# tipo "max-age=0, must-revalidate, max-age=31536000, immutable".
+# https://developers.cloudflare.com/workers/static-assets/headers/
+
+# Documento indicizzabile: deve poter essere sostituito senza cache bloccate.
 /assets/pdf/*
   Cache-Control: public, max-age=0, must-revalidate
 
-/assets/*
+# Immagini referenziate senza cache key (og:image, twitter:image, image sitemap
+# e nodi ImageObject usano l'URL nuda): con cache immutable una sostituzione
+# resterebbe invisibile fino a un anno negli scraper social e nelle cache edge.
+/assets/img/hero/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/assets/img/signatures/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/assets/img/logo-comeleapi-1024.png
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+# Tutto il resto è referenziato solo con fingerprint ?v=<hash>: cache perpetua.
+/assets/css/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/js/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/img/icons/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/img/decor/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/img/logo-comeleapi-96.webp
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/img/logo-comeleapi-256.webp
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/img/logo-comeleapi-256.png
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/img/logo-comeleapi-512.png
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/img/logo-comeleapi.png
   Cache-Control: public, max-age=31536000, immutable
 
 /foto-prodotti/*
   Cache-Control: public, max-age=31536000, immutable
 
 /products.json
+  X-Robots-Tag: noindex
   Cache-Control: public, max-age=0, must-revalidate
 
 /sitemap.xml
@@ -469,15 +533,8 @@ await copyDirectoryFiltered(
 );
 await copyDirectoryFiltered("foto-prodotti", (name) => name.endsWith(".webp"));
 
-// Sitemap generata a build-time: lastmod dai file sorgente + image sitemap prodotti.
-const sitemapXml = await buildSitemapXml(ROOT);
-await writeFile(path.join(OUT, "sitemap.xml"), sitemapXml);
-await writeFile(path.join(ROOT, "sitemap.xml"), sitemapXml);
-
 await transformCatalog();
 const sourceProducts = JSON.parse(await readFile(path.join(ROOT, "products.json"), "utf8"));
-const homeStructuredData = buildHomeStructuredData(sourceProducts);
-const linksStructuredData = buildLinksStructuredData();
 
 const homeStyles = await minifyCss("assets/css/styles.css");
 const linksStyles = await minifyCss("assets/css/links.css");
@@ -516,14 +573,14 @@ const minifiedData = await minify(dataSource, {
 if (!minifiedData.code) throw new Error("Minificazione JavaScript fallita: assets/js/data.js");
 await writeFile(path.join(OUT, "assets/js/data.js"), `${minifiedData.code}\n`);
 
-await transformHome(homeStyles, homeStructuredData, sourceProducts);
-await transformLinksPage(linksStructuredData);
-
 // Pagine del gestionale: versionamento dei riferimenti dopo aver scritto css/js.
 for (const relativePath of ADMIN_HTML_PAGES) await transformAdminPage(relativePath);
 
-// Sottopagine statiche (zone, servizi, informative): generate a valle di css/js
-// già minificati in dist, così le URL root-relative portano l'hash definitivo.
+// Sottopagine statiche (zone, servizi, faq, informative): generate a valle di
+// css/js già minificati in dist, così le URL root-relative portano l'hash
+// definitivo. Il markup contiene ancora LASTMOD_PLACEHOLDER: viene sostituito
+// più sotto, quando la data di aggiornamento è stata risolta sull'hash del
+// contenuto.
 const versionedAssetCache = new Map();
 function versionedAsset(relativePath) {
   if (!versionedAssetCache.has(relativePath)) {
@@ -539,11 +596,57 @@ function versionedAsset(relativePath) {
   return versionedAssetCache.get(relativePath);
 }
 const sitePages = renderSitePages(versionedAsset);
+
+// ─── Freschezza dei contenuti ───────────────────────────────────────────────
+// Un'unica risoluzione per tutte le URL canoniche: alimenta sia <lastmod> nella
+// sitemap sia dateModified nei nodi WebPage. La data cambia solo se cambia
+// l'hash del contenuto, quindi resta stabile tra build successive su CI.
+const HOME_LOC = `${SITE_ORIGIN}/`;
+const LINKS_LOC = `${SITE_ORIGIN}/links/`;
+const PDF_LOC = `${SITE_ORIGIN}/assets/pdf/mini-guida-oli-comeleapi.pdf`;
+
+const freshnessEntries = [
+  {
+    loc: HOME_LOC,
+    // Sorgenti canonici della home: markup redazionale + catalogo prodotti.
+    hash: contentHash(
+      (await readFile(path.join(ROOT, "index.html"), "utf8")) +
+        (await readFile(path.join(ROOT, "products.json"), "utf8"))
+    )
+  },
+  {
+    loc: LINKS_LOC,
+    hash: contentHash(await readFile(path.join(ROOT, "links/index.html"), "utf8"))
+  },
+  ...sitePages.map((page) => ({ loc: page.canonical, hash: contentHash(page.html) })),
+  {
+    loc: PDF_LOC,
+    hash: hashBytes(await readFile(path.join(ROOT, "assets/pdf/mini-guida-oli-comeleapi.pdf")))
+  }
+];
+
+const { lastmodByLoc, changed } = await resolveLastmods(
+  path.join(ROOT, LASTMOD_MANIFEST_FILE),
+  freshnessEntries
+);
+
+const homeStructuredData = buildHomeStructuredData(sourceProducts, lastmodByLoc.get(HOME_LOC));
+const linksStructuredData = buildLinksStructuredData(lastmodByLoc.get(LINKS_LOC));
+
+await transformHome(homeStyles, homeStructuredData, sourceProducts);
+await transformLinksPage(linksStructuredData);
+
 for (const page of sitePages) {
+  const lastmod = lastmodByLoc.get(page.canonical);
+  if (!lastmod) throw new Error(`Data di aggiornamento non risolta per ${page.canonical}`);
   const destination = path.join(OUT, page.route);
   await mkdir(path.dirname(destination), { recursive: true });
-  await writeFile(destination, page.html);
+  await writeFile(destination, page.html.split(LASTMOD_PLACEHOLDER).join(lastmod));
 }
+
+const sitemapXml = await buildSitemapXml(ROOT, lastmodByLoc);
+await writeFile(path.join(OUT, "sitemap.xml"), sitemapXml);
+await writeFile(path.join(ROOT, "sitemap.xml"), sitemapXml);
 
 // File di configurazione degli static assets Cloudflare + pagina 404.
 await writeFile(path.join(OUT, "_headers"), buildHeadersFile());
