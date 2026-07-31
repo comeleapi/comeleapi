@@ -795,23 +795,6 @@ ${zoneCardsHtml(v)}
       </div>
     </section>`,
     HOW_IT_WORKS_HTML,
-    faqSectionHtml(
-      [
-        {
-          q: "Quali zone copre il servizio a domicilio?",
-          a: "Milano — con copertura più rapida nei quartieri nord come Niguarda, Bicocca, Affori e Bruzzano — Bresso, Cusano Milanino, Cormano, Cinisello Balsamo e Sesto San Giovanni. Per le altre zone limitrofe scrivimi su WhatsApp: valuto caso per caso."
-        },
-        {
-          q: "La mia città non è in elenco: posso comunque prenotare?",
-          a: "Scrivimi la tua zona su WhatsApp: la disponibilità fuori dalle aree elencate viene valutata caso per caso in base alla distanza e al trattamento richiesto."
-        },
-        {
-          q: "I prezzi cambiano in base alla zona?",
-          a: PRICES_SENTENCE
-        }
-      ],
-      "Domande frequenti sulle zone servite"
-    ),
     ctaSectionHtml("Ciao Sara, vorrei prenotare un massaggio a domicilio nella mia zona.")
   ].join("\n\n");
 
@@ -829,8 +812,7 @@ ${zoneCardsHtml(v)}
         isPartOf: { "@id": `${SITE_URL}#website` },
         breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
         mainEntity: { "@id": `${pageUrl}#zone-list` },
-        about: { "@id": ORGANIZATION_ID },
-        hasPart: { "@id": `${pageUrl}#faq` }
+        about: { "@id": ORGANIZATION_ID }
       },
       breadcrumbNode(pageUrl, crumbs),
       {
@@ -845,18 +827,7 @@ ${zoneCardsHtml(v)}
           url: `${SITE_URL}zone/${slug}/`
         }))
       },
-      ...organizationNodes(),
-      faqPageNode(pageUrl, [
-        {
-          q: "Quali zone copre il servizio a domicilio?",
-          a: "Milano — con copertura più rapida nei quartieri nord come Niguarda, Bicocca, Affori e Bruzzano — Bresso, Cusano Milanino, Cormano, Cinisello Balsamo e Sesto San Giovanni. Per le altre zone limitrofe scrivimi su WhatsApp: valuto caso per caso."
-        },
-        {
-          q: "La mia città non è in elenco: posso comunque prenotare?",
-          a: "Scrivimi la tua zona su WhatsApp: la disponibilità fuori dalle aree elencate viene valutata caso per caso in base alla distanza e al trattamento richiesto."
-        },
-        { q: "I prezzi cambiano in base alla zona?", a: PRICES_SENTENCE }
-      ], "Domande frequenti sulle zone servite da comeleapi")
+      ...organizationNodes()
     ]
   };
 
