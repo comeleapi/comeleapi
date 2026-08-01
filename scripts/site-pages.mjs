@@ -742,17 +742,21 @@ function zoneCardsHtml(v) {
   }).join("\n");
 }
 
-// FAQ locali accorpate nella pagina /faq/: una sola domanda condensata per
-// comune (copertura + nota distintiva), con rimando alla pagina di zona.
-// Le ripetizioni su prezzi e prenotazione vivono solo nelle FAQ generali.
-function localFaqZonesHtml() {
+// FAQ locali per comune (copertura + nota distintiva): vivono in CITY_CONTENT.faqLocal
+// e sono esposte da getLocalZoneFaqs(). NON vengono renderizzate nel frontend
+// (la pagina /faq/ mostra solo FAQ_DEFINITIONS generali). Restano disponibili
+// "behind the scenes" per script, API, structured data o reintroduzione controllata.
+export function getLocalZoneFaqs() {
   return AREA_DEFINITIONS.map(([slug, name]) => {
     const item = CITY_CONTENT[slug].faqLocal;
-    return `          <details class="faq-item">
-            <summary class="faq-q">${escapeHtml(item.q)}</summary>
-            <div class="faq-a"><p>${escapeHtml(item.a)} <a href="/zone/${slug}/">Tutte le info su ${escapeHtml(name)}</a>.</p></div>
-          </details>`;
-  }).join("\n");
+    return {
+      slug,
+      name,
+      question: item.q,
+      answer: item.a,
+      zonePath: `/zone/${slug}/`
+    };
+  });
 }
 
 const HOW_IT_WORKS_HTML = `    <section class="section">
@@ -1392,17 +1396,8 @@ ${buildFaqHtml(FAQ_DEFINITIONS)}
         </div>
       </div>
     </section>`,
-    `    <section class="section" aria-label="Domande frequenti dalle zone servite">
-      <div class="container">
-        <div class="section-head section-head--center">
-          <span class="eyebrow">Zone servite</span>
-          <h2 class="section-title">Domande dalle zone</h2>
-        </div>
-        <div class="faq-zone-grid">
-${localFaqZonesHtml()}
-        </div>
-      </div>
-    </section>`,
+    // "Domande dalle zone" non è nel frontend: i contenuti restano in
+    // CITY_CONTENT.faqLocal / getLocalZoneFaqs() per uso interno.
     ctaSectionHtml("Ciao Sara, ho letto le FAQ e vorrei prenotare un trattamento a domicilio.")
   ].join("\n\n");
 
