@@ -669,9 +669,9 @@ ${content}
         <ul>
           <li><a href="/#prodotti">Oli essenziali</a></li>
           <li><a href="/servizi/">Trattamenti</a></li>
-          <li><a href="/zone/">Zone</a></li>
-          <li><a href="/faq/">Domande frequenti</a></li>
           <li><a href="/#chi-sono">The founder</a></li>
+          <li><a href="/zone/">Where</a></li>
+          <li><a href="/faq/">FAQ</a></li>
         </ul>
       </div>
       <div class="footer-col">
@@ -679,8 +679,7 @@ ${content}
         <ul>
           <li><a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a></li>
           <li><a href="tel:+${PHONE_E164}">${PHONE_DISPLAY}</a></li>
-          <li>Solo a domicilio &mdash; Milano, Bresso e zone limitrofe</li>
-          <li>Nessuno studio aperto al pubblico</li>
+          <li>domicilio - Milano, Milano Nord, Bresso e dintorni</li>
         </ul>
       </div>
       <div class="footer-col">
@@ -758,10 +757,6 @@ function localFaqZonesHtml() {
 
 const HOW_IT_WORKS_HTML = `    <section class="section">
       <div class="container">
-        <div class="section-head section-head--center">
-          <span class="eyebrow">Come funziona</span>
-          <h2 class="section-title">Il benessere arriva a casa tua</h2>
-        </div>
         <ul class="subpage-list">
           <li>Arrivo da te con lettino professionale, teli e oli.</li>
           <li>Scegli un ambiente tranquillo della casa, bastano pochi metri quadrati.</li>
@@ -776,18 +771,18 @@ const HOW_IT_WORKS_HTML = `    <section class="section">
 function buildZoneHubPage(v) {
   const pagePath = "/zone/";
   const pageUrl = `${SITE_URL}zone/`;
-  const title = "Zone servite — Massaggi a domicilio a Milano, Bresso e Milano Nord | comeleapi";
+  const title = "Il benessere a casa tua — Milano, Milano Nord e dintorni | comeleapi";
   const description =
-    "Le zone coperte dal servizio di massaggi a domicilio di comeleapi: Milano, Bresso, Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e le aree limitrofe.";
+    "Trattamenti naturali, massaggi relax, drenanti, decontratturanti in tutta la città di Milano e nell'area di Milano Nord, Bresso, Cusano Milanino, Cormano, Cinisello Balsamo e Sesto San Giovanni.";
   const crumbs = [
     { name: "Home", path: "/" },
     { name: "Where", path: pagePath }
   ];
   const content = [
     pageHeadHtml({
-      eyebrow: "Zone servite",
-      h1: "Massaggi a domicilio a Milano, Bresso e Milano Nord",
-      lead: "comeleapi è il servizio di massaggi a domicilio di Sara Bordenga: si lavora esclusivamente a casa del cliente a Milano, Bresso e nei comuni limitrofi, senza studio né sede aperta al pubblico. Scegli la tua città e scopri come funziona il servizio nella tua zona.",
+      eyebrow: "Where",
+      h1: "Il benessere a casa tua",
+      lead: "Trattamenti naturali, massaggi relax, drenanti, decontratturanti in tutta la città di Milano e nell'area di Milano Nord, Bresso, Cusano Milanino, Cormano, Cinisello Balsamo e Sesto San Giovanni.",
       crumbs
     }),
     `    <section class="section">
@@ -1080,7 +1075,7 @@ ${extra.forWho.map((line) => `          <li>${escapeHtml(line)}</li>`).join("\n"
         <div class="section-head section-head--center">
           <h2 class="section-title">Dove è disponibile</h2>
         </div>
-        <p class="subpage-text">Il trattamento si svolge esclusivamente a domicilio nelle zone di ${zoneLinks}. ${escapeHtml(extra.whereNote)} Scopri tutte le aree nella pagina <a href="/zone/">Zone</a>.</p>
+        <p class="subpage-text">Il trattamento si svolge esclusivamente a domicilio nelle zone di ${zoneLinks}. ${escapeHtml(extra.whereNote)} Scopri tutte le aree nella pagina <a href="/zone/">Where</a>.</p>
       </div>
     </section>`,
     HOW_IT_WORKS_HTML,
@@ -1375,19 +1370,19 @@ ${legal.body}
 function buildFaqPage(v) {
   const pagePath = "/faq/";
   const pageUrl = `${SITE_URL}faq/`;
-  const title = "Domande frequenti — Massaggi a domicilio a Milano, Bresso e Milano Nord | comeleapi";
+  const title = "Benessere a domicilio — FAQ | comeleapi";
   const description =
-    "Le risposte alle domande più frequenti su comeleapi: massaggi a domicilio a Milano, Bresso e nelle zone limitrofe, aree servite, prezzi, prenotazione su WhatsApp e oli essenziali Young Living.";
+    "Una coccola solo per te: massaggi e oli essenziali comodamente a casa tua. Trattamenti relax, drenanti e decontratturanti nella zona di Milano e Milano Nord - Bresso, Cusano milanino, Cinisello balsamo e Sesto San Giovanni";
   const crumbs = [
     { name: "Home", path: "/" },
-    { name: "Domande", path: pagePath }
+    { name: "FAQ", path: pagePath }
   ];
   const content = [
     pageHeadHtml({
       eyebrow: "",
-      h1: "Massaggi a domicilio e oli essenziali",
+      h1: "Benessere a domicilio",
       lead:
-        "il benessere direttamente a casa tua: massaggi sportivi, decontratturanti, relax e drenanti a domicilio a Milano, Bresso e in tutta l'area di Milano Nord — Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e Milano.",
+        "Una coccola solo per te: massaggi e oli essenziali comodamente a casa tua. Trattamenti relax, drenanti e decontratturanti nella zona di Milano e Milano Nord - Bresso, Cusano milanino, Cinisello balsamo e Sesto San Giovanni",
       crumbs
     }),
     `    <section class="section faq-section" aria-label="Elenco delle domande frequenti">

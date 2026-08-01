@@ -291,10 +291,9 @@
     if (footerCols[2]) setText("h5", "Legal", footerCols[2]);
     setText('.footer-col a[href="#prodotti"]', "Essential oils");
     setText('.footer-col a[href="#servizi"]', "Treatments");
-    setText('.footer-col a[href="/zone/"]', "Areas");
-    setText('.footer-col a[href="/servizi/"]', "All treatments");
-    setText('.footer-col a[href="/faq/"]', "FAQ");
     setText('.footer-col a[href="#chi-sono"]', "The founder");
+    setText('.footer-col a[href="/zone/"]', "Where");
+    setText('.footer-col a[href="/faq/"]', "FAQ");
     setText('.footer-col a[href="/cookie-policy/"]', "Cookie policy");
     setText('.footer-col a[href="/privacy/"]', "Privacy policy");
     setText('.footer-col a[href="/termini/"]', "Site terms");
