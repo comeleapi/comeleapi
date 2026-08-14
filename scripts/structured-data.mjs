@@ -101,10 +101,6 @@ export const FAQ_DEFINITIONS = [
     a: "I trattamenti si svolgono esclusivamente a domicilio a Milano, Bresso e in tutta l'area di Milano Nord — Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni — e nelle zone limitrofe. Scrivimi la tua zona su WhatsApp e ti confermo la disponibilità."
   },
   {
-    q: "Hai uno studio o un centro dove ricevi i clienti?",
-    a: "No: comeleapi non ha uno studio né una sede aperta al pubblico. Lavoro solo a domicilio, su appuntamento, portando con me tutto l'occorrente a Milano, Bresso e nelle zone limitrofe."
-  },
-  {
     q: "Come funziona il massaggio a domicilio?",
     a: "Arrivo da te con lettino, teli e oli professionali: a te basta scegliere un ambiente tranquillo. Concordiamo insieme giorno e orario, poi non resta che rilassarsi."
   },
@@ -142,10 +138,6 @@ export const FAQ_DEFINITIONS = [
   {
     q: "Posso ricevere una consulenza personalizzata sugli oli essenziali?",
     a: "Sì: con la consulenza Signature Blend scegliamo insieme gli oli essenziali più adatti a te, per un percorso di benessere su misura. Si prenota su WhatsApp."
-  },
-  {
-    q: "È disponibile una guida gratuita sugli oli essenziali?",
-    a: "Sì. Puoi scaricare gratuitamente «L'Essenziale», la mini-guida introduttiva agli oli essenziali pubblicata da comeleapi, direttamente dal sito."
   },
   {
     q: "Chi è Sara Bordenga?",
