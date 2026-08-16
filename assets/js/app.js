@@ -299,7 +299,7 @@
     setText('.footer-col a[href="/termini/"]', "Site terms");
     setText("#openCookie", "Cookie preferences");
     setHtml(".footer-bottom > span", '© <span id="year"></span> comeleapi. All rights reserved.');
-    setText(".btn-webnovis", "Crafted with care by WebNovis");
+    setText(".btn-webnovis", "WebNovis");
     setAllAttr('.social-link--instagram', "href", instagramUrl);
     setAllAttr('.social-link--instagram', "aria-label", "comeleapi on Instagram");
     setAllAttr('.social-link--whatsapp', "href", whatsAppUrl("Hi Sara, I would like to book a consultation."));
