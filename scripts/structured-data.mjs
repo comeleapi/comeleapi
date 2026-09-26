@@ -161,11 +161,13 @@ export const FAQ_DEFINITIONS = [
 //  - "Come funziona il massaggio a domicilio?" → domicilio
 //  - "Quanto costano i trattamenti?" → risposta "in tutte le zone servite"
 //  - "Chi è Sara Bordenga?" → risposta "trattamenti a domicilio"
+//  - "Quanto dura una seduta?" → durata dei trattamenti
 export const HIDDEN_FAQ_QUESTIONS = [
   "Dove svolgi i massaggi a domicilio?",
   "Come funziona il massaggio a domicilio?",
   "Quanto costano i trattamenti?",
-  "Chi è Sara Bordenga?"
+  "Chi è Sara Bordenga?",
+  "Quanto dura una seduta?"
 ];
 
 /** Sottoinsieme di FAQ_DEFINITIONS effettivamente renderizzato nel sito. */
