@@ -19,6 +19,7 @@ import {
   AREA_DEFINITIONS,
   SERVICE_DEFINITIONS,
   FAQ_DEFINITIONS,
+  getVisibleFaqDefinitions,
   ORGANIZATION_ID,
   PERSON_ID,
   serviceId,
@@ -27,6 +28,22 @@ import {
 } from "./structured-data.mjs";
 import { escapeHtml, buildFaqHtml } from "./html-inject.mjs";
 import { LASTMOD_PLACEHOLDER } from "./content-freshness.mjs";
+
+// ─── Visibilità sito (settembre 2026, su richiesta): sezione Where nascosta ─
+// HIDE_ZONE_PAGES = true esclude dal sito hub /zone/ e pagine città, link di
+// navigazione, sezione "Dove è disponibile" e FAQ su domicilio/zone servite.
+// Il codice resta tutto nel file (funzioni buildZoneHubPage/buildCityPage,
+// CITY_CONTENT, AREA_DEFINITIONS): per riattivare basta impostare false e
+// ripristinare le voci commentate in GENERATED_PAGE_DIRS / SUBPAGE_SITEMAP_ENTRIES
+// / SEO_CHECK_PAGES più sotto.
+const HIDE_ZONE_PAGES = true;
+
+/** FAQ dei singoli servizi effettivamente renderizzate (via le voci su zone). */
+function getVisibleServiceFaqs(faqItems) {
+  return faqItems.filter(
+    (item) => !/zone servite|quali zone/i.test(`${item.q} ${item.a}`)
+  );
+}
 
 const SITE_URL = "https://comeleapi.it/";
 const CONTACT_EMAIL = "sara.bordenga@gmail.com";
@@ -630,7 +647,7 @@ ${jsonLd(structuredData)}
         <a href="/#prodotti">Oli</a>
         <a href="/servizi/">Trattamenti</a>
         <a href="/#chi-sono">The founder</a>
-        <a href="/zone/">Where</a>
+        <!-- HIDDEN-WHERE-NAV (settembre 2026, codice preservato): <a href="/zone/">Where</a> -->
         <a href="/faq/">Faq</a>
         <a href="${escapeHtml(whatsAppUrl("Ciao Sara, vorrei prenotare una consulenza."))}" class="btn btn--primary btn--sm nav-cta" target="_blank" rel="noopener">
           Scrivimi su WhatsApp
@@ -670,7 +687,7 @@ ${content}
           <li><a href="/#prodotti">Oli essenziali</a></li>
           <li><a href="/servizi/">Trattamenti</a></li>
           <li><a href="/#chi-sono">The founder</a></li>
-          <li><a href="/zone/">Where</a></li>
+          <!-- HIDDEN-WHERE-FOOTER (settembre 2026, codice preservato): <li><a href="/zone/">Where</a></li> -->
           <li><a href="/faq/">FAQ</a></li>
         </ul>
       </div>
@@ -936,6 +953,22 @@ function buildServicesHubPage(v) {
     { name: "Home", path: "/" },
     { name: "Servizi", path: pagePath }
   ];
+  // NOTA (settembre 2026): la FAQ "In quali zone sono disponibili i trattamenti?"
+  // resta nel codice qui sotto ma è esclusa dal sito via getVisibleServiceFaqs().
+  const servicesHubFaqs = getVisibleServiceFaqs([
+    {
+      q: "Quanto costano i trattamenti?",
+      a: PRICES_SENTENCE
+    },
+    {
+      q: "In quali zone sono disponibili i trattamenti?",
+      a: "A Milano, Bresso, Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e nelle zone limitrofe. Tutti i dettagli nella sezione Zone."
+    },
+    {
+      q: "Come scelgo il trattamento più adatto?",
+      a: "Scrivimi su WhatsApp raccontandomi le tue esigenze: ti aiuto a capire quale opzione può fare al caso tuo, senza impegno."
+    }
+  ]);
   const content = [
     pageHeadHtml({
       eyebrow: "Trattamenti",
@@ -952,20 +985,7 @@ ${serviceCardsHtml(v)}
     </section>`,
     HOW_IT_WORKS_HTML,
     faqSectionHtml(
-      [
-        {
-          q: "Quanto costano i trattamenti?",
-          a: PRICES_SENTENCE
-        },
-        {
-          q: "In quali zone sono disponibili i trattamenti?",
-          a: "A Milano, Bresso, Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e nelle zone limitrofe. Tutti i dettagli nella sezione Zone."
-        },
-        {
-          q: "Come scelgo il trattamento più adatto?",
-          a: "Scrivimi su WhatsApp raccontandomi le tue esigenze: ti aiuto a capire quale opzione può fare al caso tuo, senza impegno."
-        }
-      ],
+      servicesHubFaqs,
       "Domande frequenti sui trattamenti"
     ),
     ctaSectionHtml("Ciao Sara, vorrei informazioni su trattamenti, disponibilità e costi.")
@@ -1005,17 +1025,7 @@ ${serviceCardsHtml(v)}
         }))
       },
       ...organizationNodes(),
-      faqPageNode(pageUrl, [
-        { q: "Quanto costano i trattamenti?", a: PRICES_SENTENCE },
-        {
-          q: "In quali zone sono disponibili i trattamenti?",
-          a: "A Milano, Bresso, Cusano Milanino, Cormano, Cinisello Balsamo, Sesto San Giovanni e nelle zone limitrofe. Tutti i dettagli nella sezione Zone."
-        },
-        {
-          q: "Come scelgo il trattamento più adatto?",
-          a: "Scrivimi su WhatsApp raccontandomi le tue esigenze: ti aiuto a capire quale opzione può fare al caso tuo, senza impegno."
-        }
-      ], "Domande frequenti sui trattamenti a domicilio comeleapi")
+      faqPageNode(pageUrl, servicesHubFaqs, "Domande frequenti sui trattamenti a domicilio comeleapi")
     ]
   };
 
@@ -1041,9 +1051,20 @@ function buildServicePage(v, service) {
     { name: "Servizi", path: "/servizi/" },
     { name: service.name, path: pagePath }
   ];
+  // NOTA (settembre 2026): con HIDE_ZONE_PAGES la sezione "Dove è disponibile"
+  // (codice preservato qui sotto) e le FAQ su zone servite sono escluse dal sito.
   const zoneLinks = AREA_DEFINITIONS
     .map(([slug, name]) => `<a href="/zone/${slug}/">${escapeHtml(name)}</a>`)
     .join(", ");
+  const visibleServiceFaqs = getVisibleServiceFaqs(extra.faq);
+  const whereSectionHtml = `    <section class="section">
+      <div class="container">
+        <div class="section-head section-head--center">
+          <h2 class="section-title">Dove è disponibile</h2>
+        </div>
+        <p class="subpage-text">Il trattamento si svolge esclusivamente a domicilio nelle zone di ${zoneLinks}. ${escapeHtml(extra.whereNote)} Scopri tutte le aree nella pagina <a href="/zone/">Where</a>.</p>
+      </div>
+    </section>`;
   const content = [
     pageHeadHtml({
       eyebrow: "Trattamenti",
@@ -1074,16 +1095,10 @@ ${extra.forWho.map((line) => `          <li>${escapeHtml(line)}</li>`).join("\n"
         </ul>
       </div>
     </section>`,
-    `    <section class="section">
-      <div class="container">
-        <div class="section-head section-head--center">
-          <h2 class="section-title">Dove è disponibile</h2>
-        </div>
-        <p class="subpage-text">Il trattamento si svolge esclusivamente a domicilio nelle zone di ${zoneLinks}. ${escapeHtml(extra.whereNote)} Scopri tutte le aree nella pagina <a href="/zone/">Where</a>.</p>
-      </div>
-    </section>`,
+    // Sezione Where nascosta: il markup resta definito in whereSectionHtml sopra.
+    ...(HIDE_ZONE_PAGES ? [] : [whereSectionHtml]),
     HOW_IT_WORKS_HTML,
-    faqSectionHtml(extra.faq, `Domande frequenti sul ${service.name.toLowerCase()}`),
+    faqSectionHtml(visibleServiceFaqs, `Domande frequenti sul ${service.name.toLowerCase()}`),
     ctaSectionHtml(`Ciao Sara, vorrei prenotare un ${service.name.toLowerCase()} a domicilio.`)
   ].join("\n\n");
 
@@ -1155,7 +1170,7 @@ ${extra.forWho.map((line) => `          <li>${escapeHtml(line)}</li>`).join("\n"
       breadcrumbNode(pageUrl, crumbs),
       serviceNode,
       ...organizationNodes(),
-      faqPageNode(pageUrl, extra.faq, `Domande frequenti sul ${service.name.toLowerCase()} a domicilio`)
+      faqPageNode(pageUrl, visibleServiceFaqs, `Domande frequenti sul ${service.name.toLowerCase()} a domicilio`)
     ]
   };
 
@@ -1381,6 +1396,9 @@ function buildFaqPage(v) {
     { name: "Home", path: "/" },
     { name: "FAQ", path: pagePath }
   ];
+  // FAQ domicilio/zone nascoste: FAQ_DEFINITIONS resta intatta, il sito mostra
+  // solo getVisibleFaqDefinitions() (vedi scripts/structured-data.mjs).
+  const visibleFaqs = getVisibleFaqDefinitions();
   const content = [
     pageHeadHtml({
       eyebrow: "",
@@ -1392,7 +1410,7 @@ function buildFaqPage(v) {
     `    <section class="section faq-section" aria-label="Elenco delle domande frequenti">
       <div class="container">
         <div class="faq-list">
-${buildFaqHtml(FAQ_DEFINITIONS)}
+${buildFaqHtml(visibleFaqs)}
         </div>
       </div>
     </section>`,
@@ -1424,7 +1442,7 @@ ${buildFaqHtml(FAQ_DEFINITIONS)}
       ...organizationNodes(),
       faqPageNode(
         pageUrl,
-        FAQ_DEFINITIONS,
+        visibleFaqs,
         "Domande frequenti su massaggi a domicilio e oli essenziali — comeleapi"
       )
     ]
@@ -1446,9 +1464,16 @@ ${buildFaqHtml(FAQ_DEFINITIONS)}
  * calcolata sul file già presente in dist.
  */
 export function renderSitePages(v) {
+  // Sezione Where nascosta (HIDE_ZONE_PAGES): buildZoneHubPage/buildCityPage
+  // restano nel codice e vengono solo escluse dall'output.
+  const zonePages = HIDE_ZONE_PAGES
+    ? []
+    : [
+        buildZoneHubPage(v),
+        ...AREA_DEFINITIONS.map((area) => buildCityPage(v, area))
+      ];
   return [
-    buildZoneHubPage(v),
-    ...AREA_DEFINITIONS.map((area) => buildCityPage(v, area)),
+    ...zonePages,
     buildServicesHubPage(v),
     ...SERVICE_DEFINITIONS.map((service) => buildServicePage(v, service)),
     buildFaqPage(v),
@@ -1457,9 +1482,13 @@ export function renderSitePages(v) {
 }
 
 // Directory generate (per le redirect /dir/index.html → /dir/).
+// Voci Where preservate in commento: decommentare per riattivare la sezione.
+//   "zone",
+//   ...AREA_DEFINITIONS.map(([slug]) => `zone/${slug}`),
 export const GENERATED_PAGE_DIRS = [
-  "zone",
-  ...AREA_DEFINITIONS.map(([slug]) => `zone/${slug}`),
+  ...(HIDE_ZONE_PAGES
+    ? []
+    : ["zone", ...AREA_DEFINITIONS.map(([slug]) => `zone/${slug}`)]),
   "servizi",
   ...SERVICE_DEFINITIONS.map((service) => `servizi/${service.slug}`),
   "faq",
@@ -1474,13 +1503,20 @@ export const LEGAL_PAGE_ROUTES = LEGAL_PAGE_DEFINITIONS.map((legal) => ({
 }));
 
 // Voci sitemap per le pagine indicizzabili (le legali restano escluse).
-// Ordine: hub zone, città, hub servizi, servizi, faq.
+// Ordine: hub servizi, servizi, faq. Le voci Where (hub zone + città) sono
+// preservate in commento per la riattivazione:
+//   { loc: `${SITE_URL}zone/`, kind: "zone-hub" },
+//   ...AREA_DEFINITIONS.map(([slug]) => ({ loc: `${SITE_URL}zone/${slug}/`, kind: "zone" })),
 // Nessuna immagine dichiarata: queste pagine contengono solo icone decorative
 // (alt="", aria-hidden) e il marchio nell'header. L'hero dichiarato in
 // precedenza non compare in nessuna di esse — vedi scripts/generate-sitemap.mjs.
 export const SUBPAGE_SITEMAP_ENTRIES = [
-  { loc: `${SITE_URL}zone/`, kind: "zone-hub" },
-  ...AREA_DEFINITIONS.map(([slug]) => ({ loc: `${SITE_URL}zone/${slug}/`, kind: "zone" })),
+  ...(HIDE_ZONE_PAGES
+    ? []
+    : [
+        { loc: `${SITE_URL}zone/`, kind: "zone-hub" },
+        ...AREA_DEFINITIONS.map(([slug]) => ({ loc: `${SITE_URL}zone/${slug}/`, kind: "zone" }))
+      ]),
   { loc: `${SITE_URL}servizi/`, kind: "services-hub" },
   ...SERVICE_DEFINITIONS.map((service) => ({
     loc: `${SITE_URL}servizi/${service.slug}/`,
@@ -1490,19 +1526,24 @@ export const SUBPAGE_SITEMAP_ENTRIES = [
 ];
 
 // Pagine indicizzabili per check-public-seo.mjs (file in dist + canonical).
+// Voci Where preservate in commento per la riattivazione (vedi sopra).
 export const SEO_CHECK_PAGES = [
-  {
-    file: "zone/index.html",
-    canonical: `${SITE_URL}zone/`,
-    schemaType: "WebPage",
-    schemaId: `${SITE_URL}zone/#webpage`
-  },
-  ...AREA_DEFINITIONS.map(([slug]) => ({
-    file: `zone/${slug}/index.html`,
-    canonical: `${SITE_URL}zone/${slug}/`,
-    schemaType: "WebPage",
-    schemaId: `${SITE_URL}zone/${slug}/#webpage`
-  })),
+  ...(HIDE_ZONE_PAGES
+    ? []
+    : [
+        {
+          file: "zone/index.html",
+          canonical: `${SITE_URL}zone/`,
+          schemaType: "WebPage",
+          schemaId: `${SITE_URL}zone/#webpage`
+        },
+        ...AREA_DEFINITIONS.map(([slug]) => ({
+          file: `zone/${slug}/index.html`,
+          canonical: `${SITE_URL}zone/${slug}/`,
+          schemaType: "WebPage",
+          schemaId: `${SITE_URL}zone/${slug}/#webpage`
+        }))
+      ]),
   {
     file: "servizi/index.html",
     canonical: `${SITE_URL}servizi/`,

@@ -149,6 +149,30 @@ export const FAQ_DEFINITIONS = [
   }
 ];
 
+// ─── Visibilità sito: sezione Where e FAQ domicilio/zone ─────────────────────
+// Su richiesta (settembre 2026) la sezione Where (/zone/ e pagine città) e le
+// FAQ che parlano di massaggi a domicilio / zone servite / zone sono NASCOSTE
+// dal sito SENZA eliminare il codice: le definizioni sopra (AREA_DEFINITIONS,
+// FAQ_DEFINITIONS, CITY_CONTENT in site-pages.mjs) restano intatte come unica
+// fonte di verità e possono essere riattivate rimuovendo i filtri qui sotto.
+//
+// Domande nascoste dal frontend (confronto esatto sul campo `q`):
+//  - "Dove svolgi i massaggi a domicilio?" → domicilio + zone servite
+//  - "Come funziona il massaggio a domicilio?" → domicilio
+//  - "Quanto costano i trattamenti?" → risposta "in tutte le zone servite"
+//  - "Chi è Sara Bordenga?" → risposta "trattamenti a domicilio"
+export const HIDDEN_FAQ_QUESTIONS = [
+  "Dove svolgi i massaggi a domicilio?",
+  "Come funziona il massaggio a domicilio?",
+  "Quanto costano i trattamenti?",
+  "Chi è Sara Bordenga?"
+];
+
+/** Sottoinsieme di FAQ_DEFINITIONS effettivamente renderizzato nel sito. */
+export function getVisibleFaqDefinitions() {
+  return FAQ_DEFINITIONS.filter((item) => !HIDDEN_FAQ_QUESTIONS.includes(item.q));
+}
+
 function ref(id) {
   return { "@id": id };
 }

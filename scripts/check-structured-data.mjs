@@ -3,7 +3,7 @@ import { readFile, readdir, stat } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { FAQ_DEFINITIONS } from "./structured-data.mjs";
+import { FAQ_DEFINITIONS, getVisibleFaqDefinitions } from "./structured-data.mjs";
 import { escapeHtml } from "./html-inject.mjs";
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
@@ -335,17 +335,20 @@ assert(linksDocument, "JSON-LD links: DigitalDocument mancante");
 assert(linksDocument.author?.["@id"] === `${SITE_URL}#organization`, "JSON-LD links: autore corporate della guida mancante");
 assert(!linksGraph.some((node) => node["@type"] === "BreadcrumbList"), "JSON-LD links: breadcrumb non visibile presente");
 
-// Pagina /faq/: il nodo FAQPage deve coincidere con FAQ_DEFINITIONS e con il
-// testo visibile dell'accordion (parità schema/contenuto richiesta da Google).
+// Pagina /faq/: il nodo FAQPage deve coincidere con le FAQ effettivamente
+// visibili (getVisibleFaqDefinitions: FAQ domicilio/zone nascoste dal sito ma
+// preservate in FAQ_DEFINITIONS) e con il testo visibile dell'accordion
+// (parità schema/contenuto richiesta da Google).
 const faqHtml = await readFile(path.join(DIST, "faq/index.html"), "utf8");
 const faqSchema = parseStructuredData(faqHtml, "faq/index.html");
 const faqPage = faqSchema["@graph"].find((node) => typesOf(node).includes("FAQPage"));
 assert(faqPage, "JSON-LD faq: nodo FAQPage mancante");
+const visibleFaqs = getVisibleFaqDefinitions();
 assert(
-  faqPage.mainEntity?.length === FAQ_DEFINITIONS.length,
-  "JSON-LD faq: numero di domande non allineato a FAQ_DEFINITIONS"
+  faqPage.mainEntity?.length === visibleFaqs.length,
+  "JSON-LD faq: numero di domande non allineato alle FAQ visibili"
 );
-for (const [index, item] of FAQ_DEFINITIONS.entries()) {
+for (const [index, item] of visibleFaqs.entries()) {
   const question = faqPage.mainEntity[index];
   assert(question?.name === item.q, `JSON-LD faq: domanda non allineata (${item.q})`);
   assert(question?.acceptedAnswer?.text === item.a, `JSON-LD faq: risposta non allineata (${item.q})`);
