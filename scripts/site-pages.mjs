@@ -700,6 +700,7 @@ ${content}
         <ul>
           <li><a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a></li>
           <li><a href="tel:+${PHONE_E164}">${PHONE_DISPLAY}</a></li>
+          <li>Milano</li>
           <!-- HIDDEN-FOOTER-DOMICILIO (settembre 2026, codice preservato): <li>domicilio - Milano, Milano Nord, Bresso e dintorni</li> -->
         </ul>
       </div>

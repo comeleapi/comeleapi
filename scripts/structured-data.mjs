@@ -162,12 +162,14 @@ export const FAQ_DEFINITIONS = [
 //  - "Quanto costano i trattamenti?" → risposta "in tutte le zone servite"
 //  - "Chi è Sara Bordenga?" → risposta "trattamenti a domicilio"
 //  - "Quanto dura una seduta?" → durata dei trattamenti
+//  - "Come posso prenotare un trattamento?" → prenotazioni (ottobre 2026)
 export const HIDDEN_FAQ_QUESTIONS = [
   "Dove svolgi i massaggi a domicilio?",
   "Come funziona il massaggio a domicilio?",
   "Quanto costano i trattamenti?",
   "Chi è Sara Bordenga?",
-  "Quanto dura una seduta?"
+  "Quanto dura una seduta?",
+  "Come posso prenotare un trattamento?"
 ];
 
 /** Sottoinsieme di FAQ_DEFINITIONS effettivamente renderizzato nel sito. */
