@@ -186,9 +186,9 @@
   function applyEnglishLocale() {
     document.documentElement.lang = "en";
     document.title = "comeleapi - Wellbeing, Massage & Personal Care";
-    setAttr('meta[name="description"]', "content", "comeleapi is Sara's wellbeing and massage project: at-home treatments, tailored wellness paths and essential oils for daily balance.");
+    setAttr('meta[name="description"]', "content", "comeleapi is Sara's wellbeing and massage project: treatments, tailored wellness paths and essential oils for daily balance.");
     setAttr('meta[property="og:title"]', "content", "comeleapi - Wellbeing & Massage");
-    setAttr('meta[property="og:description"]', "content", "A wellbeing project curated by Sara: essential oils and tailored at-home treatments across Milan, Bresso and nearby areas.");
+    setAttr('meta[property="og:description"]', "content", "A wellbeing project curated by Sara: essential oils and tailored treatments for daily balance.");
 
     setAllAttr(".brand", "aria-label", "comeleapi - home");
     setAttr("#mainNav", "aria-label", "Main navigation");
@@ -231,7 +231,7 @@
 
     setText("#servizi .eyebrow", "Treatments");
     setText("#servizi .section-title", "A need, not a luxury");
-    setHtml("#servizi .section-lead", "<span>Hands have always spoken: they hold, soothe, pray, love.</span><span>Massage is born from this ancient language.</span><span>A contact that listens to the body and guides it back toward balance.</span><span>Every treatment lasts 50 minutes — 30 for the targeted treatment — and takes place exclusively at your home, in Milan, Bresso, Cusano Milanino, Cormano, Cinisello Balsamo and Sesto San Giovanni.</span>");
+    setHtml("#servizi .section-lead", "<span>Hands have always spoken: they hold, soothe, pray, love.</span><span>Massage is born from this ancient language.</span><span>A contact that listens to the body and guides it back toward balance.</span><span>Every treatment lasts 50 minutes — 30 for the targeted treatment — and takes place by appointment.</span>");
     const serviceNames = [
       "Sports massage",
       "Decontracting massage",
@@ -268,10 +268,10 @@
     setText(".booking .eyebrow", "Direct contact");
     setText(".booking .section-title", "Let's talk about the treatment best suited to you.");
     setText(".booking .section-lead", "Book your consultation on WhatsApp, tell me what you are looking for and receive availability, costs and details clearly and confidentially.");
-    setText(".benefits-box h3", "At-home treatments");
+    setText(".benefits-box h3", "Tailored treatments");
     const benefits = [
-      "Treatments are available at home across Milan, Bresso and the surrounding areas.",
-      "Wherever you are in the Milan area, availability is quickly confirmed on WhatsApp.",
+      "Treatments are tailored to your needs and available by appointment.",
+      "Wherever you are, availability is quickly confirmed on WhatsApp.",
       "An operating space with a dedicated treatment room is being defined, designed to offer an even more welcoming, private and professional environment."
     ];
     $$(".benefits-box li span:last-child").forEach((el, index) => {

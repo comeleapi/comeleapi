@@ -40,7 +40,7 @@ export const SERVICE_DEFINITIONS = [
     name: "Massaggio sportivo",
     price: "50.00",
     durationMinutes: 50,
-    description: "Servizio di massaggio sportivo della durata dichiarata di 50 minuti, svolto a domicilio da Sara Bordenga.",
+    description: "Servizio di massaggio sportivo della durata dichiarata di 50 minuti con Sara Bordenga.",
     image: "assets/img/icons/icon-sportivo-arm.webp"
   },
   {
@@ -48,7 +48,7 @@ export const SERVICE_DEFINITIONS = [
     name: "Massaggio decontratturante",
     price: "50.00",
     durationMinutes: 50,
-    description: "Servizio di massaggio decontratturante della durata dichiarata di 50 minuti, svolto a domicilio da Sara Bordenga.",
+    description: "Servizio di massaggio decontratturante della durata dichiarata di 50 minuti con Sara Bordenga.",
     image: "assets/img/icons/icon-decontratturante.webp"
   },
   {
@@ -56,7 +56,7 @@ export const SERVICE_DEFINITIONS = [
     name: "Massaggio relax",
     price: "40.00",
     durationMinutes: 50,
-    description: "Servizio di massaggio relax della durata dichiarata di 50 minuti, svolto a domicilio da Sara Bordenga.",
+    description: "Servizio di massaggio relax della durata dichiarata di 50 minuti con Sara Bordenga.",
     image: "assets/img/icons/icon-relax.webp"
   },
   {
@@ -64,7 +64,7 @@ export const SERVICE_DEFINITIONS = [
     name: "Massaggio drenante",
     price: "50.00",
     durationMinutes: 50,
-    description: "Servizio di massaggio drenante della durata dichiarata di 50 minuti, svolto a domicilio da Sara Bordenga.",
+    description: "Servizio di massaggio drenante della durata dichiarata di 50 minuti con Sara Bordenga.",
     image: "assets/img/icons/icon-linfodrenante-up.webp"
   },
   {
@@ -72,21 +72,21 @@ export const SERVICE_DEFINITIONS = [
     name: "Trattamento Mirato 30 minuti",
     price: "30.00",
     durationMinutes: 30,
-    description: "Trattamento mirato della durata dichiarata di 30 minuti, svolto a domicilio da Sara Bordenga.",
+    description: "Trattamento mirato della durata dichiarata di 30 minuti con Sara Bordenga.",
     image: "assets/img/icons/icon-mirato-30.webp"
   },
   {
     slug: "kinesio-taping",
     name: "Kinesio taping",
     price: "10.00",
-    description: "Servizio di applicazione di kinesio taping svolto a domicilio da Sara Bordenga.",
+    description: "Servizio di applicazione di kinesio taping con Sara Bordenga.",
     image: "assets/img/icons/icon-kinesio-taping.webp"
   },
   {
     slug: "massaggio-oli-essenziali",
     name: "Massaggio con oli essenziali",
     price: "70.00",
-    description: "Servizio di massaggio con oli essenziali svolto a domicilio da Sara Bordenga.",
+    description: "Servizio di massaggio con oli essenziali con Sara Bordenga.",
     image: "assets/img/icons/icon-oli-terapeutici.webp"
   }
 ];
@@ -246,7 +246,7 @@ function identityNodes({ includeServiceCatalog = true, includeBookingChannel = t
       "@type": "Organization",
       name: "comeleapi",
       url: SITE_URL,
-      description: "Servizio di massaggi esclusivamente a domicilio a Milano, Bresso e nell'area di Milano Nord curato da Sara Bordenga, senza studio né sede aperta al pubblico. Propone oli essenziali Young Living tramite link di rivendita indipendente, senza vendita o spedizione diretta.",
+      description: "Progetto di benessere curato da Sara Bordenga, senza studio né sede aperta al pubblico. Massaggi, consulenze e oli essenziali Young Living tramite link di rivendita indipendente, senza vendita o spedizione diretta.",
       slogan: "Vola verso il tuo benessere",
       logo: ref(`${SITE_URL}#logo`),
       image: ref(`${SITE_URL}#primary-image`),
@@ -512,10 +512,10 @@ export function buildHomeStructuredData(products, dateModified) {
       {
         "@id": `${SITE_URL}#webpage`,
         "@type": "WebPage",
-        name: "comeleapi — Massaggi a domicilio a Milano, Bresso e Milano Nord",
-        alternateName: "comeleapi — Home massage & essential oils in Milan, Bresso and nearby areas",
+        name: "comeleapi — Massaggi, benessere e oli essenziali",
+        alternateName: "comeleapi — Massage, wellbeing & essential oils",
         url: SITE_URL,
-        description: "Massaggi esclusivamente a domicilio a Milano, Bresso e nell'area di Milano Nord con Sara Bordenga: sportivo, decontratturante, relax e drenante. Oli essenziali Young Living e consulenze su misura.",
+        description: "Massaggi sportivo, decontratturante, relax e drenante con Sara Bordenga: oli essenziali Young Living e consulenze su misura.",
         inLanguage: "it-IT",
         // Risolta sull'hash del contenuto in scripts/content-freshness.mjs:
         // stessa data dichiarata in <lastmod> nella sitemap.

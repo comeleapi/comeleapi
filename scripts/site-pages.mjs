@@ -86,8 +86,10 @@ const SERVICE_ICON_CLASSES = {
   "massaggio-oli-essenziali": "service-ic--oil"
 };
 
+// NOTA (settembre 2026): frase riscritta senza "in tutte le zone servite"
+// (originale in git history). Il controllo qui sotto resta invariato.
 const PRICES_SENTENCE =
-  "I prezzi sono gli stessi in tutte le zone servite: massaggio sportivo, decontratturante e drenante 50 €, " +
+  "I prezzi: massaggio sportivo, decontratturante e drenante 50 €, " +
   "massaggio relax 40 €, trattamento mirato da 30 minuti 30 €, kinesio taping 10 € e massaggio con oli essenziali 70 €.";
 
 // La frase sopra è scritta a mano (raggruppa i trattamenti con lo stesso
@@ -233,9 +235,11 @@ const CITY_CONTENT = {
 };
 
 // ─── Contenuti per servizio ─────────────────────────────────────────────────
+// NOTA (settembre 2026): titoli riscritti senza "a domicilio" e zone
+// (originali in git history, es. "Massaggio sportivo a domicilio a Milano e Bresso | comeleapi").
 const SERVICE_CONTENT = {
   "massaggio-sportivo": {
-    title: "Massaggio sportivo a domicilio a Milano e Bresso | comeleapi",
+    title: "Massaggio sportivo | comeleapi",
     whereNote: "Molte richieste arrivano da chi si allena al Parco Nord o corre lungo il Villoresi: il dopo-gara si trasforma in recupero senza rientrare in palestra.",
     duration: "50 minuti",
     intro: [
@@ -250,11 +254,11 @@ const SERVICE_CONTENT = {
     faq: [
       {
         q: "Quanto dura e quanto costa il massaggio sportivo?",
-        a: "La seduta ha una durata dichiarata di 50 minuti e costa 50 €, in tutte le zone servite."
+        a: "La seduta ha una durata dichiarata di 50 minuti e costa 50 €."
       },
       {
         q: "Serve attrezzatura da parte mia?",
-        a: "No: porto io lettino professionale, teli e oli. Ti basta scegliere un ambiente tranquillo della casa."
+        a: "No: porto io lettino professionale, teli e oli. Ti basta un ambiente tranquillo."
       },
       {
         q: "Il massaggio sportivo va fatto prima o dopo l'allenamento?",
@@ -263,7 +267,7 @@ const SERVICE_CONTENT = {
     ]
   },
   "massaggio-decontratturante": {
-    title: "Massaggio decontratturante a domicilio, 50 € | comeleapi",
+    title: "Massaggio decontratturante, 50 € | comeleapi",
     whereNote: "È il trattamento più richiesto da chi pendola su Milano e Sesto San Giovanni e passa la giornata alla scrivania.",
     duration: "50 minuti",
     intro: [
@@ -278,7 +282,7 @@ const SERVICE_CONTENT = {
     faq: [
       {
         q: "Quanto dura e quanto costa il massaggio decontratturante?",
-        a: "La seduta ha una durata dichiarata di 50 minuti e costa 50 €, in tutte le zone servite."
+        a: "La seduta ha una durata dichiarata di 50 minuti e costa 50 €."
       },
       {
         q: "Il trattamento è personalizzato?",
@@ -291,12 +295,12 @@ const SERVICE_CONTENT = {
     ]
   },
   "massaggio-relax": {
-    title: "Massaggio relax a domicilio a Milano Nord, 40 € | comeleapi",
+    title: "Massaggio relax, 40 € | comeleapi",
     whereNote: "Nelle zone più tranquille — la città giardino di Cusano Milanino, le vie residenziali di Cormano — la seduta serale è la richiesta più frequente.",
     duration: "50 minuti",
     intro: [
       "Il massaggio relax è un momento tutto per te: manualità avvolgenti e ritmo lento per allentare lo stress e ritrovare calma e leggerezza.",
-      "Riceverlo a casa propria amplifica l'effetto: nessuno spostamento prima, nessuna fretta dopo. Solo il tuo tempo."
+      "La seduta si svolge su appuntamento, con tempi distesi e senza fretta: solo il tuo tempo."
     ],
     forWho: [
       "Chi attraversa periodi intensi e vuole rallentare",
@@ -306,12 +310,12 @@ const SERVICE_CONTENT = {
     faq: [
       {
         q: "Quanto dura e quanto costa il massaggio relax?",
-        a: "La seduta ha una durata dichiarata di 50 minuti e costa 40 €, in tutte le zone servite."
+        a: "La seduta ha una durata dichiarata di 50 minuti e costa 40 €."
       },
-      {
-        q: "Come preparo la casa per il massaggio relax?",
-        a: "Basta una stanza tranquilla: al lettino, ai teli e agli oli penso io. Se vuoi, puoi aggiungere luce soffusa e la tua musica preferita."
-      },
+        {
+          q: "Come preparo l'ambiente per il massaggio relax?",
+          a: "Basta una stanza tranquilla: al lettino, ai teli e agli oli penso io. Se vuoi, puoi aggiungere luce soffusa e la tua musica preferita."
+        },
       {
         q: "È adatto anche a chi non ha mai ricevuto un massaggio?",
         a: "Sì: è il trattamento con cui consiglio di iniziare. Manualità avvolgenti, ritmo lento e nessuna pressione profonda, così puoi capire con calma come reagisce il tuo corpo."
@@ -319,7 +323,7 @@ const SERVICE_CONTENT = {
     ]
   },
   "massaggio-drenante": {
-    title: "Massaggio drenante a domicilio a Milano e Bresso | comeleapi",
+    title: "Massaggio drenante | comeleapi",
     whereNote: "Chi lo sceglie di solito prenota un ciclo di sedute ravvicinate: nelle zone vicine a Bresso è più semplice trovare date vicine tra loro.",
     duration: "50 minuti",
     intro: [
@@ -334,7 +338,7 @@ const SERVICE_CONTENT = {
     faq: [
       {
         q: "Quanto dura e quanto costa il massaggio drenante?",
-        a: "La seduta ha una durata dichiarata di 50 minuti e costa 50 €, in tutte le zone servite."
+        a: "La seduta ha una durata dichiarata di 50 minuti e costa 50 €."
       },
       {
         q: "Con quale frequenza si riceve il massaggio drenante?",
@@ -347,7 +351,7 @@ const SERVICE_CONTENT = {
     ]
   },
   "trattamento-mirato-30-minuti": {
-    title: "Trattamento mirato 30 minuti a domicilio, 30 € | comeleapi",
+    title: "Trattamento mirato 30 minuti, 30 € | comeleapi",
     whereNote: "Mezz'ora è spesso la scelta di chi ha poco tempo in pausa pranzo, soprattutto nelle zone più vicine a Bresso e Cusano Milanino.",
     duration: "30 minuti",
     intro: [
@@ -357,12 +361,12 @@ const SERVICE_CONTENT = {
     forWho: [
       "Chi ha una zona specifica da trattare",
       "Chi ha poco tempo ma non vuole rinunciare al benessere",
-      "Chi vuole provare il servizio a domicilio con una seduta breve"
+      "Chi vuole provare il servizio con una seduta breve"
     ],
     faq: [
       {
         q: "Quanto dura e quanto costa il trattamento mirato?",
-        a: "La seduta dura 30 minuti e costa 30 €, in tutte le zone servite."
+        a: "La seduta dura 30 minuti e costa 30 €."
       },
       {
         q: "Quali zone si possono trattare in 30 minuti?",
@@ -375,7 +379,7 @@ const SERVICE_CONTENT = {
     ]
   },
   "kinesio-taping": {
-    title: "Kinesio taping a domicilio a Milano Nord, 10 € | comeleapi",
+    title: "Kinesio taping, 10 € | comeleapi",
     whereNote: "Spesso si aggiunge a fine seduta: se stai già prenotando un massaggio, dimmelo in anticipo e porto i nastri della misura giusta.",
     duration: "applicazione",
     intro: [
@@ -390,7 +394,7 @@ const SERVICE_CONTENT = {
     faq: [
       {
         q: "Quanto costa l'applicazione del kinesio taping?",
-        a: "L'applicazione costa 10 €, in tutte le zone servite. Spesso viene abbinata a un massaggio sportivo o decontratturante."
+        a: "L'applicazione costa 10 €. Spesso viene abbinata a un massaggio sportivo o decontratturante."
       },
       {
         q: "Quanto resta in sede il nastro?",
@@ -403,7 +407,7 @@ const SERVICE_CONTENT = {
     ]
   },
   "massaggio-oli-essenziali": {
-    title: "Massaggio con oli essenziali a domicilio, 70 € | comeleapi",
+    title: "Massaggio con oli essenziali, 70 € | comeleapi",
     whereNote: "È la seduta più lunga e vale la pena scegliere un orario senza impegni subito dopo, in qualunque zona servita.",
     duration: "seduta completa",
     intro: [
@@ -418,7 +422,7 @@ const SERVICE_CONTENT = {
     faq: [
       {
         q: "Quanto costa il massaggio con oli essenziali?",
-        a: "La seduta costa 70 €, in tutte le zone servite. Gli oli essenziali utilizzati sono inclusi."
+        a: "La seduta costa 70 €. Gli oli essenziali utilizzati sono inclusi."
       },
       {
         q: "Posso scegliere gli oli essenziali?",
@@ -539,7 +543,7 @@ function organizationNodes() {
       name: "comeleapi",
       url: SITE_URL,
       description:
-        "Servizio di massaggi esclusivamente a domicilio a Milano, Bresso e nell'area di Milano Nord curato da Sara Bordenga, senza studio né sede aperta al pubblico. Propone oli essenziali Young Living tramite link di rivendita indipendente, senza vendita o spedizione diretta.",
+        "Progetto di benessere curato da Sara Bordenga, senza studio né sede aperta al pubblico. Massaggi, consulenze e oli essenziali Young Living tramite link di rivendita indipendente, senza vendita o spedizione diretta.",
       slogan: "Vola verso il tuo benessere",
       logo: { "@id": `${SITE_URL}#logo` },
       email: CONTACT_EMAIL,
@@ -776,13 +780,18 @@ export function getLocalZoneFaqs() {
   });
 }
 
+// NOTA (settembre 2026): testi riscritti senza riferimenti al domicilio e alle
+// zone (originali in git history). Originali:
+//   "Arrivo da te con lettino professionale, teli e oli."
+//   "Scegli un ambiente tranquillo della casa, bastano pochi metri quadrati."
+//   "Lavoro solo a domicilio su appuntamento."
 const HOW_IT_WORKS_HTML = `    <section class="section">
       <div class="container">
         <ul class="subpage-list">
-          <li>Arrivo da te con lettino professionale, teli e oli.</li>
-          <li>Scegli un ambiente tranquillo della casa, bastano pochi metri quadrati.</li>
+          <li>Lettino professionale, teli e oli professionali inclusi.</li>
+          <li>Ti basta un ambiente tranquillo di pochi metri quadrati.</li>
           <li>Concordiamo insieme giorno e orario su WhatsApp.</li>
-          <li>Lavoro solo a domicilio su appuntamento.</li>
+          <li>Lavoro su appuntamento.</li>
         </ul>
       </div>
     </section>`;
@@ -946,9 +955,9 @@ ${serviceCardsHtml(v)}
 function buildServicesHubPage(v) {
   const pagePath = "/servizi/";
   const pageUrl = `${SITE_URL}servizi/`;
-  const title = "Trattamenti a domicilio — Massaggi e oli essenziali | comeleapi";
+  const title = "Trattamenti — Massaggi e oli essenziali | comeleapi";
   const description =
-    "Tutti i trattamenti a domicilio di comeleapi: massaggio sportivo, decontratturante, relax, drenante, trattamento mirato 30 minuti, kinesio taping e massaggio con oli essenziali.";
+    "Tutti i trattamenti comeleapi: massaggio sportivo, decontratturante, relax, drenante, trattamento mirato 30 minuti, kinesio taping e massaggio con oli essenziali.";
   const crumbs = [
     { name: "Home", path: "/" },
     { name: "Servizi", path: pagePath }
@@ -972,8 +981,8 @@ function buildServicesHubPage(v) {
   const content = [
     pageHeadHtml({
       eyebrow: "Trattamenti",
-      h1: "Trattamenti a domicilio",
-      lead: "Ogni trattamento è svolto da Sara Bordenga, massaggiatrice sportiva ed ex atleta: la seduta è personalizzata sulle tue esigenze e si svolge esclusivamente a casa tua, a Milano, Bresso e nelle zone limitrofe.",
+      h1: "Trattamenti",
+      lead: "Ogni trattamento è svolto da Sara Bordenga, massaggiatrice sportiva ed ex atleta: la seduta è personalizzata sulle tue esigenze e si prenota con un messaggio WhatsApp.",
       crumbs
     }),
     `    <section class="section">
@@ -1015,7 +1024,7 @@ ${serviceCardsHtml(v)}
       {
         "@id": `${pageUrl}#service-list`,
         "@type": "ItemList",
-        name: "Trattamenti a domicilio proposti da comeleapi",
+        name: "Trattamenti proposti da comeleapi",
         numberOfItems: SERVICE_DEFINITIONS.length,
         itemListElement: SERVICE_DEFINITIONS.map((service, index) => ({
           "@type": "ListItem",
@@ -1025,7 +1034,7 @@ ${serviceCardsHtml(v)}
         }))
       },
       ...organizationNodes(),
-      faqPageNode(pageUrl, servicesHubFaqs, "Domande frequenti sui trattamenti a domicilio comeleapi")
+      faqPageNode(pageUrl, servicesHubFaqs, "Domande frequenti sui trattamenti comeleapi")
     ]
   };
 
@@ -1045,7 +1054,7 @@ function buildServicePage(v, service) {
   // 7 title di 71-85 caratteri con 45 caratteri identici — il caso di "titoli
   // boilerplate" che Google indica esplicitamente come da evitare.
   const title = extra.title;
-  const description = `${service.name} a domicilio a Milano, Bresso e nelle zone limitrofe con Sara Bordenga: ${SERVICE_VISIBLE_PRICES[service.slug]}, ${extra.duration}. Prenotazione semplice su WhatsApp.`;
+  const description = `${service.name} con Sara Bordenga: ${SERVICE_VISIBLE_PRICES[service.slug]}, ${extra.duration}. Prenotazione semplice su WhatsApp.`;
   const crumbs = [
     { name: "Home", path: "/" },
     { name: "Servizi", path: "/servizi/" },
@@ -1068,7 +1077,7 @@ function buildServicePage(v, service) {
   const content = [
     pageHeadHtml({
       eyebrow: "Trattamenti",
-      h1: `${service.name} a domicilio`,
+      h1: `${service.name}`,
       lead: extra.intro[0],
       crumbs
     }),
@@ -1078,7 +1087,7 @@ function buildServicePage(v, service) {
           <div class="service-ic ${SERVICE_ICON_CLASSES[service.slug]}" aria-hidden="true"><img class="generated-icon" src="${v(service.image)}" alt="" loading="lazy" decoding="async" /></div>
           <div>
             <h2>${escapeHtml(service.name)}</h2>
-            <p>${escapeHtml(extra.duration)} &mdash; esclusivamente a domicilio</p>
+            <p>${escapeHtml(extra.duration)} &mdash; su appuntamento</p>
           </div>
           <span class="service-price">${escapeHtml(SERVICE_VISIBLE_PRICES[service.slug])}</span>
         </div>
@@ -1099,7 +1108,7 @@ ${extra.forWho.map((line) => `          <li>${escapeHtml(line)}</li>`).join("\n"
     ...(HIDE_ZONE_PAGES ? [] : [whereSectionHtml]),
     HOW_IT_WORKS_HTML,
     faqSectionHtml(visibleServiceFaqs, `Domande frequenti sul ${service.name.toLowerCase()}`),
-    ctaSectionHtml(`Ciao Sara, vorrei prenotare un ${service.name.toLowerCase()} a domicilio.`)
+    ctaSectionHtml(`Ciao Sara, vorrei prenotare un ${service.name.toLowerCase()}.`)
   ].join("\n\n");
 
   // Stesso @id e stessa url usati dal grafo della home (structured-data.mjs):
@@ -1170,7 +1179,7 @@ ${extra.forWho.map((line) => `          <li>${escapeHtml(line)}</li>`).join("\n"
       breadcrumbNode(pageUrl, crumbs),
       serviceNode,
       ...organizationNodes(),
-      faqPageNode(pageUrl, visibleServiceFaqs, `Domande frequenti sul ${service.name.toLowerCase()} a domicilio`)
+      faqPageNode(pageUrl, visibleServiceFaqs, `Domande frequenti sul ${service.name.toLowerCase()}`)
     ]
   };
 
@@ -1266,7 +1275,7 @@ const TERMS_BODY_HTML = `      <div class="policy-content">
         <p>Le presenti condizioni descrivono l'uso del sito comeleapi.it e le modalità con cui vengono proposti i servizi di <strong>comeleapi - Sara Bordenga</strong>, progetto di benessere con riferimento territoriale a 20091 Bresso (Milano).</p>
 
         <h4>Natura del servizio</h4>
-        <p>comeleapi propone trattamenti di massaggio a scopo di benessere, svolti esclusivamente a domicilio e su appuntamento a Milano, Bresso e nelle zone limitrofe. I trattamenti non hanno finalità sanitarie, non costituiscono prestazioni mediche o fisioterapiche e non sostituiscono il parere di un medico.</p>
+        <p>comeleapi propone trattamenti di massaggio a scopo di benessere, svolti su appuntamento. I trattamenti non hanno finalità sanitarie, non costituiscono prestazioni mediche o fisioterapiche e non sostituiscono il parere di un medico.</p>
 
         <h4>Prenotazioni e appuntamenti</h4>
         <ul class="policy-list">
@@ -1313,7 +1322,7 @@ const LEGAL_PAGE_DEFINITIONS = [
     slug: "termini",
     name: "Termini e condizioni",
     title: "Termini e condizioni | comeleapi",
-    description: "Termini e condizioni d'uso del sito comeleapi: natura dei servizi di massaggio a domicilio, prenotazioni, prezzi e riferimenti sui prodotti Young Living.",
+    description: "Termini e condizioni d'uso del sito comeleapi: natura dei servizi di massaggio, prenotazioni, prezzi e riferimenti sui prodotti Young Living.",
     body: TERMS_BODY_HTML
   }
 ];
