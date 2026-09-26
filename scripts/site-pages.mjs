@@ -1389,9 +1389,9 @@ ${legal.body}
 function buildFaqPage(v) {
   const pagePath = "/faq/";
   const pageUrl = `${SITE_URL}faq/`;
-  const title = "Benessere a domicilio — FAQ | comeleapi";
+  const title = "Benessere e oli essenziali — FAQ | comeleapi";
   const description =
-    "Una coccola solo per te: massaggi e oli essenziali comodamente a casa tua. Trattamenti relax, drenanti e decontratturanti nella zona di Milano e Milano Nord - Bresso, Cusano milanino, Cinisello balsamo e Sesto San Giovanni";
+    "Una coccola solo per te: massaggi relax, drenanti e decontratturanti e oli essenziali Young Living. Qui trovi le risposte alle domande più frequenti su trattamenti, consulenze e prodotti.";
   const crumbs = [
     { name: "Home", path: "/" },
     { name: "FAQ", path: pagePath }
@@ -1402,9 +1402,9 @@ function buildFaqPage(v) {
   const content = [
     pageHeadHtml({
       eyebrow: "",
-      h1: "Benessere a domicilio",
+      h1: "Domande frequenti",
       lead:
-        "Una coccola solo per te: massaggi e oli essenziali comodamente a casa tua. Trattamenti relax, drenanti e decontratturanti nella zona di Milano e Milano Nord - Bresso, Cusano milanino, Cinisello balsamo e Sesto San Giovanni",
+        "Una coccola solo per te: massaggi relax, drenanti e decontratturanti e oli essenziali Young Living. Qui trovi le risposte alle domande più frequenti su trattamenti, consulenze e prodotti.",
       crumbs
     }),
     `    <section class="section faq-section" aria-label="Elenco delle domande frequenti">
@@ -1416,7 +1416,7 @@ ${buildFaqHtml(visibleFaqs)}
     </section>`,
     // "Domande dalle zone" non è nel frontend: i contenuti restano in
     // CITY_CONTENT.faqLocal / getLocalZoneFaqs() per uso interno.
-    ctaSectionHtml("Ciao Sara, ho letto le FAQ e vorrei prenotare un trattamento a domicilio.")
+    ctaSectionHtml("Ciao Sara, ho letto le FAQ e vorrei prenotare un trattamento.")
   ].join("\n\n");
 
   const structuredData = {
@@ -1443,7 +1443,7 @@ ${buildFaqHtml(visibleFaqs)}
       faqPageNode(
         pageUrl,
         visibleFaqs,
-        "Domande frequenti su massaggi a domicilio e oli essenziali — comeleapi"
+        "Domande frequenti su massaggi e oli essenziali — comeleapi"
       )
     ]
   };
