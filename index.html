@@ -409,8 +409,8 @@
     {
       "@id": "https://comeleapi.it/#service-massaggio-relax",
       "@type": "Service",
-      "name": "Massaggio relax",
-      "serviceType": "Massaggio relax",
+      "name": "Massaggio rilassante",
+      "serviceType": "Massaggio rilassante",
       "url": "https://comeleapi.it/#servizi",
       "description": "Servizio di massaggio relax della durata dichiarata di 50 minuti, svolto a domicilio da Sara Bordenga.",
       "image": "https://comeleapi.it/assets/img/icons/icon-relax.webp",
@@ -595,7 +595,7 @@
     {
       "@id": "https://comeleapi.it/#offer-massaggio-sportivo",
       "@type": "Offer",
-      "price": "50.00",
+      "price": "90.00",
       "priceCurrency": "EUR",
       "url": "https://comeleapi.it/#servizi",
       "seller": {
@@ -608,7 +608,7 @@
     {
       "@id": "https://comeleapi.it/#offer-massaggio-decontratturante",
       "@type": "Offer",
-      "price": "50.00",
+      "price": "90.00",
       "priceCurrency": "EUR",
       "url": "https://comeleapi.it/#servizi",
       "seller": {
@@ -1166,8 +1166,8 @@
       </a>
 
       <nav class="nav" id="mainNav" aria-label="Navigazione principale">
-        <a href="#prodotti">Oli</a>
         <a href="#servizi">Trattamenti</a>
+        <a href="#prodotti">Oli</a>
         <a href="#chi-sono">The founder</a>
         <!-- HIDDEN-WHERE-NAV (settembre 2026, codice preservato): <a href="/zone/">Where</a> -->
         <a href="/faq/">Faq</a>
@@ -1197,6 +1197,58 @@
           <h1 class="hero-title">Vola verso il tuo benessere</h1>
           <!-- Sottotitolo non visibile: resta nel DOM per screen reader, motori di ricerca e agenti AI. -->
           <p class="hero-subtitle sr-only">Massaggi e oli essenziali per il tuo benessere</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="servizi">
+      <div class="container">
+        <div class="section-head section-head--center">
+          <span class="eyebrow reveal">Trattamenti</span>
+          <h2 class="section-title reveal" data-delay="1">Un bisogno, non un lusso</h2>
+          <p class="section-lead section-lead--split reveal" data-delay="1">
+            <span>Da sempre le mani parlano: stringono, accarezzano, pregano, amano.</span>
+            <span>Il massaggio nasce da questo linguaggio antico.</span>
+            <span>Un contatto che ascolta il corpo e lo accompagna verso il suo equilibrio.</span>
+          </p>
+        </div>
+
+        <div class="services-grid">
+          <a class="service-card service-card--link reveal" href="/servizi/massaggio-sportivo/">
+            <div class="service-ic service-ic--sport" aria-hidden="true"><img class="generated-icon" src="assets/img/icons/icon-sportivo-arm.webp" alt="" loading="lazy" decoding="async" /></div>
+            <h3>Massaggio sportivo</h3>
+            <span class="service-price">90 €</span>
+          </a>
+          <a class="service-card service-card--link reveal" data-delay="1" href="/servizi/massaggio-decontratturante/">
+            <div class="service-ic service-ic--body" aria-hidden="true"><img class="generated-icon" src="assets/img/icons/icon-decontratturante.webp" alt="" loading="lazy" decoding="async" /></div>
+            <h3>Massaggio decontratturante</h3>
+            <span class="service-price">90 €</span>
+          </a>
+          <a class="service-card service-card--link reveal" data-delay="2" href="/servizi/massaggio-relax/">
+            <div class="service-ic service-ic--calm" aria-hidden="true"><img class="generated-icon" src="assets/img/icons/icon-relax.webp" alt="" loading="lazy" decoding="async" /></div>
+            <h3>Massaggio rilassante</h3>
+            <span class="service-price">80 €</span>
+          </a>
+          <a class="service-card service-card--link reveal" href="/servizi/massaggio-drenante/">
+            <div class="service-ic service-ic--lymph" aria-hidden="true"><img class="generated-icon" src="assets/img/icons/icon-linfodrenante-up.webp?v=20260630-linfo3" alt="" loading="lazy" decoding="async" /></div>
+            <h3>Massaggio drenante</h3>
+            <span class="service-price">50 €</span>
+          </a>
+          <a class="service-card service-card--link reveal" data-delay="1" href="/servizi/trattamento-mirato-30-minuti/">
+            <div class="service-ic service-ic--short" aria-hidden="true"><img class="generated-icon" src="assets/img/icons/icon-mirato-30.webp" alt="" loading="lazy" decoding="async" /></div>
+            <h3 class="service-title--nowrap">Trattamento Mirato 30 minuti</h3>
+            <span class="service-price">50 €</span>
+          </a>
+          <a class="service-card service-card--link reveal" data-delay="2" href="/servizi/kinesio-taping/">
+            <div class="service-ic service-ic--tape" aria-hidden="true"><img class="generated-icon" src="assets/img/icons/icon-kinesio-taping.webp" alt="" loading="lazy" decoding="async" /></div>
+            <h3>Kinesio taping</h3>
+            <span class="service-price">10 €</span>
+          </a>
+          <a class="service-card service-card--link reveal" href="/servizi/massaggio-oli-essenziali/">
+            <div class="service-ic service-ic--oil" aria-hidden="true"><img class="generated-icon" src="assets/img/icons/icon-oli-terapeutici.webp" alt="" loading="lazy" decoding="async" /></div>
+            <h3>Massaggio con oli essenziali</h3>
+            <span class="service-price">70 €</span>
+          </a>
         </div>
       </div>
     </section>
@@ -1456,58 +1508,6 @@
       </div>
     </section>
 
-    <section class="section" id="servizi">
-      <div class="container">
-        <div class="section-head section-head--center">
-          <span class="eyebrow reveal">Trattamenti</span>
-          <h2 class="section-title reveal" data-delay="1">Un bisogno, non un lusso</h2>
-          <p class="section-lead section-lead--split reveal" data-delay="1">
-            <span>Da sempre le mani parlano: stringono, accarezzano, pregano, amano.</span>
-            <span>Il massaggio nasce da questo linguaggio antico.</span>
-            <span>Un contatto che ascolta il corpo e lo accompagna verso il suo equilibrio.</span>
-          </p>
-        </div>
-
-        <div class="services-grid">
-          <a class="service-card service-card--link reveal" href="/servizi/massaggio-sportivo/">
-            <div class="service-ic service-ic--sport" aria-hidden="true"><img class="generated-icon" src="assets/img/icons/icon-sportivo-arm.webp" alt="" loading="lazy" decoding="async" /></div>
-            <h3>Massaggio sportivo</h3>
-            <span class="service-price">50 €</span>
-          </a>
-          <a class="service-card service-card--link reveal" data-delay="1" href="/servizi/massaggio-decontratturante/">
-            <div class="service-ic service-ic--body" aria-hidden="true"><img class="generated-icon" src="assets/img/icons/icon-decontratturante.webp" alt="" loading="lazy" decoding="async" /></div>
-            <h3>Massaggio decontratturante</h3>
-            <span class="service-price">50 €</span>
-          </a>
-          <a class="service-card service-card--link reveal" data-delay="2" href="/servizi/massaggio-relax/">
-            <div class="service-ic service-ic--calm" aria-hidden="true"><img class="generated-icon" src="assets/img/icons/icon-relax.webp" alt="" loading="lazy" decoding="async" /></div>
-            <h3>Massaggio relax</h3>
-            <span class="service-price">40 €</span>
-          </a>
-          <a class="service-card service-card--link reveal" href="/servizi/massaggio-drenante/">
-            <div class="service-ic service-ic--lymph" aria-hidden="true"><img class="generated-icon" src="assets/img/icons/icon-linfodrenante-up.webp?v=20260630-linfo3" alt="" loading="lazy" decoding="async" /></div>
-            <h3>Massaggio drenante</h3>
-            <span class="service-price">50 €</span>
-          </a>
-          <a class="service-card service-card--link reveal" data-delay="1" href="/servizi/trattamento-mirato-30-minuti/">
-            <div class="service-ic service-ic--short" aria-hidden="true"><img class="generated-icon" src="assets/img/icons/icon-mirato-30.webp" alt="" loading="lazy" decoding="async" /></div>
-            <h3 class="service-title--nowrap">Trattamento Mirato 30 minuti</h3>
-            <span class="service-price">30 €</span>
-          </a>
-          <a class="service-card service-card--link reveal" data-delay="2" href="/servizi/kinesio-taping/">
-            <div class="service-ic service-ic--tape" aria-hidden="true"><img class="generated-icon" src="assets/img/icons/icon-kinesio-taping.webp" alt="" loading="lazy" decoding="async" /></div>
-            <h3>Kinesio taping</h3>
-            <span class="service-price">10 €</span>
-          </a>
-          <a class="service-card service-card--link reveal" href="/servizi/massaggio-oli-essenziali/">
-            <div class="service-ic service-ic--oil" aria-hidden="true"><img class="generated-icon" src="assets/img/icons/icon-oli-terapeutici.webp" alt="" loading="lazy" decoding="async" /></div>
-            <h3>Massaggio con oli essenziali</h3>
-            <span class="service-price">70 €</span>
-          </a>
-        </div>
-      </div>
-    </section>
-
     <section class="section slogan-section" aria-labelledby="slogan-title">
       <div class="container">
         <div class="slogan-wrap reveal">
@@ -1623,8 +1623,8 @@
       <div class="footer-col">
         <p class="footer-col-title">Navigazione</p>
         <ul>
-          <li><a href="#prodotti">Oli essenziali</a></li>
           <li><a href="#servizi">Trattamenti</a></li>
+          <li><a href="#prodotti">Oli essenziali</a></li>
           <li><a href="#chi-sono">The founder</a></li>
           <!-- HIDDEN-WHERE-FOOTER (settembre 2026, codice preservato): <li><a href="/zone/">Where</a></li> -->
           <li><a href="/faq/">FAQ</a></li>

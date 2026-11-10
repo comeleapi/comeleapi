@@ -156,11 +156,11 @@ assert(
 // (card home, pagine /servizi/*, FAQ): ognuno deve avere l'Offer corrispondente,
 // così il listino è leggibile anche dai motori e dagli agenti AI.
 const expectedServiceOffers = new Map([
-  ["Massaggio sportivo", "50.00"],
-  ["Massaggio decontratturante", "50.00"],
-  ["Massaggio relax", "40.00"],
+  ["Massaggio sportivo", "90.00"],
+  ["Massaggio decontratturante", "90.00"],
+  ["Massaggio rilassante", "80.00"],
   ["Massaggio drenante", "50.00"],
-  ["Trattamento Mirato 30 minuti", "30.00"],
+  ["Trattamento Mirato 30 minuti", "50.00"],
   ["Kinesio taping", "10.00"],
   ["Massaggio con oli essenziali", "70.00"]
 ]);

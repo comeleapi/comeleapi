@@ -89,8 +89,8 @@ const SERVICE_ICON_CLASSES = {
 // NOTA (settembre 2026): frase riscritta senza "in tutte le zone servite"
 // (originale in git history). Il controllo qui sotto resta invariato.
 const PRICES_SENTENCE =
-  "I prezzi: massaggio sportivo, decontratturante e drenante 50 €, " +
-  "massaggio relax 40 €, trattamento mirato da 30 minuti 30 €, kinesio taping 10 € e massaggio con oli essenziali 70 €.";
+  "I prezzi: massaggio sportivo e decontratturante 90 €, " +
+  "massaggio relax 80 €, massaggio drenante 50 €, trattamento mirato da 30 minuti 50 €, kinesio taping 10 € e massaggio con oli essenziali 70 €.";
 
 // La frase sopra è scritta a mano (raggruppa i trattamenti con lo stesso
 // prezzo, cosa che una generazione automatica renderebbe illeggibile): questo
@@ -254,7 +254,7 @@ const SERVICE_CONTENT = {
     faq: [
       {
         q: "Quanto dura e quanto costa il massaggio sportivo?",
-        a: "La seduta ha una durata dichiarata di 50 minuti e costa 50 €."
+        a: "La seduta ha una durata dichiarata di 50 minuti e costa 90 €."
       },
       {
         q: "Serve attrezzatura da parte mia?",
@@ -267,7 +267,7 @@ const SERVICE_CONTENT = {
     ]
   },
   "massaggio-decontratturante": {
-    title: "Massaggio decontratturante, 50 € | comeleapi",
+    title: "Massaggio decontratturante, 90 € | comeleapi",
     whereNote: "È il trattamento più richiesto da chi pendola su Milano e Sesto San Giovanni e passa la giornata alla scrivania.",
     duration: "50 minuti",
     intro: [
@@ -282,7 +282,7 @@ const SERVICE_CONTENT = {
     faq: [
       {
         q: "Quanto dura e quanto costa il massaggio decontratturante?",
-        a: "La seduta ha una durata dichiarata di 50 minuti e costa 50 €."
+        a: "La seduta ha una durata dichiarata di 50 minuti e costa 90 €."
       },
       {
         q: "Il trattamento è personalizzato?",
@@ -295,7 +295,7 @@ const SERVICE_CONTENT = {
     ]
   },
   "massaggio-relax": {
-    title: "Massaggio relax, 40 € | comeleapi",
+    title: "Massaggio rilassante, 80 € | comeleapi",
     whereNote: "Nelle zone più tranquille — la città giardino di Cusano Milanino, le vie residenziali di Cormano — la seduta serale è la richiesta più frequente.",
     duration: "50 minuti",
     intro: [
@@ -310,7 +310,7 @@ const SERVICE_CONTENT = {
     faq: [
       {
         q: "Quanto dura e quanto costa il massaggio relax?",
-        a: "La seduta ha una durata dichiarata di 50 minuti e costa 40 €."
+        a: "La seduta ha una durata dichiarata di 50 minuti e costa 80 €."
       },
         {
           q: "Come preparo l'ambiente per il massaggio relax?",
@@ -351,7 +351,7 @@ const SERVICE_CONTENT = {
     ]
   },
   "trattamento-mirato-30-minuti": {
-    title: "Trattamento mirato 30 minuti, 30 € | comeleapi",
+    title: "Trattamento mirato 30 minuti, 50 € | comeleapi",
     whereNote: "Mezz'ora è spesso la scelta di chi ha poco tempo in pausa pranzo, soprattutto nelle zone più vicine a Bresso e Cusano Milanino.",
     duration: "30 minuti",
     intro: [
@@ -366,7 +366,7 @@ const SERVICE_CONTENT = {
     faq: [
       {
         q: "Quanto dura e quanto costa il trattamento mirato?",
-        a: "La seduta dura 30 minuti e costa 30 €."
+        a: "La seduta dura 30 minuti e costa 50 €."
       },
       {
         q: "Quali zone si possono trattare in 30 minuti?",
@@ -648,8 +648,8 @@ ${jsonLd(structuredData)}
       </a>
 
       <nav class="nav" id="mainNav" aria-label="Navigazione principale">
-        <a href="/#prodotti">Oli</a>
         <a href="/servizi/">Trattamenti</a>
+        <a href="/#prodotti">Oli</a>
         <a href="/#chi-sono">The founder</a>
         <!-- HIDDEN-WHERE-NAV (settembre 2026, codice preservato): <a href="/zone/">Where</a> -->
         <a href="/faq/">Faq</a>
@@ -688,8 +688,8 @@ ${content}
       <div class="footer-col">
         <p class="footer-col-title">Navigazione</p>
         <ul>
-          <li><a href="/#prodotti">Oli essenziali</a></li>
           <li><a href="/servizi/">Trattamenti</a></li>
+          <li><a href="/#prodotti">Oli essenziali</a></li>
           <li><a href="/#chi-sono">The founder</a></li>
           <!-- HIDDEN-WHERE-FOOTER (settembre 2026, codice preservato): <li><a href="/zone/">Where</a></li> -->
           <li><a href="/faq/">FAQ</a></li>

@@ -38,7 +38,7 @@ export const SERVICE_DEFINITIONS = [
   {
     slug: "massaggio-sportivo",
     name: "Massaggio sportivo",
-    price: "50.00",
+    price: "90.00",
     durationMinutes: 50,
     description: "Servizio di massaggio sportivo della durata dichiarata di 50 minuti con Sara Bordenga.",
     image: "assets/img/icons/icon-sportivo-arm.webp"
@@ -46,15 +46,15 @@ export const SERVICE_DEFINITIONS = [
   {
     slug: "massaggio-decontratturante",
     name: "Massaggio decontratturante",
-    price: "50.00",
+    price: "90.00",
     durationMinutes: 50,
     description: "Servizio di massaggio decontratturante della durata dichiarata di 50 minuti con Sara Bordenga.",
     image: "assets/img/icons/icon-decontratturante.webp"
   },
   {
     slug: "massaggio-relax",
-    name: "Massaggio relax",
-    price: "40.00",
+    name: "Massaggio rilassante",
+    price: "80.00",
     durationMinutes: 50,
     description: "Servizio di massaggio relax della durata dichiarata di 50 minuti con Sara Bordenga.",
     image: "assets/img/icons/icon-relax.webp"
@@ -70,7 +70,7 @@ export const SERVICE_DEFINITIONS = [
   {
     slug: "trattamento-mirato-30-minuti",
     name: "Trattamento Mirato 30 minuti",
-    price: "30.00",
+    price: "50.00",
     durationMinutes: 30,
     description: "Trattamento mirato della durata dichiarata di 30 minuti con Sara Bordenga.",
     image: "assets/img/icons/icon-mirato-30.webp"
@@ -110,7 +110,7 @@ export const FAQ_DEFINITIONS = [
   },
   {
     q: "Quanto costano i trattamenti?",
-    a: "Massaggio sportivo, decontratturante e drenante 50 €, massaggio relax 40 €, trattamento mirato da 30 minuti 30 €, kinesio taping 10 € e massaggio con oli essenziali 70 €. I prezzi sono gli stessi in tutte le zone servite."
+    a: "Massaggio sportivo e decontratturante 90 €, massaggio relax 80 €, massaggio drenante 50 €, trattamento mirato da 30 minuti 50 €, kinesio taping 10 € e massaggio con oli essenziali 70 €. I prezzi sono gli stessi in tutte le zone servite."
   },
   {
     q: "Quanto dura una seduta?",
