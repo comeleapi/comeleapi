@@ -90,7 +90,7 @@ const SERVICE_ICON_CLASSES = {
 // (originale in git history). Il controllo qui sotto resta invariato.
 const PRICES_SENTENCE =
   "I prezzi: massaggio sportivo e decontratturante 90 €, " +
-  "massaggio relax 80 €, massaggio drenante 50 €, trattamento mirato da 30 minuti 50 €, kinesio taping 10 € e massaggio con oli essenziali 70 €.";
+  "massaggio relax 80 €, massaggio drenante 80 €, trattamento mirato da 30 minuti 50 €, kinesio taping 10 € e massaggio con oli essenziali 120 €.";
 
 // La frase sopra è scritta a mano (raggruppa i trattamenti con lo stesso
 // prezzo, cosa che una generazione automatica renderebbe illeggibile): questo
@@ -338,7 +338,7 @@ const SERVICE_CONTENT = {
     faq: [
       {
         q: "Quanto dura e quanto costa il massaggio drenante?",
-        a: "La seduta ha una durata dichiarata di 50 minuti e costa 50 €."
+        a: "La seduta ha una durata dichiarata di 50 minuti e costa 80 €."
       },
       {
         q: "Con quale frequenza si riceve il massaggio drenante?",
@@ -407,7 +407,7 @@ const SERVICE_CONTENT = {
     ]
   },
   "massaggio-oli-essenziali": {
-    title: "Massaggio con oli essenziali, 70 € | comeleapi",
+    title: "Massaggio con oli essenziali, 120 € | comeleapi",
     whereNote: "È la seduta più lunga e vale la pena scegliere un orario senza impegni subito dopo, in qualunque zona servita.",
     duration: "seduta completa",
     intro: [
@@ -422,7 +422,7 @@ const SERVICE_CONTENT = {
     faq: [
       {
         q: "Quanto costa il massaggio con oli essenziali?",
-        a: "La seduta costa 70 €. Gli oli essenziali utilizzati sono inclusi."
+        a: "La seduta costa 120 €. Gli oli essenziali utilizzati sono inclusi."
       },
       {
         q: "Posso scegliere gli oli essenziali?",

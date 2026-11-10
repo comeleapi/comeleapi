@@ -159,10 +159,10 @@ const expectedServiceOffers = new Map([
   ["Massaggio sportivo", "90.00"],
   ["Massaggio decontratturante", "90.00"],
   ["Massaggio rilassante", "80.00"],
-  ["Massaggio drenante", "50.00"],
+  ["Massaggio drenante", "80.00"],
   ["Trattamento Mirato 30 minuti", "50.00"],
   ["Kinesio taping", "10.00"],
-  ["Massaggio con oli essenziali", "70.00"]
+  ["Massaggio con oli essenziali", "120.00"]
 ]);
 const serviceCatalog = nodesByType("OfferCatalog")[0];
 assert(serviceCatalog.numberOfItems === expectedServiceOffers.size, "JSON-LD: numero offerte nel catalogo servizi errato");

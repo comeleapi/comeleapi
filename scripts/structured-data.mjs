@@ -62,7 +62,7 @@ export const SERVICE_DEFINITIONS = [
   {
     slug: "massaggio-drenante",
     name: "Massaggio drenante",
-    price: "50.00",
+    price: "80.00",
     durationMinutes: 50,
     description: "Servizio di massaggio drenante della durata dichiarata di 50 minuti con Sara Bordenga.",
     image: "assets/img/icons/icon-linfodrenante-up.webp"
@@ -85,7 +85,7 @@ export const SERVICE_DEFINITIONS = [
   {
     slug: "massaggio-oli-essenziali",
     name: "Massaggio con oli essenziali",
-    price: "70.00",
+    price: "120.00",
     description: "Servizio di massaggio con oli essenziali con Sara Bordenga.",
     image: "assets/img/icons/icon-oli-terapeutici.webp"
   }
@@ -110,7 +110,7 @@ export const FAQ_DEFINITIONS = [
   },
   {
     q: "Quanto costano i trattamenti?",
-    a: "Massaggio sportivo e decontratturante 90 €, massaggio relax 80 €, massaggio drenante 50 €, trattamento mirato da 30 minuti 50 €, kinesio taping 10 € e massaggio con oli essenziali 70 €. I prezzi sono gli stessi in tutte le zone servite."
+    a: "Massaggio sportivo e decontratturante 90 €, massaggio relax 80 €, massaggio drenante 80 €, trattamento mirato da 30 minuti 50 €, kinesio taping 10 € e massaggio con oli essenziali 120 €. I prezzi sono gli stessi in tutte le zone servite."
   },
   {
     q: "Quanto dura una seduta?",
