@@ -342,8 +342,8 @@ function buildHeadersFile() {
     "img-src 'self' data: https:",
     "font-src 'self'",
     "style-src 'self' 'unsafe-inline'",
-    "script-src 'self'",
-    "connect-src 'self'",
+    "script-src 'self' https://static.cloudflareinsights.com",
+    "connect-src 'self' https://cloudflareinsights.com",
     "require-trusted-types-for 'script'",
     "trusted-types comeleapi",
     "upgrade-insecure-requests"

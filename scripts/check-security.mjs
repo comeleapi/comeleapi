@@ -84,7 +84,7 @@ assert(!index.includes("Access-Control-Allow-Origin") && !lib.includes("Access-C
 assert(lib.includes('headers.set("X-Frame-Options", "DENY")'), "Sicurezza: X-Frame-Options DENY mancante nel Worker");
 assert(lib.includes('headers.set("X-Content-Type-Options", "nosniff")'), "Sicurezza: X-Content-Type-Options mancante nel Worker");
 assert(lib.includes("Strict-Transport-Security"), "Sicurezza: HSTS mancante nel Worker");
-assert(lib.includes('"connect-src \'self\'"'), "Sicurezza: connect-src deve essere 'self' (nessun backend esterno)");
+assert(lib.includes('"connect-src \'self\' https://cloudflareinsights.com"'), "Sicurezza: connect-src deve consentire solo 'self' e Cloudflare Web Analytics");
 assert(lib.includes('SameSite=${options.sameSite || "Lax"}'), "Sicurezza: cookie SameSite=Lax mancante");
 assert(lib.includes('pieces.push("HttpOnly")'), "Sicurezza: cookie HttpOnly mancante");
 
@@ -115,7 +115,7 @@ for (const table of ["products", "leads", "users", "push_subscriptions", "sessio
 assert(buildSite.includes("buildHeadersFile") && buildSite.includes('writeFile(path.join(OUT, "_headers")'), "Build: generazione _headers mancante");
 assert(buildSite.includes("buildRedirectsFile") && buildSite.includes('writeFile(path.join(OUT, "_redirects")'), "Build: generazione _redirects mancante");
 assert(buildSite.includes('writeFile(path.join(OUT, "404.html")'), "Build: generazione 404.html mancante");
-assert(buildSite.includes('"connect-src \'self\'"'), "Build: CSP degli static assets deve avere connect-src 'self'");
+assert(buildSite.includes('"connect-src \'self\' https://cloudflareinsights.com"'), "Build: CSP degli static assets deve consentire solo 'self' e Cloudflare Web Analytics");
 assert(buildSite.includes("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload"), "Build: HSTS negli static assets mancante");
 assert(buildSite.includes("require-trusted-types-for 'script'"), "Build: Trusted Types nella CSP degli static assets mancante");
 

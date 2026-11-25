@@ -121,11 +121,11 @@ export function withSecurityHeaders(response, secure) {
       "object-src 'none'",
       "frame-ancestors 'none'",
       "form-action 'self'",
-      "script-src 'self'",
+      "script-src 'self' https://static.cloudflareinsights.com",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: https:",
-      "connect-src 'self'",
+      "connect-src 'self' https://cloudflareinsights.com",
       "manifest-src 'self'",
       "worker-src 'self'"
     ].join("; ")
